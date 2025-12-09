@@ -90,95 +90,95 @@ export const clearError = createAction('[Profile] Clear Error');
 export const profileReducer = createReducer(
   initialProfileState,
 
-  on(loadProfile, (state) => ({
+  on(loadProfile, (state: ProfileState) => ({
     ...state,
     loading: true,
     error: null,
   })),
 
-  on(loadProfileSuccess, (state, { profile }) => ({
+  on(loadProfileSuccess, (state: ProfileState, { profile }: { profile: UserProfile }) => ({
     ...state,
     profile,
     loading: false,
   })),
 
-  on(loadProfileFailure, (state, { error }) => ({
+  on(loadProfileFailure, (state: ProfileState, { error }: { error: string }) => ({
     ...state,
     loading: false,
     error,
   })),
 
-  on(updateProfile, (state) => ({
+  on(updateProfile, (state: ProfileState) => ({
     ...state,
     loading: true,
     error: null,
   })),
 
-  on(updateProfileSuccess, (state, { profile }) => ({
+  on(updateProfileSuccess, (state: ProfileState, { profile }: { profile: UserProfile }) => ({
     ...state,
     profile,
     loading: false,
   })),
 
-  on(updateProfileFailure, (state, { error }) => ({
+  on(updateProfileFailure, (state: ProfileState, { error }: { error: string }) => ({
     ...state,
     loading: false,
     error,
   })),
 
-  on(changePassword, (state) => ({
+  on(changePassword, (state: ProfileState) => ({
     ...state,
     loading: true,
     error: null,
   })),
 
-  on(changePasswordSuccess, (state) => ({
+  on(changePasswordSuccess, (state: ProfileState) => ({
     ...state,
     loading: false,
   })),
 
-  on(changePasswordFailure, (state, { error }) => ({
+  on(changePasswordFailure, (state: ProfileState, { error }: { error: string }) => ({
     ...state,
     loading: false,
     error,
   })),
 
-  on(uploadAvatar, (state) => ({
+  on(uploadAvatar, (state: ProfileState) => ({
     ...state,
     loading: true,
     error: null,
   })),
 
-  on(uploadAvatarSuccess, (state, { profile }) => ({
+  on(uploadAvatarSuccess, (state: ProfileState, { profile }: { profile: UserProfile }) => ({
     ...state,
     profile,
     loading: false,
   })),
 
-  on(uploadAvatarFailure, (state, { error }) => ({
+  on(uploadAvatarFailure, (state: ProfileState, { error }: { error: string }) => ({
     ...state,
     loading: false,
     error,
   })),
 
-  on(deleteAccount, (state) => ({
+  on(deleteAccount, (state: ProfileState) => ({
     ...state,
     loading: true,
     error: null,
   })),
 
-  on(deleteAccountSuccess, (state) => ({
+  on(deleteAccountSuccess, (state: ProfileState) => ({
     ...state,
     loading: false,
   })),
 
-  on(deleteAccountFailure, (state, { error }) => ({
+  on(deleteAccountFailure, (state: ProfileState, { error }: { error: string }) => ({
     ...state,
     loading: false,
     error,
   })),
 
-  on(clearError, (state) => ({
+  on(clearError, (state: ProfileState) => ({
     ...state,
     error: null,
   }))

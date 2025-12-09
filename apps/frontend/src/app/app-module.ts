@@ -1,4 +1,4 @@
-import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
@@ -78,7 +78,6 @@ import { SongGenerationEffects } from './store/song-generation/song-generation.e
     }),
   ],
   providers: [
-    provideBrowserGlobalErrorListeners(),
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

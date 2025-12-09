@@ -20,24 +20,24 @@ import {
   clearHistory,
   clearError,
 } from './song-generation.actions';
-import { initialSongGenerationState } from './song-generation.state';
+import { initialSongGenerationState, SongGenerationState, SongGenerationResult, SongMetadata, GenerationProgress } from './song-generation.state';
 
 export const songGenerationReducer = createReducer(
   initialSongGenerationState,
 
   // Form actions
-  on(updateFormData, (state, { formData }) => ({
+  on(updateFormData, (state: SongGenerationState, { formData }: { formData: Partial<SongGenerationState['formData']> }) => ({
     ...state,
     formData: { ...state.formData, ...formData },
   })),
 
-  on(resetForm, (state) => ({
+  on(resetForm, (state: SongGenerationState) => ({
     ...state,
     formData: initialSongGenerationState.formData,
   })),
 
   // Metadata generation
-  on(generateMetadata, (state, { narrative, duration, model }) => ({
+  on(generateMetadata, (state: SongGenerationState, { narrative, duration, model }: { narrative: string; duration: number; model: string }) => ({
     ...state,
     loading: true,
     error: null,
@@ -46,17 +46,17 @@ export const songGenerationReducer = createReducer(
       stage: 'generating-metadata',
       progress: 0,
       message: 'Generating song metadata...',
-    },
+    } as GenerationProgress,
   })),
 
-  on(generateMetadataSuccess, (state, { metadata }) => ({
+  on(generateMetadataSuccess, (state: SongGenerationState, { metadata }: { metadata: SongMetadata }) => ({
     ...state,
     loading: false,
     progress: {
       stage: 'idle',
       progress: 100,
       message: 'Metadata generated successfully',
-    },
+    } as GenerationProgress,
     formData: {
       ...state.formData,
       genre: metadata.genre,
@@ -64,7 +64,7 @@ export const songGenerationReducer = createReducer(
     },
   })),
 
-  on(generateMetadataFailure, (state, { error }) => ({
+  on(generateMetadataFailure, (state: SongGenerationState, { error }: { error: string }) => ({
     ...state,
     loading: false,
     error,
@@ -72,11 +72,11 @@ export const songGenerationReducer = createReducer(
       stage: 'error',
       progress: 0,
       message: `Failed to generate metadata: ${error}`,
-    },
+    } as GenerationProgress,
   })),
 
   // Song generation
-  on(generateSong, (state, { narrative, duration, model }) => ({
+  on(generateSong, (state: SongGenerationState, { narrative, duration, model }: { narrative: string; duration: number; model: string }) => ({
     ...state,
     loading: true,
     error: null,
@@ -85,10 +85,10 @@ export const songGenerationReducer = createReducer(
       stage: 'generating-song',
       progress: 0,
       message: 'Generating song...',
-    },
+    } as GenerationProgress,
   })),
 
-  on(generateSongSuccess, (state, { result }) => ({
+  on(generateSongSuccess, (state: SongGenerationState, { result }: { result: SongGenerationResult }) => ({
     ...state,
     loading: false,
     currentResult: result,
@@ -96,10 +96,10 @@ export const songGenerationReducer = createReducer(
       stage: 'complete',
       progress: 100,
       message: 'Song generated successfully',
-    },
+    } as GenerationProgress,
   })),
 
-  on(generateSongFailure, (state, { error }) => ({
+  on(generateSongFailure, (state: SongGenerationState, { error }: { error: string }) => ({
     ...state,
     loading: false,
     error,
@@ -107,38 +107,38 @@ export const songGenerationReducer = createReducer(
       stage: 'error',
       progress: 0,
       message: `Failed to generate song: ${error}`,
-    },
+    } as GenerationProgress,
   })),
 
   // Progress tracking
-  on(updateProgress, (state, { progress }) => ({
+  on(updateProgress, (state: SongGenerationState, { progress }: { progress: GenerationProgress }) => ({
     ...state,
     progress,
   })),
 
-  on(resetProgress, (state) => ({
+  on(resetProgress, (state: SongGenerationState) => ({
     ...state,
     progress: initialSongGenerationState.progress,
   })),
 
   // Result management
-  on(clearCurrentResult, (state) => ({
+  on(clearCurrentResult, (state: SongGenerationState) => ({
     ...state,
     currentResult: null,
   })),
 
-  on(addToHistory, (state, { result }) => ({
+  on(addToHistory, (state: SongGenerationState, { result }: { result: SongGenerationResult }) => ({
     ...state,
     history: [result, ...state.history].slice(0, 10), // Keep last 10 results
   })),
 
-  on(clearHistory, (state) => ({
+  on(clearHistory, (state: SongGenerationState) => ({
     ...state,
     history: [],
   })),
 
   // Error handling
-  on(clearError, (state) => ({
+  on(clearError, (state: SongGenerationState) => ({
     ...state,
     error: null,
   }))

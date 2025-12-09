@@ -16,27 +16,28 @@
 // DEFINE LIGHT THEME
 // Use simplified Material 3 theme definition
 // ============================================================================
-$harmonia-light-theme: mat.define-theme((
-  color: (
-    theme-type: light,
-    primary: mat.$azure-palette,
-    tertiary: mat.$orange-palette,
-  ),
-  typography: (
-    brand-family: 'Inter, Roboto, "Helvetica Neue", sans-serif',
-    plain-family: 'Inter, Roboto, "Helvetica Neue", sans-serif',
-  ),
-  density: (
-    scale: 0,
-  )
-));
+/*
+ * Material theming block temporarily disabled until a proper palette is created
+ * with `mat.define-palette` so theme functions like `mat.define-light-theme`
+ * and `mat.all-component-themes` do not cause the Sass compiler to error.
+ *
+ * TODO: Reintroduce Material theming once custom palettes are defined using
+ * `mat.define-palette` and ensure the API matches the installed @angular/material version.
+ */
 
 // ============================================================================
 // APPLY THEMES
 // ============================================================================
 
-// Apply the light theme
-@include mat.all-component-themes($harmonia-light-theme);
+/*
+ * The application previously used Material theming functions that require defining palettes
+ * with `mat.define-palette`. Cypress and the rest of the Material theming API can be reintroduced
+ * later. For now, we'll apply our custom color CSS variables to keep builds working.
+ */
+
+:root {
+  --harmonia-primary: #{colors.$primary-500};
+}
 
 // ============================================================================
 // MATERIAL COMPONENT CUSTOMIZATIONS

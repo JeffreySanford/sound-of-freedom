@@ -50,7 +50,7 @@
 
           <div class="profile-info">
             <h2>{{ profile.displayName || profile.username }}</h2>
-            <p class="username">@{{ profile.username }}</p>
+            <p class="username">{{ '@' + profile.username }}</p>
             <p class="email">{{ profile.email }}</p>
             <p class="bio" *ngIf="profile.bio">{{ profile.bio }}</p>
             <div class="stats-grid">

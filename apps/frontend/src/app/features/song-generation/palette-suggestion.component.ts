@@ -140,11 +140,13 @@ export class PaletteSuggestionComponent {
    * Toggle instrument selection
    */
   toggleInstrument(index: number): void {
-    if (this.instrumentSelections[index]) {
-      this.instrumentSelections[index].selected = !this.instrumentSelections[index].selected;
-      this.instrumentSelections[index].userOverride = true;
-      this.emitModifiedPalette();
+    const selection = this.instrumentSelections[index];
+    if (!selection) {
+      return;
     }
+    selection.selected = !selection.selected;
+    selection.userOverride = true;
+    this.emitModifiedPalette();
   }
 
   /**

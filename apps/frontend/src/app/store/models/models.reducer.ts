@@ -29,81 +29,81 @@ export const modelsReducer = createReducer(
   initialModelsState,
 
   // Load models
-  on(ModelsActions.loadModels, (state) => ({
+  on(ModelsActions.loadModels, (state: ModelsState) => ({
     ...state,
     loading: true,
     error: null,
   })),
 
-  on(ModelsActions.loadModelsSuccess, (state, { models }) =>
+  on(ModelsActions.loadModelsSuccess, (state: ModelsState, { models }: { models: ModelArtifact[] }) =>
     modelsAdapter.setAll(models, {
       ...state,
       loading: false,
     })
   ),
 
-  on(ModelsActions.loadModelsFailure, (state, { error }) => ({
+  on(ModelsActions.loadModelsFailure, (state: ModelsState, { error }: { error: string }) => ({
     ...state,
     loading: false,
     error,
   })),
 
   // Load single model
-  on(ModelsActions.loadModel, (state) => ({
+  on(ModelsActions.loadModel, (state: ModelsState) => ({
     ...state,
     loading: true,
   })),
 
-  on(ModelsActions.loadModelSuccess, (state, { model }) =>
+  on(ModelsActions.loadModelSuccess, (state: ModelsState, { model }: { model: ModelArtifact }) =>
     modelsAdapter.upsertOne(model, {
       ...state,
       loading: false,
     })
   ),
 
-  on(ModelsActions.loadModelFailure, (state, { error }) => ({
+  on(ModelsActions.loadModelFailure, (state: ModelsState, { error }: { error: string }) => ({
     ...state,
     loading: false,
     error,
   })),
 
   // Select/deselect model
-  on(ModelsActions.selectModel, (state, { id }) => ({
+  on(ModelsActions.selectModel, (state: ModelsState, { id }: { id: string }) => ({
     ...state,
     selectedModelId: id,
   })),
 
-  on(ModelsActions.deselectModel, (state) => ({
+  on(ModelsActions.deselectModel, (state: ModelsState) => ({
     ...state,
     selectedModelId: null,
   })),
 
   // Create model
-  on(ModelsActions.createModel, (state) => ({
+  on(ModelsActions.createModel, (state: ModelsState) => ({
     ...state,
     loading: true,
   })),
 
-  on(ModelsActions.createModelSuccess, (state, { model }) =>
+  on(ModelsActions.createModelSuccess, (state: ModelsState, { model }: { model: ModelArtifact }) =>
     modelsAdapter.addOne(model, {
       ...state,
       loading: false,
     })
   ),
 
-  on(ModelsActions.createModelFailure, (state, { error }) => ({
+  on(ModelsActions.createModelFailure, (state: ModelsState, { error }: { error: string }) => ({
     ...state,
     loading: false,
     error,
   })),
 
   // Update model
-  on(ModelsActions.updateModel, (state) => ({
+  on(ModelsActions.updateModel, (state: ModelsState) => ({
     ...state,
     loading: true,
   })),
 
-  on(ModelsActions.updateModelSuccess, (state, { model }) =>
+  on(ModelsActions.updateModelSuccess, (state: ModelsState, { model }: { model: ModelArtifact }) =>
     modelsAdapter.updateOne(
       { id: model.id, changes: model },
       {
@@ -113,48 +113,48 @@ export const modelsReducer = createReducer(
     )
   ),
 
-  on(ModelsActions.updateModelFailure, (state, { error }) => ({
+  on(ModelsActions.updateModelFailure, (state: ModelsState, { error }: { error: string }) => ({
     ...state,
     loading: false,
     error,
   })),
 
   // Delete model
-  on(ModelsActions.deleteModel, (state) => ({
+  on(ModelsActions.deleteModel, (state: ModelsState) => ({
     ...state,
     loading: true,
   })),
 
-  on(ModelsActions.deleteModelSuccess, (state, { id }) =>
+  on(ModelsActions.deleteModelSuccess, (state: ModelsState, { id }: { id: string }) =>
     modelsAdapter.removeOne(id, {
       ...state,
       loading: false,
     })
   ),
 
-  on(ModelsActions.deleteModelFailure, (state, { error }) => ({
+  on(ModelsActions.deleteModelFailure, (state: ModelsState, { error }: { error: string }) => ({
     ...state,
     loading: false,
     error,
   })),
 
   // Filters
-  on(ModelsActions.setSearchFilter, (state, { search }) => ({
+  on(ModelsActions.setSearchFilter, (state: ModelsState, { search }: { search: string }) => ({
     ...state,
     filters: { ...state.filters, search },
   })),
 
-  on(ModelsActions.setTypeFilter, (state, { modelType }) => ({
+  on(ModelsActions.setTypeFilter, (state: ModelsState, { modelType }: { modelType: string | null }) => ({
     ...state,
     filters: { ...state.filters, modelType },
   })),
 
-  on(ModelsActions.setTagsFilter, (state, { tags }) => ({
+  on(ModelsActions.setTagsFilter, (state: ModelsState, { tags }: { tags: string[] }) => ({
     ...state,
     filters: { ...state.filters, tags },
   })),
 
-  on(ModelsActions.clearFilters, (state) => ({
+  on(ModelsActions.clearFilters, (state: ModelsState) => ({
     ...state,
     filters: { search: '', modelType: null, tags: [] },
   }))
