@@ -54,7 +54,7 @@
             <p class="email">{{ profile.email }}</p>
             <p class="bio" *ngIf="profile.bio">{{ profile.bio }}</p>
             <div class="stats-grid">
-              <div *ngFor="let stat of getStats(profile)" class="stat-item">
+              <div *ngFor="let stat of stats" class="stat-item">
                 <span class="stat-value">{{ stat.value }}</span>
                 <span class="stat-label">{{ stat.label }}</span>
               </div>

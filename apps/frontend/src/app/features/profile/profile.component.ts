@@ -66,9 +66,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.store.dispatch(ProfileActions.loadProfile());
 
     // Subscribe to profile changes
-    this.profile$.pipe(takeUntil(this.destroy$)).subscribe((profile) => {
-      if (profile) {
-        this.updateForms(profile);
+      this.profile$.pipe(takeUntil(this.destroy$)).subscribe((profile) => {
+        if (profile) {
+          this.updateForms(profile);
+          this.stats = this.getStats(profile);
       }
     });
 
@@ -183,6 +184,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
       },
     ];
   }
+  
+    // Local (computed) stats for template iteration (avoid template method calls)
+    stats: Array<{ label: string; value: number | string }> = [];
 
   private initializeForms(): void {
     this.profileForm = this.fb.group({
