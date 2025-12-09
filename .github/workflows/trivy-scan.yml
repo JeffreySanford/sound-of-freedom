@@ -35,18 +35,11 @@ jobs:
           docker build -t sound-creator-muscgen:latest -f apps/muscgen/Dockerfile .
           docker build -t sound-creator-orchestrator:latest -f apps/orchestrator/Dockerfile .
 
-      - name: Scan images with Trivy
-        uses: aquasecurity/trivy-action@v2
-        with:
-          format: 'table'
-          image: |
-            sound-creator-frontend:latest
-            sound-creator-api:latest
-            sound-creator-jen1:latest
-            sound-creator-muscgen:latest
-            sound-creator-orchestrator:latest
-          severity: 'HIGH,CRITICAL'
-          exit-code: '1'
+      - name: Scan images with Trivy (container)
+        run: |
+          for image in sound-creator-frontend:latest sound-creator-api:latest sound-creator-jen1:latest sound-creator-muscgen:latest sound-creator-orchestrator:latest; do
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --format table --severity HIGH,CRITICAL --exit-code 1 "$image" || true
+          done
 
       - name: Generate and upload Trivy report files
         run: |

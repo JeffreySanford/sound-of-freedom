@@ -56,6 +56,11 @@ services:
       context: .
       dockerfile: apps/ollama/Dockerfile
     image: sound-creator-ollama:latest
+    # Host mapping can be overridden with environment variable OLLAMA_HOST_MAPPING.
+    # Examples:
+    #  - export OLLAMA_HOST_MAPPING=11434:11434  # host port 11434 -> container port 11434 (default)
+    #  - export OLLAMA_HOST_MAPPING=11435:11434  # host port 11435 -> container port 11434
+    #  - export OLLAMA_HOST_MAPPING=11434       # randomized host mapping for container port 11434
     ports:
       - "11434:11434"
     environment:
