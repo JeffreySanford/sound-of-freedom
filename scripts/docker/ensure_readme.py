@@ -1,4 +1,6 @@
-# Docker Compose helper scripts
+from pathlib import Path
+
+text = '''# Docker Compose helper scripts
 
 Small helper scripts to simplify local development with Docker Compose for the sound-creator stack.
 
@@ -27,3 +29,7 @@ export OLLAMA_HOST_MAPPING=11434:11434
 
 - `compose-up.sh` runs `compose-cleanup.sh` by default; set `SKIP_CLEANUP=1` to skip.
 - If a non-docker process binds the chosen host port, `compose-up.sh` will abort and print process info so you can free the port.
+'''
+
+Path('scripts/docker/README.md').write_text(text, encoding='utf-8')
+print('Wrote scripts/docker/README.md')
