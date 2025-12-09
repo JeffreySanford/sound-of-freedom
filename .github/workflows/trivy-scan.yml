@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - master
   pull_request:
     branches:
       - main
+      - master
 
 jobs:
   trivy-scan:
@@ -46,8 +48,15 @@ jobs:
           severity: 'HIGH,CRITICAL'
           exit-code: '1'
 
-      - name: Upload Trivy report
+      - name: Generate and upload Trivy report files
+        run: |
+          for image in sound-creator-frontend:latest sound-creator-api:latest sound-creator-jen1:latest sound-creator-muscgen:latest sound-creator-orchestrator:latest; do
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --format table --severity HIGH,CRITICAL --quiet "$image" > "/tmp/$(echo $image | tr ':' '-')-trivy.txt" || true
+          ; done
+        continue-on-error: true
+
+      - name: Upload Trivy reports
         uses: actions/upload-artifact@v4
         with:
           name: trivy-report
-          path: trivy-report.txt
+          path: /tmp/*-trivy.txt

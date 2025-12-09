@@ -25,7 +25,7 @@ RUN corepack enable || true
 # - Build a minimal wrapper around the Ollama server binary and expose a management API
 
 WORKDIR /app
-COPY ./entrypoint.sh /app/entrypoint.sh
+COPY apps/ollama/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 EXPOSE 11434

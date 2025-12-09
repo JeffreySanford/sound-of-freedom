@@ -68,9 +68,11 @@ export function mapResponseForModel(
   // Match by prefix or exact name for flexibility
   const lower = model.toLowerCase();
   // Try exact
-  if (modelMappers[model]) return modelMappers[model](raw);
+  const exactMapper = modelMappers[model];
+  if (exactMapper) return exactMapper(raw);
   // Try lower-case key
-  if (modelMappers[lower]) return modelMappers[lower](raw);
+  const lowerMapper = modelMappers[lower];
+  if (lowerMapper) return lowerMapper(raw);
   // Try prefix match
   for (const key of Object.keys(modelMappers)) {
     const mapper = modelMappers[key];
