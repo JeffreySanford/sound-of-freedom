@@ -4,9 +4,14 @@ Small helper scripts to simplify local development with Docker Compose for the s
 
 ## Scripts
 
-- `compose-up.sh` — Start the stack and optionally map the host port for Ollama using `OLLAMA_HOST_MAPPING` (format: `<host-port>:11434`), or set `OLLAMA_RANDOMIZE=1` to let Docker choose a host.
+- `compose-up.sh` — Start the stack.
 - `compose-down.sh` — Stop the stack via `docker compose down`.
 - `compose-cleanup.sh` — Remove local containers and images created by the stack (use with caution).
+
+Options:
+
+- Use `OLLAMA_HOST_MAPPING` to override host mapping, e.g. `export OLLAMA_HOST_MAPPING=11434:11434`.
+- Set `OLLAMA_RANDOMIZE=1` to let Docker choose an ephemeral host port for Ollama.
 
 ## Usage
 
