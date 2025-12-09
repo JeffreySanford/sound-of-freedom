@@ -2,26 +2,28 @@
 
 ## Overview
 
-Harmonia includes automated MongoDB backup scripts that create daily compressed archives using `mongodump`. Backups are retained for 7 days and stored in `backups/mongo/`.
+Harmonia includes automated MongoDB backup scripts that create daily compressed archives using `mongodump`. Backups are
+retained for 7 days and stored in `backups/mongo/`.
 
-**Note**: This guide assumes you're using native MongoDB (Windows Service) as per the production setup. If you're using Docker MongoDB, see `docs/I9_MONGODB_INSTALL.md` for Docker-specific backup instructions.
+**Note**: This guide assumes you're using native MongoDB (Windows Service) as per the production setup. If you're using
+Docker MongoDB, see `docs/I9_MONGODB_INSTALL.md` for Docker-specific backup instructions.
 
 ## Features
 
-* **Daily automated backups** at 2:00 AM
-* **Compressed archives** using gzip (`.archive.gz` format)
-* **7-day retention** (older backups automatically deleted)
-* **Disaster recovery seeds** (JSON exports for lightweight restore)
-* **Native MongoDB** (Windows Service on port 27017)
-* **Cross-platform** (Windows Task Scheduler or Linux/WSL cron)
+- **Daily automated backups** at 2:00 AM
+- **Compressed archives** using gzip (`.archive.gz` format)
+- **7-day retention** (older backups automatically deleted)
+- **Disaster recovery seeds** (JSON exports for lightweight restore)
+- **Native MongoDB** (Windows Service on port 27017)
+- **Cross-platform** (Windows Task Scheduler or Linux/WSL cron)
 
 ## Prerequisites
 
-* Native MongoDB service running (`Get-Service MongoDB` in PowerShell)
-* `.env` file with `MONGO_ROOT_PASSWORD` and `MONGO_HARMONIA_PASSWORD` set
-* MongoDB credentials configured (see `docs/MONGODB_SECURITY.md`)
-* Bash shell (Git Bash or WSL on Windows)
-* Administrator privileges (Windows) or sudo access (Linux)
+- Native MongoDB service running (`Get-Service MongoDB` in PowerShell)
+- `.env` file with `MONGO_ROOT_PASSWORD` and `MONGO_HARMONIA_PASSWORD` set
+- MongoDB credentials configured (see `docs/MONGODB_SECURITY.md`)
+- Bash shell (Git Bash or WSL on Windows)
+- Administrator privileges (Windows) or sudo access (Linux)
 
 ## Setup Options
 
@@ -179,7 +181,7 @@ The backup script (`scripts/backup-mongo.sh`) performs:
 
 ## Troubleshooting
 
-### Backup fails with "Error: MONGO\_ROOT\_PASSWORD not set"
+### Backup fails with "Error: MONGO_ROOT_PASSWORD not set"
 
 Ensure `.env` file exists in repository root and contains:
 
@@ -235,23 +237,23 @@ Production:        ~7 GB (7 × 1 GB)
 
 **Recommendation:** Monitor `backups/mongo/` directory size. If exceeding 10 GB, consider:
 
-* Reducing retention to 3-5 days
-* Moving older backups to cloud storage (AWS S3, Azure Blob)
-* Implementing incremental backups
+- Reducing retention to 3-5 days
+- Moving older backups to cloud storage (AWS S3, Azure Blob)
+- Implementing incremental backups
 
 ## Security Notes
 
-* Backups contain **sensitive data** (user info, API keys, model metadata)
-* `.env` file with `MONGO_ROOT_PASSWORD` should **never** be committed to Git
-* Backup archives should be **encrypted** if stored off-site
-* Consider using MongoDB Atlas backups for production environments
+- Backups contain **sensitive data** (user info, API keys, model metadata)
+- `.env` file with `MONGO_ROOT_PASSWORD` should **never** be committed to Git
+- Backup archives should be **encrypted** if stored off-site
+- Consider using MongoDB Atlas backups for production environments
 
 ## Cloud Backup Strategy
 
 For production deployments, see:
 
-* `docs/CLOUD_SYNC_STRATEGY.md` - Cloud storage integration
-* `docs/DISASTER_RECOVERY.md` - Comprehensive recovery procedures
+- `docs/CLOUD_SYNC_STRATEGY.md` - Cloud storage integration
+- `docs/DISASTER_RECOVERY.md` - Comprehensive recovery procedures
 
 ## Next Steps
 
@@ -264,7 +266,7 @@ For production deployments, see:
 
 ## References
 
-* [MongoDB Backup Methods](https://www.mongodb.com/docs/manual/core/backups/)
-* [mongodump Documentation](https://www.mongodb.com/docs/database-tools/mongodump/)
-* [Windows Task Scheduler Guide](https://learn.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-start-page)
-* [Cron Schedule Expressions](https://crontab.guru/)
+- [MongoDB Backup Methods](https://www.mongodb.com/docs/manual/core/backups/)
+- [mongodump Documentation](https://www.mongodb.com/docs/database-tools/mongodump/)
+- [Windows Task Scheduler Guide](https://learn.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-start-page)
+- [Cron Schedule Expressions](https://crontab.guru/)

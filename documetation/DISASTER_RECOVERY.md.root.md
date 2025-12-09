@@ -2,7 +2,7 @@
 
 **Complete guide for MongoDB disaster recovery using seed files and backups.**
 
-***
+---
 
 ## Recovery Scenarios
 
@@ -10,9 +10,9 @@
 
 **Symptoms:**
 
-* MongoDB container corrupted or deleted
-* Volumes deleted accidentally
-* Disk failure
+- MongoDB container corrupted or deleted
+- Volumes deleted accidentally
+- Disk failure
 
 **Recovery Steps:**
 
@@ -87,15 +87,15 @@
 
 **Total Recovery Time:** ~15 minutes
 
-***
+---
 
 ### Scenario 2: Partial Data Corruption
 
 **Symptoms:**
 
-* Some collections corrupted
-* Data inconsistencies
-* Failed migrations
+- Some collections corrupted
+- Data inconsistencies
+- Failed migrations
 
 **Recovery Steps:**
 
@@ -134,15 +134,15 @@
      --eval "db.model_artifacts.reIndex()"
    ```
 
-***
+---
 
 ### Scenario 3: Accidental Data Deletion
 
 **Symptoms:**
 
-* Models deleted by mistake
-* Jobs cleared unintentionally
-* Inventory versions lost
+- Models deleted by mistake
+- Jobs cleared unintentionally
+- Inventory versions lost
 
 **Recovery Steps:**
 
@@ -175,7 +175,7 @@
    diff seeds/disaster-recovery-seed.json seeds/current-state.json
    ```
 
-***
+---
 
 ## Backup Strategy
 
@@ -183,10 +183,10 @@
 
 **Already configured in `scripts/backup-mongo.sh`:**
 
-* Runs at 2:00 AM via Task Scheduler/cron
-* Creates mongodump archive
-* Generates JSON seed file
-* Retains 7 days of backups
+- Runs at 2:00 AM via Task Scheduler/cron
+- Creates mongodump archive
+- Generates JSON seed file
+- Retains 7 days of backups
 
 **Verify backup job:**
 
@@ -208,7 +208,7 @@ ls -lh seeds/ | grep dr-seed
 pnpm seed:generate --output "seeds/pre-migration-$(date +%Y%m%d).json"
 ```
 
-***
+---
 
 ## Testing Recovery Procedures
 
@@ -248,17 +248,17 @@ pnpm seed:generate --output "seeds/pre-migration-$(date +%Y%m%d).json"
    docker rm harmonia-mongo-test
    ```
 
-***
+---
 
 ## Seed File Management
 
 ### When to Generate New Seeds
 
-* ✅ **After initial setup** (baseline)
-* ✅ **Before major schema changes**
-* ✅ **After adding significant data**
-* ✅ **Weekly** (automated in backup script)
-* ✅ **Before releases**
+- ✅ **After initial setup** (baseline)
+- ✅ **Before major schema changes**
+- ✅ **After adding significant data**
+- ✅ **Weekly** (automated in backup script)
+- ✅ **Before releases**
 
 ### Seed File Retention
 
@@ -284,25 +284,25 @@ git add seeds/disaster-recovery-seed.json
 git commit -m "chore: update disaster recovery seed with new models"
 ```
 
-***
+---
 
 ## Recovery Time Objectives (RTO)
 
-| Scenario | Target RTO | Actual Time | Data Loss |
-|----------|------------|-------------|-----------|
-| Complete loss | 30 minutes | ~15 minutes | Up to 24 hours (last backup) |
-| Partial corruption | 15 minutes | ~10 minutes | Minimal |
-| Accidental deletion | 10 minutes | ~5 minutes | None (from backup) |
+| Scenario            | Target RTO | Actual Time | Data Loss                    |
+| ------------------- | ---------- | ----------- | ---------------------------- |
+| Complete loss       | 30 minutes | ~15 minutes | Up to 24 hours (last backup) |
+| Partial corruption  | 15 minutes | ~10 minutes | Minimal                      |
+| Accidental deletion | 10 minutes | ~5 minutes  | None (from backup)           |
 
-***
+---
 
 ## Recovery Point Objectives (RPO)
 
-* **Daily backups:** 24-hour RPO
-* **Seed files:** 24-hour RPO (if automated)
-* **To reduce RPO:** Increase backup frequency or use replica sets with point-in-time recovery
+- **Daily backups:** 24-hour RPO
+- **Seed files:** 24-hour RPO (if automated)
+- **To reduce RPO:** Increase backup frequency or use replica sets with point-in-time recovery
 
-***
+---
 
 ## Emergency Contact & Escalation
 
@@ -314,21 +314,21 @@ git commit -m "chore: update disaster recovery seed with new models"
 4. Review seed file integrity: `node -e "JSON.parse(require('fs').readFileSync('seeds/disaster-recovery-seed.json'))"`
 5. Escalate to: \[Add team contacts]
 
-***
+---
 
 ## Preventive Measures
 
 **Reduce disaster likelihood:**
 
-* ✅ Use Docker volumes (not bind mounts) for data persistence
-* ✅ Configure automated backups (already done)
-* ✅ Test restores quarterly
-* ✅ Use replica sets for production (future enhancement)
-* ✅ Monitor disk space: `docker system df`
-* ✅ Keep MongoDB and Docker updated
-* ✅ Use volume snapshots (cloud providers)
+- ✅ Use Docker volumes (not bind mounts) for data persistence
+- ✅ Configure automated backups (already done)
+- ✅ Test restores quarterly
+- ✅ Use replica sets for production (future enhancement)
+- ✅ Monitor disk space: `docker system df`
+- ✅ Keep MongoDB and Docker updated
+- ✅ Use volume snapshots (cloud providers)
 
-***
+---
 
 ## Quick Reference
 
@@ -352,14 +352,13 @@ docker exec -it harmonia-mongo-i9 mongosh -u harmonia_app -p password harmonia
 docker ps | grep harmonia-mongo
 ```
 
-***
+---
 
 ## Next Steps
 
-* \[ ] Test seed restore to empty database
-* \[ ] Schedule backup script (Task Scheduler/cron)
-* \[ ] Document custom seed generation procedures
-* \[ ] Set up monitoring/alerting for backup failures
-* \[ ] Consider replica set for production deployments
-  up monitoring/alerting for backup failures
-* \[ ] Consider replica set for production deployments
+- \[ ] Test seed restore to empty database
+- \[ ] Schedule backup script (Task Scheduler/cron)
+- \[ ] Document custom seed generation procedures
+- \[ ] Set up monitoring/alerting for backup failures
+- \[ ] Consider replica set for production deployments up monitoring/alerting for backup failures
+- \[ ] Consider replica set for production deployments

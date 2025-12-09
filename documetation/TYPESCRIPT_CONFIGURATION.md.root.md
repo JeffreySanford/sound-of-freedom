@@ -2,9 +2,10 @@
 
 ## Overview
 
-Harmonia uses a comprehensive TypeScript configuration strategy that enforces maximum type safety while optimizing for both Angular and NestJS platforms. This guide explains the configuration hierarchy and settings.
+Harmonia uses a comprehensive TypeScript configuration strategy that enforces maximum type safety while optimizing for
+both Angular and NestJS platforms. This guide explains the configuration hierarchy and settings.
 
-***
+---
 
 ## Configuration Hierarchy
 
@@ -18,7 +19,7 @@ tsconfig.json (root)
     └── apps/backend/tsconfig.spec.json (testing)
 ```
 
-***
+---
 
 ## Root Configuration (`tsconfig.json`)
 
@@ -26,36 +27,36 @@ tsconfig.json (root)
 
 **Language & Environment:**
 
-* `target: ES2022` - Modern JavaScript features
-* `lib: ES2022` - Standard library support
-* `module: ESNext` - Latest module system
-* `moduleResolution: bundler` - Modern bundler resolution
+- `target: ES2022` - Modern JavaScript features
+- `lib: ES2022` - Standard library support
+- `module: ESNext` - Latest module system
+- `moduleResolution: bundler` - Modern bundler resolution
 
 **Strict Type Checking (Maximum Safety):**
 
-* `strict: true` - Enable all strict checks
-* `noImplicitAny: true` - No implicit any types
-* `strictNullChecks: true` - Strict null/undefined checks
-* `noUnusedLocals: true` - Detect unused local variables
-* `noUnusedParameters: true` - Detect unused function parameters
-* `noImplicitReturns: true` - All code paths must return value
-* `noFallthroughCasesInSwitch: true` - Prevent switch fallthrough bugs
-* `noUncheckedIndexedAccess: true` - Index access returns `T | undefined`
-* `noImplicitOverride: true` - Explicit override keyword required
+- `strict: true` - Enable all strict checks
+- `noImplicitAny: true` - No implicit any types
+- `strictNullChecks: true` - Strict null/undefined checks
+- `noUnusedLocals: true` - Detect unused local variables
+- `noUnusedParameters: true` - Detect unused function parameters
+- `noImplicitReturns: true` - All code paths must return value
+- `noFallthroughCasesInSwitch: true` - Prevent switch fallthrough bugs
+- `noUncheckedIndexedAccess: true` - Index access returns `T | undefined`
+- `noImplicitOverride: true` - Explicit override keyword required
 
 **Decorators:**
 
-* `experimentalDecorators: true` - Enable decorators for Angular/NestJS
-* `emitDecoratorMetadata: true` - Emit metadata for dependency injection
+- `experimentalDecorators: true` - Enable decorators for Angular/NestJS
+- `emitDecoratorMetadata: true` - Emit metadata for dependency injection
 
 **Output:**
 
-* `declaration: true` - Generate .d.ts files
-* `declarationMap: true` - Source maps for declarations
-* `sourceMap: true` - Debug support
-* `importHelpers: true` - Use tslib for smaller bundles
+- `declaration: true` - Generate .d.ts files
+- `declarationMap: true` - Source maps for declarations
+- `sourceMap: true` - Debug support
+- `importHelpers: true` - Use tslib for smaller bundles
 
-***
+---
 
 ## Frontend Configuration (Angular 20)
 
@@ -63,10 +64,10 @@ tsconfig.json (root)
 
 **Angular-Specific Overrides:**
 
-* `module: ES2022` - Angular uses ES modules
-* `moduleResolution: bundler` - Angular CLI bundler
-* `lib: ["ES2022", "dom"]` - DOM types included
-* `useDefineForClassFields: false` - Angular decorator compatibility
+- `module: ES2022` - Angular uses ES modules
+- `moduleResolution: bundler` - Angular CLI bundler
+- `lib: ["ES2022", "dom"]` - DOM types included
+- `useDefineForClassFields: false` - Angular decorator compatibility
 
 **Path Mapping for Clean Imports:**
 
@@ -83,35 +84,35 @@ tsconfig.json (root)
 
 **Angular Compiler Options (Strict Templates):**
 
-* `strictTemplates: true` - Full template type checking
-* `strictInjectionParameters: true` - Strict DI type checking
-* `strictInputAccessModifiers: true` - Enforce input/output modifiers
-* `strictNullInputTypes: true` - No nullable inputs without `| null`
-* `strictDomLocalRefTypes: true` - Template reference type checking
-* `strictContextGenerics: true` - Generic component type checking
-* `enableBlockSyntax: true` - Angular 18+ @if/@for syntax
-* `enableLetSyntax: true` - Template @let declarations
+- `strictTemplates: true` - Full template type checking
+- `strictInjectionParameters: true` - Strict DI type checking
+- `strictInputAccessModifiers: true` - Enforce input/output modifiers
+- `strictNullInputTypes: true` - No nullable inputs without `| null`
+- `strictDomLocalRefTypes: true` - Template reference type checking
+- `strictContextGenerics: true` - Generic component type checking
+- `enableBlockSyntax: true` - Angular 18+ @if/@for syntax
+- `enableLetSyntax: true` - Template @let declarations
 
 ### App Configuration (`tsconfig.app.json`)
 
 **Production Build Settings:**
 
-* `types: []` - No global type pollution
-* `include: ["src/**/*.ts"]` - All source files
-* `files: ["src/main.ts"]` - Explicit entry point
-* Excludes test files and stories
+- `types: []` - No global type pollution
+- `include: ["src/**/*.ts"]` - All source files
+- `files: ["src/main.ts"]` - Explicit entry point
+- Excludes test files and stories
 
 ### Test Configuration (`tsconfig.spec.json`)
 
 **Jest-Specific Settings:**
 
-* `module: commonjs` - Jest uses CommonJS
-* `moduleResolution: node` - Node resolution for tests
-* `types: ["jest", "node"]` - Jest type definitions
-* `isolatedModules: false` - Allow test-specific imports
-* Includes test setup and all spec files
+- `module: commonjs` - Jest uses CommonJS
+- `moduleResolution: node` - Node resolution for tests
+- `types: ["jest", "node"]` - Jest type definitions
+- `isolatedModules: false` - Allow test-specific imports
+- Includes test setup and all spec files
 
-***
+---
 
 ## Backend Configuration (NestJS 11)
 
@@ -119,10 +120,10 @@ tsconfig.json (root)
 
 **NestJS-Specific Settings:**
 
-* `module: commonjs` - Node.js uses CommonJS
-* `target: ES2022` - Modern Node.js LTS features
-* `moduleResolution: node` - Standard Node resolution
-* `emitDecoratorMetadata: true` - Critical for NestJS DI
+- `module: commonjs` - Node.js uses CommonJS
+- `target: ES2022` - Modern Node.js LTS features
+- `moduleResolution: node` - Standard Node resolution
+- `emitDecoratorMetadata: true` - Critical for NestJS DI
 
 **Path Mapping for Clean Imports:**
 
@@ -139,27 +140,27 @@ tsconfig.json (root)
 
 **Relaxed Settings for NestJS:**
 
-* `strictPropertyInitialization: false` - NestJS DI initializes properties
+- `strictPropertyInitialization: false` - NestJS DI initializes properties
 
 ### Backend App Configuration (`tsconfig.app.json`)
 
 **Production Build Settings:**
 
-* `types: ["node"]` - Only Node.js types
-* `removeComments: true` - Smaller production bundles
-* `declaration: true` - Generate type definitions
-* `declarationMap: true` - Debug support for libraries
-* `files: ["src/main.ts"]` - Explicit entry point
+- `types: ["node"]` - Only Node.js types
+- `removeComments: true` - Smaller production bundles
+- `declaration: true` - Generate type definitions
+- `declarationMap: true` - Debug support for libraries
+- `files: ["src/main.ts"]` - Explicit entry point
 
 ### Backend Test Configuration (`tsconfig.spec.json`)
 
 **Jest-Specific Settings:**
 
-* Same as frontend tests
-* Relaxed `strictPropertyInitialization` for mocking
-* Relaxed `noUnusedLocals/Parameters` for test helpers
+- Same as frontend tests
+- Relaxed `strictPropertyInitialization` for mocking
+- Relaxed `noUnusedLocals/Parameters` for test helpers
 
-***
+---
 
 ## Strict Type Checking Benefits
 
@@ -244,7 +245,7 @@ function greet(name: string | null) {
 }
 ```
 
-***
+---
 
 ## Path Mapping Usage
 
@@ -276,7 +277,7 @@ import { DatabaseConfig } from '@config/database.config';
 import { LoggerMiddleware } from '@common/middleware/logger.middleware';
 ```
 
-***
+---
 
 ## Angular Strict Template Checking
 
@@ -332,7 +333,7 @@ export class SearchBox {
 <button (click)="nameInput.focus()">Focus</button>
 ```
 
-***
+---
 
 ## Decorator Metadata
 
@@ -364,7 +365,7 @@ export class UsersService {
 
 Without `emitDecoratorMetadata: true`, dependency injection fails at runtime.
 
-***
+---
 
 ## Common Issues & Solutions
 
@@ -374,8 +375,8 @@ Without `emitDecoratorMetadata: true`, dependency injection fails at runtime.
 
 **Solution:** Restart TypeScript server
 
-* VS Code: Ctrl+Shift+P → "TypeScript: Restart TS Server"
-* Or reload window: Ctrl+Shift+P → "Developer: Reload Window"
+- VS Code: Ctrl+Shift+P → "TypeScript: Restart TS Server"
+- Or reload window: Ctrl+Shift+P → "Developer: Reload Window"
 
 ### Issue 2: "Property has no initializer"
 
@@ -440,7 +441,7 @@ function getStatus(id: number): string {
 }
 ```
 
-***
+---
 
 ## Migration Strategy
 
@@ -480,7 +481,7 @@ interface ApiResponse {
 const response: ApiResponse = apiResponse;
 ```
 
-***
+---
 
 ## Build & Development Commands
 
@@ -521,7 +522,7 @@ pnpm build:backend
 pnpm build:all
 ```
 
-***
+---
 
 ## IDE Integration
 
@@ -541,12 +542,12 @@ Add to `.vscode/settings.json`:
 
 ### Recommended Extensions
 
-* **ESLint** - Linting with TypeScript support
-* **Angular Language Service** - Template type checking
-* **TypeScript Hero** - Auto-import management
-* **Error Lens** - Inline error display
+- **ESLint** - Linting with TypeScript support
+- **Angular Language Service** - Template type checking
+- **TypeScript Hero** - Auto-import management
+- **Error Lens** - Inline error display
 
-***
+---
 
 ## Performance Optimization
 
@@ -578,7 +579,7 @@ Enabled globally:
 
 Speeds up compilation without sacrificing app type safety.
 
-***
+---
 
 ## Summary
 
@@ -586,27 +587,27 @@ Speeds up compilation without sacrificing app type safety.
 
 ✅ **Maximum Type Safety**
 
-* Strict null checks prevent runtime errors
-* No implicit any enforces explicit types
-* Strict templates catch Angular bugs at compile time
+- Strict null checks prevent runtime errors
+- No implicit any enforces explicit types
+- Strict templates catch Angular bugs at compile time
 
 ✅ **Better Developer Experience**
 
-* Path mappings for clean imports
-* Full autocomplete and IntelliSense
-* Catch bugs before runtime
+- Path mappings for clean imports
+- Full autocomplete and IntelliSense
+- Catch bugs before runtime
 
 ✅ **Platform Optimization**
 
-* Angular-specific compiler options
-* NestJS decorator metadata
-* Separate test configurations
+- Angular-specific compiler options
+- NestJS decorator metadata
+- Separate test configurations
 
 ✅ **Production Ready**
 
-* Declaration files for libraries
-* Source maps for debugging
-* Optimized output settings
+- Declaration files for libraries
+- Source maps for debugging
+- Optimized output settings
 
 ### Next Steps
 
@@ -616,11 +617,11 @@ Speeds up compilation without sacrificing app type safety.
 4. **Test Thoroughly**: Run `pnpm test` to verify tests still pass
 5. **Build & Verify**: Run `pnpm build:all` to ensure production builds work
 
-***
+---
 
 ## Resources
 
-* [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/)
-* [Angular Compiler Options](https://angular.io/guide/angular-compiler-options)
-* [NestJS TypeScript](https://docs.nestjs.com/techniques/typescript)
-* [TSConfig Reference](https://www.typescriptlang.org/tsconfig)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/)
+- [Angular Compiler Options](https://angular.io/guide/angular-compiler-options)
+- [NestJS TypeScript](https://docs.nestjs.com/techniques/typescript)
+- [TSConfig Reference](https://www.typescriptlang.org/tsconfig)

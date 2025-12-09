@@ -2,37 +2,43 @@
 
 ## Executive Summary
 
-**Your Idea**: Reduce NGRX state model size by loading only the data needed for specific views/requests, rather than fetching complete entity objects.
+**Your Idea**: Reduce NGRX state model size by loading only the data needed for specific views/requests, rather than
+fetching complete entity objects.
 
 **My Assessment**: ⚠️ **PARTIALLY FLAWED - SIMPLER ALTERNATIVES EXIST**
 
-**Bottom Line**: Your instinct is correct that over-fetching is wasteful, but the proposed "context-aware reducer optimization" is solving a problem that doesn't exist in NGRX the way you're describing it. NGRX **already supports** selective data loading through **selectors** and **projection** - you don't need to modify reducers. The real optimization happens at the **API layer** and **selector layer**, not the reducer layer.
+**Bottom Line**: Your instinct is correct that over-fetching is wasteful, but the proposed "context-aware reducer
+optimization" is solving a problem that doesn't exist in NGRX the way you're describing it. NGRX **already supports**
+selective data loading through **selectors** and **projection** - you don't need to modify reducers. The real
+optimization happens at the **API layer** and **selector layer**, not the reducer layer.
 
-**What You're Actually Describing**: Backend API optimization with field filtering + frontend selector optimization - both are **standard practices**, not novel approaches.
+**What You're Actually Describing**: Backend API optimization with field filtering + frontend selector optimization -
+both are **standard practices**, not novel approaches.
 
 **Recommendation**: ✅ **Implement standard NGRX patterns instead**
 
-* Use **selectors with projection** (transform data in selectors, not reducers)
-* Use **backend field filtering** (only fetch needed fields from DB/API)
-* Use **normalized state** (avoid duplication)
-* Use **lazy loading** (load data on-demand per route)
+- Use **selectors with projection** (transform data in selectors, not reducers)
+- Use **backend field filtering** (only fetch needed fields from DB/API)
+- Use **normalized state** (avoid duplication)
+- Use **lazy loading** (load data on-demand per route)
 
 Let me break down why, what you're missing, and what to do instead.
 
-***
+---
 
 ## The Problem You're Trying to Solve (Correctly Identified)
 
 ### Your Concern
 
-> "Library view doesn't need full song objects (50KB each with lyrics, history, metadata). It only needs: id, title, genre, duration, fileUrl. Loading full objects wastes memory and bandwidth."
+> "Library view doesn't need full song objects (50KB each with lyrics, history, metadata). It only needs: id, title,
+> genre, duration, fileUrl. Loading full objects wastes memory and bandwidth."
 
 ### You're Right About
 
-* ✅ Over-fetching is wasteful
-* ✅ Different views need different data shapes
-* ✅ Large state objects impact performance
-* ✅ Network payload size matters
+- ✅ Over-fetching is wasteful
+- ✅ Different views need different data shapes
+- ✅ Large state objects impact performance
+- ✅ Network payload size matters
 
 ### Example
 
@@ -41,13 +47,13 @@ Let me break down why, what you're missing, and what to do instead.
 interface FullSong {
   id: string;
   title: string;
-  narrative: string;        // 5KB
-  lyrics: string;           // 10KB
+  narrative: string; // 5KB
+  lyrics: string; // 10KB
   genre: string;
   mood: string;
   bpm: number;
   key: string;
-  style: StyleObject;       // 5KB nested object
+  style: StyleObject; // 5KB nested object
   metadata: {
     syllableCount: number;
     structureAnalysis: any; // 10KB
@@ -74,13 +80,14 @@ interface LibrarySongView {
 
 **This is a real problem.** But your proposed solution isn't the right one.
 
-***
+---
 
 ## What's Wrong With Your Proposed Approach
 
 ### Your Proposal (As I Understand It)
 
-> "NGRX reducers should minimize model size per request context. Library reducer only stores LibrarySongView, not FullSong. Different reducers for different views."
+> "NGRX reducers should minimize model size per request context. Library reducer only stores LibrarySongView, not
+> FullSong. Different reducers for different views."
 
 ### Why This Won't Work
 
@@ -88,9 +95,9 @@ interface LibrarySongView {
 
 Reducers receive actions with payloads. The payload is determined by:
 
-* What the API returns (backend)
-* What the effect dispatches (frontend effect)
-* NOT by what the reducer "wants"
+- What the API returns (backend)
+- What the effect dispatches (frontend effect)
+- NOT by what the reducer "wants"
 
 ```typescript
 // ❌ WRONG: Reducers can't "request" specific fields
@@ -112,17 +119,19 @@ loadLibrary$ = createEffect(() =>
     ofType(LibraryActions.loadLibrary),
     switchMap(() =>
       // THIS is where you control the data shape
-      this.http.get<LibrarySongView[]>('/api/library/minimal') // <-- Field filtering!
+      this.http
+        .get<LibrarySongView[]>('/api/library/minimal') // <-- Field filtering!
         .pipe(
-          map(items => LibraryActions.loadLibrarySuccess({ items })),
-          catchError(error => of(LibraryActions.loadLibraryFailure({ error })))
+          map((items) => LibraryActions.loadLibrarySuccess({ items })),
+          catchError((error) => of(LibraryActions.loadLibraryFailure({ error })))
         )
     )
   )
 );
 ```
 
-**Key Point**: By the time data reaches the reducer, it's already been fetched from the API. The reducer can't "reduce" the payload size - it's too late.
+**Key Point**: By the time data reaches the reducer, it's already been fetched from the API. The reducer can't "reduce"
+the payload size - it's too late.
 
 #### 2. **This Creates Data Duplication and Inconsistency**
 
@@ -132,10 +141,10 @@ If you have separate state slices for different views:
 // ❌ ANTI-PATTERN: Multiple sources of truth
 interface AppState {
   library: {
-    songs: LibrarySongView[];  // Minimal data
+    songs: LibrarySongView[]; // Minimal data
   };
   songDetails: {
-    songs: FullSong[];  // Full data
+    songs: FullSong[]; // Full data
   };
   // Now you have the SAME song in TWO places!
   // What happens when one updates? Sync nightmare!
@@ -157,15 +166,14 @@ NGRX has a built-in mechanism for transforming state data: **Selectors**.
 // ✅ CORRECT: One state slice, multiple views via selectors
 interface AppState {
   songs: {
-    entities: { [id: string]: FullSong };  // Full data stored ONCE
+    entities: { [id: string]: FullSong }; // Full data stored ONCE
     ids: string[];
   };
 }
 
 // Selector for library view (projects minimal data)
-export const selectLibrarySongs = createSelector(
-  selectAllSongs,
-  (songs) => songs.map(song => ({
+export const selectLibrarySongs = createSelector(selectAllSongs, (songs) =>
+  songs.map((song) => ({
     id: song.id,
     title: song.title,
     genre: song.genre,
@@ -175,27 +183,24 @@ export const selectLibrarySongs = createSelector(
 );
 
 // Selector for detail view (returns full data)
-export const selectSongById = (id: string) => createSelector(
-  selectSongsEntities,
-  (entities) => entities[id]
-);
+export const selectSongById = (id: string) => createSelector(selectSongsEntities, (entities) => entities[id]);
 ```
 
 **Result**:
 
-* State stores full objects (ONE source of truth)
-* Components get projected views (minimal data)
-* No duplication, no sync issues
-* Selectors are memoized (computed once, cached)
+- State stores full objects (ONE source of truth)
+- Components get projected views (minimal data)
+- No duplication, no sync issues
+- Selectors are memoized (computed once, cached)
 
 **But wait!** You might say: "But we're still storing 5MB of full songs in state!"
 
 **Yes**, and that's actually fine because:
 
-* The 5MB is in **client memory** (cheap, abundant)
-* It's only fetched **once**
-* Subsequent views are **instant** (no API calls)
-* If it's truly too large, use **pagination** or **lazy loading**
+- The 5MB is in **client memory** (cheap, abundant)
+- It's only fetched **once**
+- Subsequent views are **instant** (no API calls)
+- If it's truly too large, use **pagination** or **lazy loading**
 
 #### 4. **The Real Optimization: Don't Fetch What You Don't Need**
 
@@ -248,7 +253,7 @@ loadSongDetails$ = createEffect(() =>
 
 **This is the standard pattern.** It's not novel - it's how every well-architected app works.
 
-***
+---
 
 ## What You're Actually Missing
 
@@ -281,26 +286,18 @@ export const initialSongsState: SongsState = songsAdapter.getInitialState({
 
 export const songsReducer = createReducer(
   initialSongsState,
-  on(SongActions.loadSongsSuccess, (state, { songs }) =>
-    songsAdapter.setAll(songs, state)
-  ),
-  on(SongActions.addSong, (state, { song }) =>
-    songsAdapter.addOne(song, state)
-  ),
-  on(SongActions.updateSong, (state, { song }) =>
-    songsAdapter.updateOne({ id: song.id, changes: song }, state)
-  ),
-  on(SongActions.deleteSong, (state, { id }) =>
-    songsAdapter.removeOne(id, state)
-  )
+  on(SongActions.loadSongsSuccess, (state, { songs }) => songsAdapter.setAll(songs, state)),
+  on(SongActions.addSong, (state, { song }) => songsAdapter.addOne(song, state)),
+  on(SongActions.updateSong, (state, { song }) => songsAdapter.updateOne({ id: song.id, changes: song }, state)),
+  on(SongActions.deleteSong, (state, { id }) => songsAdapter.removeOne(id, state))
 );
 ```
 
 **Benefits**:
 
-* No duplication (normalized by ID)
-* Efficient updates (O(1) lookups)
-* Built-in selectors (`selectAll`, `selectEntities`, `selectIds`)
+- No duplication (normalized by ID)
+- Efficient updates (O(1) lookups)
+- Built-in selectors (`selectAll`, `selectEntities`, `selectIds`)
 
 ### 2. **Lazy Loading Per Route**
 
@@ -363,7 +360,7 @@ async getLibrary(@Query('fields') fields?: string) {
 }
 ```
 
-***
+---
 
 ## The Right Way: Standard NGRX Patterns
 
@@ -443,8 +440,8 @@ import { createEntityAdapter, EntityState } from '@ngrx/entity';
 export interface Song {
   id: string;
   title: string;
-  narrative?: string;  // Optional - only present if fetched
-  lyrics?: string;     // Optional - only present if fetched
+  narrative?: string; // Optional - only present if fetched
+  lyrics?: string; // Optional - only present if fetched
   genre: string;
   duration: number;
   fileUrl: string;
@@ -474,21 +471,15 @@ export const initialSongsState: SongsState = songsAdapter.getInitialState({
 export const loadLibrary = createAction('[Library] Load Library');
 export const loadLibrarySuccess = createAction(
   '[Library] Load Library Success',
-  props<{ songs: Song[] }>()  // Minimal Song objects
+  props<{ songs: Song[] }>() // Minimal Song objects
 );
-export const loadLibraryFailure = createAction(
-  '[Library] Load Library Failure',
-  props<{ error: string }>()
-);
+export const loadLibraryFailure = createAction('[Library] Load Library Failure', props<{ error: string }>());
 
 // Load full data for detail view
-export const loadSongDetails = createAction(
-  '[Song Detail] Load Song Details',
-  props<{ id: string }>()
-);
+export const loadSongDetails = createAction('[Song Detail] Load Song Details', props<{ id: string }>());
 export const loadSongDetailsSuccess = createAction(
   '[Song Detail] Load Song Details Success',
-  props<{ song: Song }>()  // Full Song object
+  props<{ song: Song }>() // Full Song object
 );
 export const loadSongDetailsFailure = createAction(
   '[Song Detail] Load Song Details Failure',
@@ -502,14 +493,12 @@ export const loadSongDetailsFailure = createAction(
 // songs.reducer.ts
 export const songsReducer = createReducer(
   initialSongsState,
-  
+
   // Load library (minimal data)
   on(loadLibrary, (state) => ({ ...state, loading: true })),
-  on(loadLibrarySuccess, (state, { songs }) =>
-    songsAdapter.setAll(songs, { ...state, loading: false })
-  ),
+  on(loadLibrarySuccess, (state, { songs }) => songsAdapter.setAll(songs, { ...state, loading: false })),
   on(loadLibraryFailure, (state, { error }) => ({ ...state, loading: false, error })),
-  
+
   // Load song details (full data)
   on(loadSongDetails, (state) => ({ ...state, loading: true })),
   on(loadSongDetailsSuccess, (state, { song }) =>
@@ -520,7 +509,8 @@ export const songsReducer = createReducer(
 );
 ```
 
-**Key Point**: The reducer doesn't care whether it receives minimal or full objects. It just stores what it's given. The **effects** control what data enters.
+**Key Point**: The reducer doesn't care whether it receives minimal or full objects. It just stores what it's given. The
+**effects** control what data enters.
 
 #### 4. Effects
 
@@ -536,9 +526,10 @@ export class SongsEffects {
     this.actions$.pipe(
       ofType(loadLibrary),
       switchMap(() =>
-        this.songsService.getLibrary().pipe(  // Returns minimal fields
-          map(songs => loadLibrarySuccess({ songs })),
-          catchError(error => of(loadLibraryFailure({ error: error.message })))
+        this.songsService.getLibrary().pipe(
+          // Returns minimal fields
+          map((songs) => loadLibrarySuccess({ songs })),
+          catchError((error) => of(loadLibraryFailure({ error: error.message })))
         )
       )
     )
@@ -549,9 +540,10 @@ export class SongsEffects {
     this.actions$.pipe(
       ofType(loadSongDetails),
       switchMap(({ id }) =>
-        this.songsService.getSongById(id).pipe(  // Returns full object
-          map(song => loadSongDetailsSuccess({ song })),
-          catchError(error => of(loadSongDetailsFailure({ error: error.message })))
+        this.songsService.getSongById(id).pipe(
+          // Returns full object
+          map((song) => loadSongDetailsSuccess({ song })),
+          catchError((error) => of(loadSongDetailsFailure({ error: error.message })))
         )
       )
     )
@@ -571,13 +563,13 @@ export class SongsService {
   // Get minimal data for library
   getLibrary(): Observable<Song[]> {
     return this.http.get<Song[]>(`${this.apiUrl}/library`, {
-      params: { fields: 'id,title,genre,duration,fileUrl' }  // Field filtering
+      params: { fields: 'id,title,genre,duration,fileUrl' } // Field filtering
     });
   }
 
   // Get full data for details
   getSongById(id: string): Observable<Song> {
-    return this.http.get<Song>(`${this.apiUrl}/songs/${id}`);  // No field filtering
+    return this.http.get<Song>(`${this.apiUrl}/songs/${id}`); // No field filtering
   }
 }
 ```
@@ -596,9 +588,8 @@ export const selectSongsIds = createSelector(selectSongsState, selectIds);
 
 // Selector for library view (returns minimal data)
 // Even if state has full objects, this projects only needed fields
-export const selectLibrarySongs = createSelector(
-  selectAllSongs,
-  (songs) => songs.map(song => ({
+export const selectLibrarySongs = createSelector(selectAllSongs, (songs) =>
+  songs.map((song) => ({
     id: song.id,
     title: song.title,
     genre: song.genre,
@@ -608,16 +599,11 @@ export const selectLibrarySongs = createSelector(
 );
 
 // Selector for detail view (returns full object)
-export const selectSongById = (id: string) => createSelector(
-  selectSongsEntities,
-  (entities) => entities[id]
-);
+export const selectSongById = (id: string) => createSelector(selectSongsEntities, (entities) => entities[id]);
 
 // Check if full details are loaded
-export const selectIsSongFullyLoaded = (id: string) => createSelector(
-  selectSongById(id),
-  (song) => song ? !!song.lyrics && !!song.narrative : false
-);
+export const selectIsSongFullyLoaded = (id: string) =>
+  createSelector(selectSongById(id), (song) => (song ? !!song.lyrics && !!song.narrative : false));
 ```
 
 #### 7. Components
@@ -657,8 +643,10 @@ export class LibraryPageComponent implements OnInit {
     <div *ngIf="song$ | async as song">
       <h1>{{ song.title }}</h1>
       <p>{{ song.genre }}</p>
-      <p>{{ song.lyrics }}</p>  <!-- Full data -->
-      <p>{{ song.narrative }}</p>  <!-- Full data -->
+      <p>{{ song.lyrics }}</p>
+      <!-- Full data -->
+      <p>{{ song.narrative }}</p>
+      <!-- Full data -->
     </div>
   `
 })
@@ -666,20 +654,18 @@ export class SongDetailPageComponent implements OnInit {
   private readonly store = inject(Store);
   private readonly route = inject(ActivatedRoute);
 
-  songId$ = this.route.params.pipe(map(params => params['id']));
-  song$ = this.songId$.pipe(
-    switchMap(id => this.store.select(selectSongById(id)))
-  );
-  isFullyLoaded$ = this.songId$.pipe(
-    switchMap(id => this.store.select(selectIsSongFullyLoaded(id)))
-  );
+  songId$ = this.route.params.pipe(map((params) => params['id']));
+  song$ = this.songId$.pipe(switchMap((id) => this.store.select(selectSongById(id))));
+  isFullyLoaded$ = this.songId$.pipe(switchMap((id) => this.store.select(selectIsSongFullyLoaded(id))));
 
   ngOnInit(): void {
-    this.songId$.pipe(
-      withLatestFrom(this.isFullyLoaded$),
-      filter(([id, isLoaded]) => !isLoaded),  // Only load if not already loaded
-      tap(([id]) => this.store.dispatch(loadSongDetails({ id })))
-    ).subscribe();
+    this.songId$
+      .pipe(
+        withLatestFrom(this.isFullyLoaded$),
+        filter(([id, isLoaded]) => !isLoaded), // Only load if not already loaded
+        tap(([id]) => this.store.dispatch(loadSongDetails({ id })))
+      )
+      .subscribe();
   }
 }
 ```
@@ -702,7 +688,7 @@ export class SongsController {
   // Full endpoint for details
   @Get(':id')
   async getSongById(@Param('id') id: string) {
-    return this.songsService.findById(id);  // No projection - returns all fields
+    return this.songsService.findById(id); // No projection - returns all fields
   }
 
   private parseFieldsToProjection(fields: string): any {
@@ -716,9 +702,7 @@ export class SongsController {
 // songs.service.ts (NestJS)
 @Injectable()
 export class SongsService {
-  constructor(
-    @InjectModel(Song.name) private songModel: Model<SongDocument>
-  ) {}
+  constructor(@InjectModel(Song.name) private songModel: Model<SongDocument>) {}
 
   async findAll(projection?: any) {
     // projection = { id: 1, title: 1, genre: 1, duration: 1, fileUrl: 1 }
@@ -726,28 +710,29 @@ export class SongsService {
   }
 
   async findById(id: string) {
-    return this.songModel.findById(id);  // Returns all fields
+    return this.songModel.findById(id); // Returns all fields
   }
 }
 ```
 
-***
+---
 
 ## Performance Comparison
 
 ### Scenario: 100 Songs in Library
 
-| Approach | Bandwidth | Memory | API Calls | Complexity |
-|----------|-----------|--------|-----------|------------|
-| **Your Proposal** (context-aware reducers) | 5MB (full objects) | 5MB (stored in state) | 1 | HIGH (multiple state slices, sync issues) |
-| **Standard NGRX** (with field filtering) | 50KB (minimal) | 50KB (stored in state) | 1 initial + 1 per detail view | LOW (single source of truth) |
-| **GraphQL** (optimal) | 50KB (minimal) | 50KB (stored in state) | 1 initial + 1 per detail view | MEDIUM (requires GraphQL setup) |
+| Approach                                   | Bandwidth          | Memory                 | API Calls                     | Complexity                                |
+| ------------------------------------------ | ------------------ | ---------------------- | ----------------------------- | ----------------------------------------- |
+| **Your Proposal** (context-aware reducers) | 5MB (full objects) | 5MB (stored in state)  | 1                             | HIGH (multiple state slices, sync issues) |
+| **Standard NGRX** (with field filtering)   | 50KB (minimal)     | 50KB (stored in state) | 1 initial + 1 per detail view | LOW (single source of truth)              |
+| **GraphQL** (optimal)                      | 50KB (minimal)     | 50KB (stored in state) | 1 initial + 1 per detail view | MEDIUM (requires GraphQL setup)           |
 
 ### Verdict
 
-Standard NGRX with backend field filtering achieves the same result as your proposal, with **lower complexity** and **no data duplication**.
+Standard NGRX with backend field filtering achieves the same result as your proposal, with **lower complexity** and **no
+data duplication**.
 
-***
+---
 
 ## When Your Approach Might Make Sense
 
@@ -757,29 +742,29 @@ There are **edge cases** where separating minimal and full data makes sense:
 
 If you're building a Progressive Web App (PWA) with offline support:
 
-* Store minimal data in IndexedDB for offline access
-* Load full data on-demand when online
-* Use NGRX Persistence with selective state slicing
+- Store minimal data in IndexedDB for offline access
+- Load full data on-demand when online
+- Use NGRX Persistence with selective state slicing
 
 ### 2. **Real-Time Dashboards**
 
 If you're building a dashboard with frequent updates:
 
-* Store summary data (aggregates, counts)
-* Load detailed data on drill-down
-* Use WebSocket for real-time updates to minimal data
+- Store summary data (aggregates, counts)
+- Load detailed data on drill-down
+- Use WebSocket for real-time updates to minimal data
 
 ### 3. **Mobile Apps with Limited Memory**
 
 If building for low-end devices:
 
-* Aggressively minimize state size
-* Use virtual scrolling + pagination
-* Consider React Native's SQLite storage instead of Redux
+- Aggressively minimize state size
+- Use virtual scrolling + pagination
+- Consider React Native's SQLite storage instead of Redux
 
 But for Harmonia (a desktop/web music generation app), **standard NGRX patterns are sufficient**.
 
-***
+---
 
 ## What You Should Do Instead
 
@@ -794,14 +779,14 @@ But for Harmonia (a desktop/web music generation app), **standard NGRX patterns 
 
 // State structure:
 interface AppState {
-  songs: SongsState;  // One source of truth for all song data
-  library: LibraryState;  // UI state (filters, pagination) - NO song data
+  songs: SongsState; // One source of truth for all song data
+  library: LibraryState; // UI state (filters, pagination) - NO song data
   auth: AuthState;
   // ...
 }
 
 interface SongsState {
-  entities: { [id: string]: Song };  // All song data (minimal or full)
+  entities: { [id: string]: Song }; // All song data (minimal or full)
   ids: string[];
   loading: boolean;
   error: string | null;
@@ -831,7 +816,7 @@ interface LibraryState {
 6. ⚠️ **Consider Virtual Scrolling** (if lists > 1000 items)
 7. ⚠️ **Consider IndexedDB** (if offline support needed)
 
-***
+---
 
 ## Things You're Not Thinking Of
 
@@ -858,42 +843,42 @@ If you split state into multiple slices, how do you keep them in sync?
 
 If you use Angular Universal (SSR):
 
-* Server needs to fetch data for initial render
-* Multiple state slices = multiple API calls = slower TTFB
-* Standard NGRX with one state slice = one API call = faster
+- Server needs to fetch data for initial render
+- Multiple state slices = multiple API calls = slower TTFB
+- Standard NGRX with one state slice = one API call = faster
 
 ### 3. **Developer Experience**
 
 Your approach requires:
 
-* More actions (loadLibrary, loadDetails, sync, etc.)
-* More reducers (library reducer, details reducer, sync reducer)
-* More selectors (merge data from multiple slices)
-* More documentation (explain why data is duplicated)
-* More bugs (sync issues, race conditions)
+- More actions (loadLibrary, loadDetails, sync, etc.)
+- More reducers (library reducer, details reducer, sync reducer)
+- More selectors (merge data from multiple slices)
+- More documentation (explain why data is duplicated)
+- More bugs (sync issues, race conditions)
 
 Standard NGRX:
 
-* Simple actions (load, update, delete)
-* One reducer per entity
-* Simple selectors (project from single source)
-* Self-documenting (normalized state is industry standard)
+- Simple actions (load, update, delete)
+- One reducer per entity
+- Simple selectors (project from single source)
+- Self-documenting (normalized state is industry standard)
 
 ### 4. **Testing Complexity**
 
 Your approach:
 
-* Must test sync logic between slices
-* Must test race condition handling
-* Must test cache invalidation
+- Must test sync logic between slices
+- Must test race condition handling
+- Must test cache invalidation
 
 Standard NGRX:
 
-* Test actions → state changes (simple)
-* Test selectors → projections (simple)
-* Test effects → API calls (simple)
+- Test actions → state changes (simple)
+- Test selectors → projections (simple)
+- Test effects → API calls (simple)
 
-***
+---
 
 ## Final Recommendation
 
@@ -904,7 +889,7 @@ Standard NGRX:
 3. **Use selectors with projection** for different views
 4. **Implement pagination** (20 items per page)
 5. **Lazy load per route** (don't load library data on home page)
-6. **Add Redis caching** (as per REDIS\_CACHING.md)
+6. **Add Redis caching** (as per REDIS_CACHING.md)
 7. **Use virtual scrolling** for large lists (CDK Virtual Scroll)
 
 ### ❌ DON'T DO THIS
@@ -918,55 +903,57 @@ Standard NGRX:
 
 If you still want to optimize further after implementing the above:
 
-* **GraphQL** (ultimate field filtering, but adds complexity)
-* **NGRX Entity + Component Store** (local state for UI, global state for data)
-* **RxJS Observables with ShareReplay** (cache API responses outside NGRX)
-* **Service Worker + IndexedDB** (offline-first architecture)
+- **GraphQL** (ultimate field filtering, but adds complexity)
+- **NGRX Entity + Component Store** (local state for UI, global state for data)
+- **RxJS Observables with ShareReplay** (cache API responses outside NGRX)
+- **Service Worker + IndexedDB** (offline-first architecture)
 
-***
+---
 
 ## Code Example: Standard NGRX (Recommended)
 
-Full working example: See `USER_LIBRARY.md` sections "Library State (NGRX)", "Library Effects", "Library Selectors", and "Library Service".
+Full working example: See `USER_LIBRARY.md` sections "Library State (NGRX)", "Library Effects", "Library Selectors", and
+"Library Service".
 
 The architecture is already correctly designed there. No need for "context-aware reducers."
 
-***
+---
 
 ## Honest Assessment
 
 ### Your Correct Observations
 
-* ✅ Over-fetching is wasteful
-* ✅ Different views need different data
-* ✅ Large state impacts performance
+- ✅ Over-fetching is wasteful
+- ✅ Different views need different data
+- ✅ Large state impacts performance
 
 ### You're Wrong About
 
-* ❌ Reducers can control data shape (they can't - effects control this)
-* ❌ This is a "novel" approach (it's just misunderstanding NGRX)
-* ❌ You need multiple state slices (single source of truth is better)
+- ❌ Reducers can control data shape (they can't - effects control this)
+- ❌ This is a "novel" approach (it's just misunderstanding NGRX)
+- ❌ You need multiple state slices (single source of truth is better)
 
 ### What You Haven't Considered
 
-* 🎯 Entity Adapter for normalization
-* 🎯 Backend field filtering (where optimization should happen)
-* 🎯 Selectors for projection (built-in NGRX feature)
-* 🎯 Pagination and lazy loading (standard practices)
+- 🎯 Entity Adapter for normalization
+- 🎯 Backend field filtering (where optimization should happen)
+- 🎯 Selectors for projection (built-in NGRX feature)
+- 🎯 Pagination and lazy loading (standard practices)
 
 ### My Verdict
 
-Your instinct to optimize is **correct**, but your proposed solution is **flawed**. The good news: **NGRX already has the tools you need**. You just need to use them correctly.
+Your instinct to optimize is **correct**, but your proposed solution is **flawed**. The good news: **NGRX already has
+the tools you need**. You just need to use them correctly.
 
 Implement the "Standard NGRX" approach above, and you'll get:
 
-* ✅ Same performance benefits
-* ✅ Lower complexity
-* ✅ No data duplication
-* ✅ Industry-standard patterns
-* ✅ Easier to maintain and test
+- ✅ Same performance benefits
+- ✅ Lower complexity
+- ✅ No data duplication
+- ✅ Industry-standard patterns
+- ✅ Easier to maintain and test
 
-***
+---
 
 ## Action Items
 
@@ -976,10 +963,10 @@ Implement the "Standard NGRX" approach above, and you'll get:
 4. Add selectors with projection for library view
 5. Test with 1000+ songs to verify performance
 6. Measure before/after with Chrome DevTools Performance tab
-7. Document caching strategy in REDIS\_CACHING.md ✅ (already done)
+7. Document caching strategy in REDIS_CACHING.md ✅ (already done)
 8. Consider GraphQL if field filtering becomes complex
 
-***
+---
 
 **Document Version**: 1.0.0\
 **Last Updated**: December 2, 2025\
@@ -988,10 +975,10 @@ Implement the "Standard NGRX" approach above, and you'll get:
 
 **LEGENDARY IS OUR STANDARD - BUT COMPLEXITY IS NOT.** ⚡
 
-**Remember**: The best code is the code you don't have to write. Use the tools NGRX already gives you. 🎯
-GraphQL if field filtering becomes complex
+**Remember**: The best code is the code you don't have to write. Use the tools NGRX already gives you. 🎯 GraphQL if
+field filtering becomes complex
 
-***
+---
 
 **Document Version**: 1.0.0\
 **Last Updated**: December 2, 2025\

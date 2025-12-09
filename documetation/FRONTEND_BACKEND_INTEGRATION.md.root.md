@@ -1,16 +1,17 @@
 # Frontend-Backend Integration - Complete
 
-**Status**: ✅ Code Complete - Ready for Testing
-**Date**: December 4, 2025
-**Component**: Full-Stack Song Generation Pipeline
+**Status**: ✅ Code Complete - Ready for Testing **Date**: December 4, 2025 **Component**: Full-Stack Song Generation
+Pipeline
 
-***
+---
 
 ## Overview
 
-Complete integration of Angular frontend with NestJS backend for comprehensive song generation workflow. Includes metadata generation, genre suggestions, instrument selection, WebSocket progress tracking, and audio synthesis coordination.
+Complete integration of Angular frontend with NestJS backend for comprehensive song generation workflow. Includes
+metadata generation, genre suggestions, instrument selection, WebSocket progress tracking, and audio synthesis
+coordination.
 
-***
+---
 
 ## Song Generation API Integration
 
@@ -95,7 +96,7 @@ export class GenreSuggestionComponent {
       error: (error) => {
         console.error('Genre suggestion failed:', error);
         this.loading$.next(false);
-      },
+      }
     });
   }
 }
@@ -164,7 +165,7 @@ export class WebSocketService {
   connect(): void {
     this.socket = io(this.wsUrl, {
       transports: ['websocket'],
-      upgrade: false,
+      upgrade: false
     });
 
     this.socket.on('connect', () => {
@@ -271,7 +272,7 @@ export class SongGenerationEffects {
       map((progress) =>
         updateProgress({
           progress: progress.percentage,
-          status: progress.status,
+          status: progress.status
         })
       )
     )
@@ -295,7 +296,7 @@ export const ERROR_CODES = {
   INVALID_NARRATIVE: 'INVALID_NARRATIVE',
   GENERATION_TIMEOUT: 'GENERATION_TIMEOUT',
   WEBSOCKET_DISCONNECTED: 'WEBSOCKET_DISCONNECTED',
-  INVALID_METADATA: 'INVALID_METADATA',
+  INVALID_METADATA: 'INVALID_METADATA'
 } as const;
 ```
 
@@ -305,17 +306,12 @@ export const ERROR_CODES = {
 // error.interceptor.ts
 @Injectable()
 export class ApiErrorInterceptor implements HttpInterceptor {
-  intercept(
-    req: HttpRequest<any>,
-    next: HttpHandler
-  ): Observable<HttpEvent<any>> {
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 0) {
           // Network error - likely Ollama server down
-          this.notificationService.showError(
-            'AI service unavailable. Please check Ollama server.'
-          );
+          this.notificationService.showError('AI service unavailable. Please check Ollama server.');
         }
         return throwError(() => error);
       })
@@ -337,7 +333,7 @@ describe('SongGenerationService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [SongGenerationService],
+      providers: [SongGenerationService]
     });
     service = TestBed.inject(SongGenerationService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -348,14 +344,12 @@ describe('SongGenerationService', () => {
       title: 'Test Song',
       lyrics: 'Test lyrics...',
       genre: 'Pop',
-      mood: ['Happy'],
+      mood: ['Happy']
     };
 
-    service
-      .generateMetadata({ narrative: 'Test story' })
-      .subscribe((response) => {
-        expect(response).toEqual(mockResponse);
-      });
+    service.generateMetadata({ narrative: 'Test story' }).subscribe((response) => {
+      expect(response).toEqual(mockResponse);
+    });
 
     const req = httpMock.expectOne('/api/songs/generate-metadata');
     expect(req.request.method).toBe('POST');
@@ -375,7 +369,7 @@ describe('WebSocketService', () => {
   beforeEach(() => {
     mockSocket = jasmine.createSpyObj('Socket', ['on', 'emit', 'disconnect']);
     TestBed.configureTestingModule({
-      providers: [WebSocketService],
+      providers: [WebSocketService]
     });
     service = TestBed.inject(WebSocketService);
   });
@@ -428,10 +422,10 @@ getCachedMetadata(narrative: string): SongMetadata | null {
 
 ### Input Sanitization
 
-* Narrative text limited to 2000 characters
-* HTML injection prevention
-* Profanity filtering for generated content
-* Rate limiting per user/IP
+- Narrative text limited to 2000 characters
+- HTML injection prevention
+- Profanity filtering for generated content
+- Rate limiting per user/IP
 
 ### Authentication Integration
 
@@ -445,7 +439,7 @@ export class AuthGuard implements CanActivate {
 }
 ```
 
-***
+---
 
 ## Migration Notes
 
@@ -487,7 +481,7 @@ logout(): Observable<LogoutResponse> {
 }
 ```
 
-***
+---
 
 ### 2. AuthEffects Updates (`apps/frontend/src/app/store/auth/auth.effects.ts`)
 
@@ -503,13 +497,13 @@ login$ = createEffect(() =>
           AuthActions.loginSuccess({
             user: response.user,
             token: response.accessToken, // Changed from response.token
-            refreshToken: response.refreshToken,
+            refreshToken: response.refreshToken
           })
         ),
         catchError((error) =>
           of(
             AuthActions.loginFailure({
-              error: error?.error?.message || error.message || 'Login failed',
+              error: error?.error?.message || error.message || 'Login failed'
             })
           )
         )
@@ -521,8 +515,8 @@ login$ = createEffect(() =>
 
 **Changes**:
 
-* `response.token` → `response.accessToken`
-* Enhanced error handling: `error?.error?.message || error.message`
+- `response.token` → `response.accessToken`
+- Enhanced error handling: `error?.error?.message || error.message`
 
 #### Register Effect
 
@@ -536,14 +530,13 @@ register$ = createEffect(() =>
           AuthActions.registerSuccess({
             user: response.user,
             token: response.accessToken, // Changed from response.token
-            refreshToken: response.refreshToken,
+            refreshToken: response.refreshToken
           })
         ),
         catchError((error) =>
           of(
             AuthActions.registerFailure({
-              error:
-                error?.error?.message || error.message || 'Registration failed',
+              error: error?.error?.message || error.message || 'Registration failed'
             })
           )
         )
@@ -607,16 +600,13 @@ refreshToken$ = createEffect(() =>
         map((response) =>
           AuthActions.refreshTokenSuccess({
             token: response.accessToken, // Changed from response.token
-            refreshToken: response.refreshToken,
+            refreshToken: response.refreshToken
           })
         ),
         catchError((error) =>
           of(
             AuthActions.refreshTokenFailure({
-              error:
-                error?.error?.message ||
-                error.message ||
-                'Token refresh failed',
+              error: error?.error?.message || error.message || 'Token refresh failed'
             })
           )
         )
@@ -628,9 +618,9 @@ refreshToken$ = createEffect(() =>
 
 **Changes**:
 
-* Removed action parameter (no longer needed)
-* Backend uses Bearer header for refresh token
-* `response.token` → `response.accessToken`
+- Removed action parameter (no longer needed)
+- Backend uses Bearer header for refresh token
+- `response.token` → `response.accessToken`
 
 #### Session Check Effect
 
@@ -648,8 +638,8 @@ checkSession$ = createEffect(() =>
               username: response.username,
               role: response.role,
               createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            },
+              updatedAt: new Date().toISOString()
+            }
           })
         ),
         catchError(() => of(AuthActions.sessionInvalid()))
@@ -661,7 +651,7 @@ checkSession$ = createEffect(() =>
 
 **Changes**: Map backend's `SessionResponse` to full `User` interface
 
-***
+---
 
 ### 3. Auth Actions Updates (`apps/frontend/src/app/store/auth/auth.actions.ts`)
 
@@ -676,7 +666,7 @@ export const login = createAction(
 export const refreshToken = createAction('[Auth] Refresh Token'); // Was: props<{ refreshToken: string }>()
 ```
 
-***
+---
 
 ### 4. LoginModalComponent Updates
 
@@ -736,13 +726,13 @@ private getFieldLabel(field: string): string {
 
 **Changes**:
 
-* Label: "Email" → "Email or Username"
-* Input type: "email" → "text"
-* formControlName: "email" → "emailOrUsername"
-* Placeholder: Updated to show both options
-* Icon: "email" → "person"
+- Label: "Email" → "Email or Username"
+- Input type: "email" → "text"
+- formControlName: "email" → "emailOrUsername"
+- Placeholder: Updated to show both options
+- Icon: "email" → "person"
 
-***
+---
 
 ## Backend API Endpoints (Reference)
 
@@ -850,7 +840,7 @@ private getFieldLabel(field: string): string {
 }
 ```
 
-***
+---
 
 ## Testing Status
 
@@ -858,21 +848,21 @@ private getFieldLabel(field: string): string {
 
 ✅ **COMPLETE** - All endpoints tested with curl:
 
-* Registration: User created, password hashed, tokens returned
-* Login: Username/email accepted, password verified, tokens returned
-* Session: JWT guard working, user data returned without password
-* Refresh: Token refresh working
-* Logout: Returns success message
+- Registration: User created, password hashed, tokens returned
+- Login: Username/email accepted, password verified, tokens returned
+- Session: JWT guard working, user data returned without password
+- Refresh: Token refresh working
+- Logout: Returns success message
 
 ### Frontend Code
 
 ✅ **COMPLETE** - All changes implemented:
 
-* AuthService updated with correct interfaces and URL
-* AuthEffects updated to handle backend responses
-* Auth actions updated with new signatures
-* LoginModalComponent updated for emailOrUsername
-* Zero TypeScript compilation errors
+- AuthService updated with correct interfaces and URL
+- AuthEffects updated to handle backend responses
+- Auth actions updated with new signatures
+- LoginModalComponent updated for emailOrUsername
+- Zero TypeScript compilation errors
 
 ### End-to-End UI Testing
 
@@ -886,7 +876,7 @@ but detected Angular version 21.0.2 instead.
 **Resolution**: Update Angular or downgrade `@angular/build` to compatible version\
 **Reference**: <https://update.angular.dev/>
 
-***
+---
 
 ## Next Steps
 
@@ -927,36 +917,36 @@ pnpm nx serve frontend
 1. Navigate to `http://localhost:4200`
 2. Click "Sign Up" button in header
 3. Fill registration form:
-   * Email: `test@example.com`
-   * Username: `testuser`
-   * Password: `TestPass123`
+   - Email: `test@example.com`
+   - Username: `testuser`
+   - Password: `TestPass123`
 4. Click "Create Account"
 5. **Expected**:
-   * User created in MongoDB
-   * JWT tokens stored in localStorage
-   * Redirected to `/library`
-   * Header shows user menu with username
+   - User created in MongoDB
+   - JWT tokens stored in localStorage
+   - Redirected to `/library`
+   - Header shows user menu with username
 
 #### Login Flow
 
 1. Click logout (if logged in)
 2. Click "Sign In" button in header
 3. Fill login form:
-   * Email or Username: `testuser`
-   * Password: `TestPass123`
+   - Email or Username: `testuser`
+   - Password: `TestPass123`
 4. Click "Sign In"
 5. **Expected**:
-   * Authentication successful
-   * JWT tokens stored in localStorage
-   * Redirected to `/library`
-   * Header shows user menu
+   - Authentication successful
+   - JWT tokens stored in localStorage
+   - Redirected to `/library`
+   - Header shows user menu
 
 #### Protected Routes
 
 1. While logged in, navigate to:
-   * `/library` - Should load (authGuard allows)
-   * `/profile` - Should load (authGuard allows)
-   * `/admin` - Should redirect to `/` (adminGuard blocks non-admin)
+   - `/library` - Should load (authGuard allows)
+   - `/profile` - Should load (authGuard allows)
+   - `/admin` - Should redirect to `/` (adminGuard blocks non-admin)
 2. Click logout
 3. Try navigating to `/library`
 4. **Expected**: Redirected to `/` (authGuard blocks)
@@ -970,7 +960,7 @@ pnpm nx serve frontend
 5. Disconnect backend, try login
 6. **Expected**: Network error handled gracefully
 
-***
+---
 
 ## Architecture Summary
 
@@ -1016,12 +1006,12 @@ interface AuthState {
 
 **Key Selectors**:
 
-* `selectUser` - Current user object
-* `selectIsAuthenticated` - Boolean auth status
-* `selectIsAdmin` - Boolean admin check
-* `selectAuthToken` - JWT access token
-* `selectAuthLoading` - Loading state
-* `selectAuthError` - Error message
+- `selectUser` - Current user object
+- `selectIsAuthenticated` - Boolean auth status
+- `selectIsAdmin` - Boolean admin check
+- `selectAuthToken` - JWT access token
+- `selectAuthLoading` - Loading state
+- `selectAuthError` - Error message
 
 ### HTTP Interceptor
 
@@ -1033,7 +1023,7 @@ interface AuthState {
 4. Dispatches logout action on 401
 5. Navigates to `/` on auth failure
 
-***
+---
 
 ## JWT Security Considerations
 
@@ -1045,21 +1035,21 @@ interface AuthState {
 
 ### Token Expiration
 
-* **Access Token**: 15 minutes (short-lived, frequent refresh)
-* **Refresh Token**: 7 days (long-lived, secure storage recommended)
+- **Access Token**: 15 minutes (short-lived, frequent refresh)
+- **Refresh Token**: 7 days (long-lived, secure storage recommended)
 
 ### Password Security
 
-* **Backend**: bcrypt with 10 salt rounds
-* **Frontend**: Minimum 8 characters validation
-* **Future**: Add password strength indicator, complexity requirements
+- **Backend**: bcrypt with 10 salt rounds
+- **Frontend**: Minimum 8 characters validation
+- **Future**: Add password strength indicator, complexity requirements
 
 ### CORS Configuration
 
 **Backend** allows origin: `http://localhost:4200`\
 **Production**: Update to actual production domain
 
-***
+---
 
 ## Files Modified
 
@@ -1081,7 +1071,7 @@ All backend files from previous session working correctly.
 2. `docs/FRONTEND_BACKEND_INTEGRATION.md` - This document
 3. Session todo list via `manage_todo_list` tool
 
-***
+---
 
 ## Verification
 
@@ -1110,34 +1100,36 @@ curl http://localhost:3000/api/auth/session
 # - Password: Admin123456 (hashed with bcrypt)
 ```
 
-***
+---
 
 ## Success Criteria
 
-* \[x] Frontend AuthService calls correct backend endpoints
-* \[x] Response interfaces match backend exactly
-* \[x] Login accepts username OR email
-* \[x] Error handling extracts nested error messages
-* \[x] Navigation routes match app structure
-* \[x] Zero TypeScript compilation errors
-* \[ ] **Pending**: UI testing (blocked by Angular version)
+- \[x] Frontend AuthService calls correct backend endpoints
+- \[x] Response interfaces match backend exactly
+- \[x] Login accepts username OR email
+- \[x] Error handling extracts nested error messages
+- \[x] Navigation routes match app structure
+- \[x] Zero TypeScript compilation errors
+- \[ ] **Pending**: UI testing (blocked by Angular version)
 
-***
+---
 
 ## Conclusion
 
-**Frontend-backend integration is 100% code complete.** All TypeScript files updated, interfaces aligned, error handling improved, and zero compilation errors. The system is ready for end-to-end testing once the Angular version compatibility issue is resolved.
+**Frontend-backend integration is 100% code complete.** All TypeScript files updated, interfaces aligned, error handling
+improved, and zero compilation errors. The system is ready for end-to-end testing once the Angular version compatibility
+issue is resolved.
 
 **Backend Status**: Running and fully tested\
 **Frontend Status**: Code complete, awaiting Angular fix\
 **Next Action**: Fix Angular version mismatch, then start UI testing
 
-***
+---
 
 **Last Updated**: December 3, 2025\
 **Author**: GitHub Copilot (Claude Sonnet 4.5)\
 **Related Docs**:
 
-* `AUTHENTICATION_SYSTEM.md` - Auth architecture
-* `TODO.md` - Project task tracking
-* Session todo list (manage\_todo\_list tool)
+- `AUTHENTICATION_SYSTEM.md` - Auth architecture
+- `TODO.md` - Project task tracking
+- Session todo list (manage_todo_list tool)

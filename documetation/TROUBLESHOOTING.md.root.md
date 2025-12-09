@@ -2,7 +2,7 @@
 
 **Common issues and solutions for Harmonia development environment.**
 
-***
+---
 
 ## MongoDB Issues
 
@@ -36,7 +36,7 @@ MongoServerError: connect ECONNREFUSED 127.0.0.1:27017
    # Should show: TCP    127.0.0.1:27017
    ```
 
-***
+---
 
 ### Issue: "Authentication failed"
 
@@ -83,7 +83,7 @@ MongoServerError: Authentication failed
    db.changeUserPassword('harmonia_app', 'NEW_PASSWORD')
    ```
 
-***
+---
 
 ### Issue: mongosh command not found
 
@@ -102,10 +102,11 @@ bash: mongosh: command not found
    ```
 
 2. **Or download manually:**
-   * Visit: <https://www.mongodb.com/try/download/shell>
-   * Download MSI installer
-   * Run installer
-   * Restart PowerShell
+
+   - Visit: <https://www.mongodb.com/try/download/shell>
+   - Download MSI installer
+   - Run installer
+   - Restart PowerShell
 
 3. **Verify installation:**
 
@@ -113,7 +114,7 @@ bash: mongosh: command not found
    mongosh --version
    ```
 
-***
+---
 
 ## PNPM Issues
 
@@ -136,7 +137,7 @@ cat package.json | jq .
 
 The `package.json` should have only ONE root object, not multiple.
 
-***
+---
 
 ### Issue: pnpm command not found
 
@@ -167,7 +168,7 @@ bash: pnpm: command not found
    pnpm --version
    ```
 
-***
+---
 
 ### Issue: "Unexpected build scripts"
 
@@ -185,7 +186,7 @@ This is expected and safe. To allow build scripts:
 pnpm approve-builds
 ```
 
-***
+---
 
 ## Node.js / TypeScript Issues
 
@@ -205,7 +206,7 @@ Error: Cannot find module 'mongoose'
    pnpm install
    ```
 
-2. **Check node\_modules exists:**
+2. **Check node_modules exists:**
 
    ```bash
    ls node_modules/
@@ -218,7 +219,7 @@ Error: Cannot find module 'mongoose'
    pnpm install
    ```
 
-***
+---
 
 ### Issue: TypeScript compilation errors
 
@@ -231,8 +232,9 @@ error TS2307: Cannot find module '@nestjs/common'
 **Solutions:**
 
 1. **NestJS not installed yet** (expected in Phase 0):
-   * These errors will resolve in Phase 1 when NestJS is scaffolded
-   * Files like `src/services/cloud-sync.service.ts` are documentation/templates
+
+   - These errors will resolve in Phase 1 when NestJS is scaffolded
+   - Files like `src/services/cloud-sync.service.ts` are documentation/templates
 
 2. **For actual TS errors, rebuild:**
 
@@ -240,7 +242,7 @@ error TS2307: Cannot find module '@nestjs/common'
    pnpm build
    ```
 
-***
+---
 
 ## Git Issues
 
@@ -275,7 +277,7 @@ warning: .env contains passwords
    # Update .env and MongoDB users
    ```
 
-***
+---
 
 ## Windows-Specific Issues
 
@@ -301,7 +303,7 @@ warning: .env contains passwords
    Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
    ```
 
-***
+---
 
 ### Issue: Permission denied errors
 
@@ -316,14 +318,15 @@ Error: EPERM: operation not permitted
 1. **Run PowerShell as Administrator**
 
 2. **Check if file is locked:**
-   * Close VS Code
-   * Close Docker Desktop
-   * Try again
+
+   - Close VS Code
+   - Close Docker Desktop
+   - Try again
 
 3. **Check antivirus:**
-   * Add `C:\repos\harmonia` to exclusions
+   - Add `C:\repos\harmonia` to exclusions
 
-***
+---
 
 ## Performance Issues
 
@@ -331,15 +334,15 @@ Error: EPERM: operation not permitted
 
 **Symptoms:**
 
-* System slow
-* MongoDB using 8GB+ RAM
+- System slow
+- MongoDB using 8GB+ RAM
 
 **Solutions:**
 
 1. **Check WiredTiger cache size:**
 
    ```javascript
-   db.serverStatus().wiredTiger.cache
+   db.serverStatus().wiredTiger.cache;
    ```
 
 2. **Adjust cache in mongod.cfg:**
@@ -348,7 +351,7 @@ Error: EPERM: operation not permitted
    storage:
      wiredTiger:
        engineConfig:
-         cacheSizeGB: 2  # Reduce from default
+         cacheSizeGB: 2 # Reduce from default
    ```
 
 3. **Restart MongoDB:**
@@ -357,13 +360,13 @@ Error: EPERM: operation not permitted
    Restart-Service MongoDB
    ```
 
-***
+---
 
 ### Issue: pnpm install very slow
 
 **Symptoms:**
 
-* Installation taking 10+ minutes
+- Installation taking 10+ minutes
 
 **Solutions:**
 
@@ -381,7 +384,7 @@ Error: EPERM: operation not permitted
 
 3. **Check network connection**
 
-***
+---
 
 ## Docker Issues (if using Docker MongoDB)
 
@@ -411,10 +414,10 @@ Error: bind: Only one usage of each socket address is normally permitted
 
    ```yaml
    ports:
-     - "27018:27017"  # External:Internal
+     - '27018:27017' # External:Internal
    ```
 
-***
+---
 
 ### Issue: Docker daemon not running
 
@@ -427,8 +430,9 @@ Error: Cannot connect to the Docker daemon
 **Solutions:**
 
 1. **Start Docker Desktop:**
-   * Open Docker Desktop app
-   * Wait for "Docker is running" status
+
+   - Open Docker Desktop app
+   - Wait for "Docker is running" status
 
 2. **Verify Docker is running:**
 
@@ -436,7 +440,7 @@ Error: Cannot connect to the Docker daemon
    docker ps
    ```
 
-***
+---
 
 ## Network Issues
 
@@ -444,8 +448,8 @@ Error: Cannot connect to the Docker daemon
 
 **Symptoms:**
 
-* mongosh works
-* Application gets connection refused
+- mongosh works
+- Application gets connection refused
 
 **Solutions:**
 
@@ -469,7 +473,7 @@ Error: Cannot connect to the Docker daemon
    Get-NetFirewallRule | Where-Object {$_.DisplayName -like "*MongoDB*"}
    ```
 
-***
+---
 
 ## Development Environment Issues
 
@@ -477,8 +481,8 @@ Error: Cannot connect to the Docker daemon
 
 **Symptoms:**
 
-* Only PowerShell available
-* Bash commands fail
+- Only PowerShell available
+- Bash commands fail
 
 **Solutions:**
 
@@ -489,9 +493,10 @@ Error: Cannot connect to the Docker daemon
    ```
 
 2. **Add bash to VS Code:**
-   * Open Settings (Ctrl+,)
-   * Search "terminal.integrated.profiles.windows"
-   * Add Git Bash profile
+
+   - Open Settings (Ctrl+,)
+   - Search "terminal.integrated.profiles.windows"
+   - Add Git Bash profile
 
 3. **Or use WSL2:**
 
@@ -499,14 +504,14 @@ Error: Cannot connect to the Docker daemon
    wsl --install
    ```
 
-***
+---
 
 ### Issue: Hot reload not working
 
 **Symptoms:**
 
-* Changes not reflected
-* Need to restart manually
+- Changes not reflected
+- Need to restart manually
 
 **Solutions:**
 
@@ -522,7 +527,7 @@ Error: Cannot connect to the Docker daemon
    pnpm start:dev  # Built-in hot reload
    ```
 
-***
+---
 
 ## Getting More Help
 
@@ -542,7 +547,7 @@ pnpm dev
 # Watch for errors in console
 ```
 
-***
+---
 
 ### 2. Run diagnostics
 
@@ -564,7 +569,7 @@ python scripts/audit_file_sizes.py
 python scripts/check_licenses_ci.py
 ```
 
-***
+---
 
 ### 3. Verify environment
 
@@ -587,17 +592,17 @@ git --version
 python --version  # Should be 3.11+
 ```
 
-***
+---
 
 ### 4. Review documentation
 
-* `docs/I9_MONGODB_INSTALL.md` - MongoDB setup
-* `docs/QUICKSTART_MONGODB.md` - Quick start guide
-* `docs/PNPM.md` - Package manager guide
-* `docs/DEV_ONBOARDING.md` - Developer onboarding
-* `docs/MONGODB_SECURITY.md` - Security guide
+- `docs/I9_MONGODB_INSTALL.md` - MongoDB setup
+- `docs/QUICKSTART_MONGODB.md` - Quick start guide
+- `docs/PNPM.md` - Package manager guide
+- `docs/DEV_ONBOARDING.md` - Developer onboarding
+- `docs/MONGODB_SECURITY.md` - Security guide
 
-***
+---
 
 ### 5. Reset environment (nuclear option)
 
@@ -625,7 +630,7 @@ Start-Service MongoDB
 .\scripts\setup-mongodb.bat
 ```
 
-***
+---
 
 ## Prevention Tips
 
@@ -639,7 +644,7 @@ pnpm outdated
 pnpm update
 ```
 
-***
+---
 
 ### 2. Regular backups
 
@@ -651,7 +656,7 @@ pnpm update
 # Set up Windows Task Scheduler for daily backups
 ```
 
-***
+---
 
 ### 3. Monitor system resources
 
@@ -663,7 +668,7 @@ Get-Process mongod | Select-Object CPU,WS
 Get-PSDrive C
 ```
 
-***
+---
 
 ### 4. Follow coding standards
 
@@ -674,7 +679,7 @@ python scripts/check_licenses_ci.py
 pnpm test
 ```
 
-***
+---
 
 ## Quick Reference Commands
 
@@ -706,8 +711,7 @@ Get-Process mongod
 pnpm --version
 ```
 
-***
+---
 
 **Last Updated:** December 2, 2025\
-**Covers:** Phase 0 infrastructure setup
-tup
+**Covers:** Phase 0 infrastructure setup tup

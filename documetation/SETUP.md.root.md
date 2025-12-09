@@ -4,24 +4,25 @@ Complete setup guide for Harmonia development environment
 
 ## Overview
 
-This guide covers the complete setup process for developing Harmonia locally, including prerequisites, development environment configuration, Docker services, and deployment options.
+This guide covers the complete setup process for developing Harmonia locally, including prerequisites, development
+environment configuration, Docker services, and deployment options.
 
 ## Prerequisites
 
 ### System Requirements
 
-* **OS**: Windows 10/11, macOS, or Linux with administrative access
-* **RAM**: 16GB minimum, 32GB recommended for AI/ML workloads
-* **Storage**: 200GB+ free space (AI models are large)
-* **Network**: Stable internet connection for downloading dependencies
+- **OS**: Windows 10/11, macOS, or Linux with administrative access
+- **RAM**: 16GB minimum, 32GB recommended for AI/ML workloads
+- **Storage**: 200GB+ free space (AI models are large)
+- **Network**: Stable internet connection for downloading dependencies
 
 ### Required Software
 
-* **Node.js 18+**: Runtime for frontend and backend
-* **pnpm**: Package manager for dependency management
-* **Git**: Version control
-* **MongoDB 8.0+**: Database (native or Docker)
-* **Docker Desktop**: Containerized services (optional but recommended)
+- **Node.js 18+**: Runtime for frontend and backend
+- **pnpm**: Package manager for dependency management
+- **Git**: Version control
+- **MongoDB 8.0+**: Database (native or Docker)
+- **Docker Desktop**: Containerized services (optional but recommended)
 
 ## Quick Start (15 minutes)
 
@@ -36,8 +37,8 @@ cd harmonia
 
 **Windows/macOS:**
 
-* Download Node.js 18+ LTS from [nodejs.org](https://nodejs.org/)
-* Install pnpm globally:
+- Download Node.js 18+ LTS from [nodejs.org](https://nodejs.org/)
+- Install pnpm globally:
 
 ```bash
 corepack enable
@@ -100,8 +101,8 @@ pnpm run frontend:dev   # Frontend on http://localhost:4200
 
 Open browser to:
 
-* **Frontend**: <http://localhost:4200>
-* **Backend API**: <http://localhost:3000/api/health>
+- **Frontend**: <http://localhost:4200>
+- **Backend API**: <http://localhost:3000/api/health>
 
 ## Detailed Setup
 
@@ -183,10 +184,10 @@ pnpm run docker:ml:stop
 
 **Container Details:**
 
-* **Image**: `harmonia-harmonia` (618MB)
-* **Purpose**: Python/MusicGen for audio generation
-* **Port**: 8000 (internal)
-* **Mounts**: Models, datasets, artifacts
+- **Image**: `harmonia-harmonia` (618MB)
+- **Purpose**: Python/MusicGen for audio generation
+- **Port**: 8000 (internal)
+- **Mounts**: Models, datasets, artifacts
 
 ### Docker Compose Setup
 
@@ -236,9 +237,9 @@ For GPU-accelerated development on Windows:
    ```
 
 3. **Configure GPU Support**:
-   * Install NVIDIA drivers in Windows
-   * Install CUDA toolkit in WSL2
-   * Verify: `nvidia-smi` in WSL2 terminal
+   - Install NVIDIA drivers in Windows
+   - Install CUDA toolkit in WSL2
+   - Verify: `nvidia-smi` in WSL2 terminal
 
 ### Docker in WSL2
 
@@ -268,7 +269,8 @@ pnpm run docker:ml:start
 
 ### Nx-managed docker infra
 
-For convenience, an Nx-managed infra project (`infra`) exists to start local services via docker compose. These include `jen1` (Jenkins), `ollama` (local LLM), and `musicgen` (MusicGen worker).
+For convenience, an Nx-managed infra project (`infra`) exists to start local services via docker compose. These include
+`jen1` (Jenkins), `ollama` (local LLM), and `musicgen` (MusicGen worker).
 
 Quick commands:
 
@@ -315,17 +317,17 @@ USE_OLLAMA=true
 
 **Development**:
 
-* Hot reload enabled
-* Debug logging
-* Local services
-* Mock data fallbacks
+- Hot reload enabled
+- Debug logging
+- Local services
+- Mock data fallbacks
 
 **Production**:
 
-* Optimized builds
-* External databases
-* CDN assets
-* Security hardening
+- Optimized builds
+- External databases
+- CDN assets
+- Security hardening
 
 ## Troubleshooting
 
@@ -386,17 +388,17 @@ docker ps
 
 **For Large Projects**:
 
-* Use SSD storage
-* Increase Node.js memory: `export NODE_OPTIONS="--max-old-space-size=4096"`
-* Use Docker for isolated services
-* Monitor resource usage with Task Manager/Activity Monitor
+- Use SSD storage
+- Increase Node.js memory: `export NODE_OPTIONS="--max-old-space-size=4096"`
+- Use Docker for isolated services
+- Monitor resource usage with Task Manager/Activity Monitor
 
 **For AI/ML Development**:
 
-* Use GPU acceleration when available
-* Cache model downloads
-* Use smaller models for development
-* Monitor GPU memory usage
+- Use GPU acceleration when available
+- Cache model downloads
+- Use smaller models for development
+- Monitor GPU memory usage
 
 ## Development Workflow
 
@@ -420,10 +422,10 @@ pnpm build
 
 ### Code Quality
 
-* **Linting**: ESLint for TypeScript/JavaScript
-* **Formatting**: Prettier for consistent code style
-* **Testing**: Jest for unit tests, Playwright for E2E
-* **Type Checking**: TypeScript strict mode
+- **Linting**: ESLint for TypeScript/JavaScript
+- **Formatting**: Prettier for consistent code style
+- **Testing**: Jest for unit tests, Playwright for E2E
+- **Type Checking**: TypeScript strict mode
 
 ### Git Workflow
 
@@ -466,10 +468,10 @@ docker-compose up -d
 
 **Supported Platforms**:
 
-* Vercel (Frontend)
-* Railway/DigitalOcean (Backend)
-* MongoDB Atlas (Database)
-* Docker containers for AI services
+- Vercel (Frontend)
+- Railway/DigitalOcean (Backend)
+- MongoDB Atlas (Database)
+- Docker containers for AI services
 
 ## Advanced Configuration
 
@@ -503,11 +505,11 @@ cp .env.example .env.production
 
 GitHub Actions workflow includes:
 
-* Dependency installation
-* Linting and type checking
-* Unit and integration tests
-* Build verification
-* Docker image creation
+- Dependency installation
+- Linting and type checking
+- Unit and integration tests
+- Build verification
+- Docker image creation
 
 ## Support
 

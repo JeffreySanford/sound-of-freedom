@@ -1,15 +1,14 @@
 # Harmonia API Reference
 
-**Version**: 1.0.0
-**Base URL**: `http://localhost:3000/api`
-**Authentication**: JWT Bearer tokens
-**Date**: December 4, 2025
+**Version**: 1.0.0 **Base URL**: `http://localhost:3000/api` **Authentication**: JWT Bearer tokens **Date**: December 4,
+2025
 
-***
+---
 
 ## Overview
 
-The Harmonia API provides comprehensive endpoints for user authentication, song generation, and music creation workflows. All endpoints return JSON responses and use standard HTTP status codes.
+The Harmonia API provides comprehensive endpoints for user authentication, song generation, and music creation
+workflows. All endpoints return JSON responses and use standard HTTP status codes.
 
 ### Authentication
 
@@ -35,10 +34,10 @@ All endpoints follow consistent error response format:
 
 API endpoints are rate-limited to prevent abuse. Current limits:
 
-* Authentication endpoints: 10 requests per minute
-* Song generation endpoints: 5 requests per minute per user
+- Authentication endpoints: 10 requests per minute
+- Song generation endpoints: 5 requests per minute per user
 
-***
+---
 
 ## Authentication Endpoints
 
@@ -74,8 +73,8 @@ Register a new user account.
 
 **Error Responses**:
 
-* `409 Conflict`: Email or username already exists
-* `400 Bad Request`: Invalid input data
+- `409 Conflict`: Email or username already exists
+- `400 Bad Request`: Invalid input data
 
 ### POST /auth/login
 
@@ -108,7 +107,7 @@ Authenticate user with credentials.
 
 **Error Responses**:
 
-* `401 Unauthorized`: Invalid credentials
+- `401 Unauthorized`: Invalid credentials
 
 ### POST /auth/refresh
 
@@ -132,7 +131,7 @@ Authorization: Bearer <refresh_token>
 
 **Error Responses**:
 
-* `401 Unauthorized`: Invalid or expired refresh token
+- `401 Unauthorized`: Invalid or expired refresh token
 
 ### GET /auth/session
 
@@ -159,7 +158,7 @@ Authorization: Bearer <access_token>
 
 **Error Responses**:
 
-* `401 Unauthorized`: Invalid or expired access token
+- `401 Unauthorized`: Invalid or expired access token
 
 ### POST /auth/logout
 
@@ -180,7 +179,7 @@ Authorization: Bearer <access_token>
 }
 ```
 
-***
+---
 
 ## Song Generation Endpoints
 
@@ -206,9 +205,9 @@ Authorization: Bearer <access_token>
 
 **Parameters**:
 
-* `narrative` (string, required): Story or theme for the song (500-2000 characters)
-* `duration` (number, optional): Target song duration in seconds (15-120, default: 180)
-* `model` (string, optional): AI model to use (default: configured model)
+- `narrative` (string, required): Story or theme for the song (500-2000 characters)
+- `duration` (number, optional): Target song duration in seconds (15-120, default: 180)
+- `model` (string, optional): AI model to use (default: configured model)
 
 **Response (200 OK)**:
 
@@ -225,9 +224,9 @@ Authorization: Bearer <access_token>
 
 **Error Responses**:
 
-* `400 Bad Request`: Invalid narrative or parameters
-* `401 Unauthorized`: Missing or invalid authentication
-* `503 Service Unavailable`: AI service unavailable
+- `400 Bad Request`: Invalid narrative or parameters
+- `401 Unauthorized`: Missing or invalid authentication
+- `503 Service Unavailable`: AI service unavailable
 
 ### POST /songs/suggest-genres
 
@@ -360,11 +359,11 @@ Authorization: Bearer <access_token>
 
 **Parameters**:
 
-* `songId` (string, required): Unique song identifier
-* `format` (string, optional): Export format ("wav", "mp3", "flac") - default: "wav"
-* `instruments` (array, optional): Specific instruments to export - default: all
-* `sampleRate` (number, optional): Sample rate in Hz (22050, 44100, 48000) - default: 44100
-* `bitDepth` (number, optional): Bit depth (16, 24, 32) - default: 16
+- `songId` (string, required): Unique song identifier
+- `format` (string, optional): Export format ("wav", "mp3", "flac") - default: "wav"
+- `instruments` (array, optional): Specific instruments to export - default: all
+- `sampleRate` (number, optional): Sample rate in Hz (22050, 44100, 48000) - default: 44100
+- `bitDepth` (number, optional): Bit depth (16, 24, 32) - default: 16
 
 **Response (200 OK)**:
 
@@ -384,7 +383,7 @@ Authorization: Bearer <access_token>
 }
 ```
 
-***
+---
 
 ## Health Check Endpoints
 
@@ -400,7 +399,7 @@ Basic health check endpoint for load balancers and monitoring.
 }
 ```
 
-***
+---
 
 ## Data Models
 
@@ -443,7 +442,7 @@ interface MMSLSection {
 }
 ```
 
-***
+---
 
 ## WebSocket Integration
 
@@ -484,7 +483,7 @@ ws://localhost:3000
 }
 ```
 
-***
+---
 
 ## Rate Limiting
 
@@ -502,7 +501,7 @@ X-RateLimit-Remaining: 9
 X-RateLimit-Reset: 1638360000
 ```
 
-***
+---
 
 ## Error Codes
 
@@ -518,7 +517,7 @@ X-RateLimit-Reset: 1638360000
 | 500  | Internal Server Error - Server error          |
 | 503  | Service Unavailable - External service down   |
 
-***
+---
 
 ## SDK Examples
 
@@ -530,7 +529,7 @@ const login = async (emailOrUsername, password) => {
   const response = await fetch('/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ emailOrUsername, password }),
+    body: JSON.stringify({ emailOrUsername, password })
   });
   return response.json();
 };
@@ -541,9 +540,9 @@ const generateSong = async (narrative, token) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${token}`
     },
-    body: JSON.stringify({ narrative, duration: 180 }),
+    body: JSON.stringify({ narrative, duration: 180 })
   });
   return response.json();
 };
@@ -564,16 +563,16 @@ curl -X POST http://localhost:3000/api/songs/generate-metadata \
   -d '{"narrative":"A love story set in Paris","duration":240}'
 ```
 
-***
+---
 
 ## Changelog
 
 ### Version 1.0.0 (December 4, 2025)
 
-* Initial API release
-* Authentication endpoints
-* Song metadata generation
-* M-MSL parsing and validation
-* Stem export functionality
-* WebSocket real-time updates
-* Rate limiting implementation
+- Initial API release
+- Authentication endpoints
+- Song metadata generation
+- M-MSL parsing and validation
+- Stem export functionality
+- WebSocket real-time updates
+- Rate limiting implementation

@@ -2,7 +2,7 @@
 
 **Architecture for syncing MongoDB Community Edition to cloud storage with future migration path.**
 
-***
+---
 
 ## Overview
 
@@ -10,7 +10,7 @@
 **Future Goal:** Selective sync to jeffreysanford.us or cloud provider\
 **Design Principle:** Cloud-ready architecture without immediate implementation
 
-***
+---
 
 ## MongoDB Community Edition for Long-Term Storage
 
@@ -19,52 +19,58 @@
 **Why Community Edition Works:**
 
 1. **Full Feature Set for Local Development**
-   * No data size limits (unlimited storage)
-   * All CRUD operations, indexes, aggregations
-   * Replica sets support (for HA later)
-   * Change streams (for sync triggers)
+
+   - No data size limits (unlimited storage)
+   - All CRUD operations, indexes, aggregations
+   - Replica sets support (for HA later)
+   - Change streams (for sync triggers)
 
 2. **Production-Grade Reliability**
-   * ACID transactions
-   * Point-in-time backups via mongodump
-   * Binary replication logs (oplog)
-   * Crash recovery and journaling
+
+   - ACID transactions
+   - Point-in-time backups via mongodump
+   - Binary replication logs (oplog)
+   - Crash recovery and journaling
 
 3. **Long-Term Storage Characteristics**
-   * Models: ~100GB+ (static, rarely changes)
-   * Metadata: <1GB (dynamic, frequent updates)
-   * Logs/Events: <10GB/year (append-only)
-   * **Total Growth:** ~1-2GB/month (sustainable for years)
+
+   - Models: ~100GB+ (static, rarely changes)
+   - Metadata: <1GB (dynamic, frequent updates)
+   - Logs/Events: <10GB/year (append-only)
+   - **Total Growth:** ~1-2GB/month (sustainable for years)
 
 4. **Limitations That Don't Affect You**
-   * ❌ No MongoDB Atlas automatic scaling (not needed for single-node)
-   * ❌ No Atlas monitoring/alerting (can use Prometheus/Grafana)
-   * ❌ No cross-region replication (not needed yet)
+   - ❌ No MongoDB Atlas automatic scaling (not needed for single-node)
+   - ❌ No Atlas monitoring/alerting (can use Prometheus/Grafana)
+   - ❌ No cross-region replication (not needed yet)
 
-**Verdict:** MongoDB Community Edition is perfect for 3-5 years of local development before considering Enterprise/Atlas.
+**Verdict:** MongoDB Community Edition is perfect for 3-5 years of local development before considering
+Enterprise/Atlas.
 
-***
+---
 
 ## Cloud Sync Architecture (Future-Ready)
 
 ### Design Principles
 
 1. **Separation of Concerns**
-   * **Hot Data:** MongoDB on i9 (primary source of truth)
-   * **Cold Storage:** Cloud object storage (S3/GCS/Azure Blob)
-   * **Metadata Sync:** Lightweight API to jeffreysanford.us
+
+   - **Hot Data:** MongoDB on i9 (primary source of truth)
+   - **Cold Storage:** Cloud object storage (S3/GCS/Azure Blob)
+   - **Metadata Sync:** Lightweight API to jeffreysanford.us
 
 2. **Incremental Sync Strategy**
-   * Sync daily backups to cloud (full dumps)
-   * Sync metadata changes in real-time (API calls)
-   * Models remain local (too large, rarely accessed remotely)
+
+   - Sync daily backups to cloud (full dumps)
+   - Sync metadata changes in real-time (API calls)
+   - Models remain local (too large, rarely accessed remotely)
 
 3. **Minimal Remote Footprint**
-   * No full MongoDB on jeffreysanford.us (too resource-heavy)
-   * Lightweight metadata API (Express.js + SQLite or JSON store)
-   * Static file server for documentation
+   - No full MongoDB on jeffreysanford.us (too resource-heavy)
+   - Lightweight metadata API (Express.js + SQLite or JSON store)
+   - Static file server for documentation
 
-***
+---
 
 ## Phase 1: Cloud-Ready Local Setup (Current)
 
@@ -98,13 +104,13 @@
 
 **Current State:**
 
-* ✅ MongoDB with persistent volumes
-* ✅ Daily backups with mongodump
-* ✅ JSON seed files for DR
-* ✅ Mongoose schemas with validation
-* ⏳ NestJS API (Phase 1)
+- ✅ MongoDB with persistent volumes
+- ✅ Daily backups with mongodump
+- ✅ JSON seed files for DR
+- ✅ Mongoose schemas with validation
+- ⏳ NestJS API (Phase 1)
 
-***
+---
 
 ## Phase 2: Lightweight Cloud Metadata Sync (Future)
 
@@ -129,19 +135,19 @@ i9 MongoDB ──(API calls)──▶ jeffreysanford.us
 
 **jeffreysanford.us Components:**
 
-* **Lightweight Node.js API** (Express.js, <50MB RAM)
-* **SQLite database** (metadata only, <100MB)
-* **Static file server** (documentation, inventories)
-* **No MongoDB** (avoids 500MB+ RAM overhead)
+- **Lightweight Node.js API** (Express.js, <50MB RAM)
+- **SQLite database** (metadata only, <100MB)
+- **Static file server** (documentation, inventories)
+- **No MongoDB** (avoids 500MB+ RAM overhead)
 
 **What Gets Synced:**
 
-* ✅ Model metadata (name, size, license, source URL)
-* ✅ Inventory summaries (JSON files)
-* ✅ License manifests
-* ✅ Documentation (static HTML/MD)
-* ❌ **NOT** model weights (too large, stored locally)
-* ❌ **NOT** datasets (too large, stored locally)
+- ✅ Model metadata (name, size, license, source URL)
+- ✅ Inventory summaries (JSON files)
+- ✅ License manifests
+- ✅ Documentation (static HTML/MD)
+- ❌ **NOT** model weights (too large, stored locally)
+- ❌ **NOT** datasets (too large, stored locally)
 
 **Implementation Steps (Future):**
 
@@ -150,7 +156,7 @@ i9 MongoDB ──(API calls)──▶ jeffreysanford.us
 3. Set up cron job on i9 to push metadata daily
 4. Expose read-only API: `GET /api/models`
 
-***
+---
 
 ### Option B: Cloud Object Storage Only
 
@@ -166,28 +172,31 @@ i9 MongoDB ──(Daily backup)──▶ S3/GCS/Azure Blob
 **Cloud Storage Options:**
 
 1. **AWS S3** ($0.023/GB/month)
-   * \~$3/month for backups (100GB compressed ~10GB)
-   * Lifecycle policies (delete old backups)
-   * Versioning for safety
+
+   - \~$3/month for backups (100GB compressed ~10GB)
+   - Lifecycle policies (delete old backups)
+   - Versioning for safety
 
 2. **Google Cloud Storage** ($0.020/GB/month)
-   * Similar pricing to S3
-   * Better egress costs (free to GCP services)
+
+   - Similar pricing to S3
+   - Better egress costs (free to GCP services)
 
 3. **Backblaze B2** ($0.005/GB/month)
-   * **Cheapest option**: ~$1/month for 100GB
-   * S3-compatible API
-   * 3x cheaper than AWS
+
+   - **Cheapest option**: ~$1/month for 100GB
+   - S3-compatible API
+   - 3x cheaper than AWS
 
 4. **Azure Blob Storage** ($0.018/GB/month)
-   * Good if already in Azure ecosystem
+   - Good if already in Azure ecosystem
 
 **What Gets Synced:**
 
-* ✅ Daily mongodump archives (.archive.gz)
-* ✅ Seed files (JSON)
-* ✅ Checksums and inventories
-* ✅ Encrypted backups (GPG or AES-256)
+- ✅ Daily mongodump archives (.archive.gz)
+- ✅ Seed files (JSON)
+- ✅ Checksums and inventories
+- ✅ Encrypted backups (GPG or AES-256)
 
 **Implementation Steps (Future):**
 
@@ -196,7 +205,7 @@ i9 MongoDB ──(Daily backup)──▶ S3/GCS/Azure Blob
 3. Set up daily upload cron job
 4. Implement retention policy (30 days)
 
-***
+---
 
 ## Phase 3: Full Cloud Migration (3-5 Years Out)
 
@@ -204,17 +213,17 @@ i9 MongoDB ──(Daily backup)──▶ S3/GCS/Azure Blob
 
 **When to Migrate:**
 
-* Multiple users accessing remotely
-* Need for high availability (99.9%+ uptime)
-* Cross-region replication required
-* Data exceeds 500GB
-* Team collaboration needs cloud access
+- Multiple users accessing remotely
+- Need for high availability (99.9%+ uptime)
+- Cross-region replication required
+- Data exceeds 500GB
+- Team collaboration needs cloud access
 
 **MongoDB Atlas Pricing (Estimate):**
 
-* **M10 Shared Cluster:** $57/month (10GB storage, 2GB RAM)
-* **M30 Dedicated:** $305/month (40GB storage, 8GB RAM, backups)
-* **M40 Dedicated:** $580/month (80GB storage, 16GB RAM)
+- **M10 Shared Cluster:** $57/month (10GB storage, 2GB RAM)
+- **M30 Dedicated:** $305/month (40GB storage, 8GB RAM, backups)
+- **M40 Dedicated:** $580/month (80GB storage, 16GB RAM)
 
 **Migration Path:**
 
@@ -224,7 +233,7 @@ i9 MongoDB ──(Daily backup)──▶ S3/GCS/Azure Blob
 4. Update connection strings in NestJS
 5. Keep i9 as warm standby
 
-***
+---
 
 ## Recommended Approach
 
@@ -232,24 +241,24 @@ i9 MongoDB ──(Daily backup)──▶ S3/GCS/Azure Blob
 
 **Implementation:**
 
-* ✅ Use MongoDB Community Edition on i9
-* ✅ Daily backups with mongodump (already implemented)
-* ✅ JSON seed files for quick restores
-* ⏳ Add encryption to backups (GPG)
-* ⏳ Document cloud sync interfaces
+- ✅ Use MongoDB Community Edition on i9
+- ✅ Daily backups with mongodump (already implemented)
+- ✅ JSON seed files for quick restores
+- ⏳ Add encryption to backups (GPG)
+- ⏳ Document cloud sync interfaces
 
 **No Cloud Costs:** $0/month
 
-***
+---
 
 ### Short-Term (Phase 1-2): Lightweight Cloud Backup
 
 **Implementation:**
 
-* Create encrypted backup sync to Backblaze B2 ($1-2/month)
-* Deploy lightweight metadata API to jeffreysanford.us (read-only)
-* Keep all models and heavy data local
-* Expose public inventory API (no authentication needed)
+- Create encrypted backup sync to Backblaze B2 ($1-2/month)
+- Deploy lightweight metadata API to jeffreysanford.us (read-only)
+- Keep all models and heavy data local
+- Expose public inventory API (no authentication needed)
 
 **Cloud Costs:** $1-5/month
 
@@ -266,42 +275,44 @@ docs/
   JEFFREYSANFORD_DEPLOY.md  # Deployment guide for metadata API
 ```
 
-***
+---
 
 ### Long-Term (Phase 3+): Cloud-Native
 
 **Implementation:**
 
-* Migrate to MongoDB Atlas when team grows
-* Or: Self-host MongoDB on AWS/GCP/Azure
-* Full cloud infrastructure (Kubernetes, load balancers)
+- Migrate to MongoDB Atlas when team grows
+- Or: Self-host MongoDB on AWS/GCP/Azure
+- Full cloud infrastructure (Kubernetes, load balancers)
 
 **Cloud Costs:** $50-500/month (depending on scale)
 
-***
+---
 
 ## Security Considerations
 
 ### Data Classification
 
 1. **Public (Can Sync to jeffreysanford.us)**
-   * Model metadata (names, sizes, licenses)
-   * Inventories and checksums
-   * Documentation
-   * License manifests
+
+   - Model metadata (names, sizes, licenses)
+   - Inventories and checksums
+   - Documentation
+   - License manifests
 
 2. **Private (Keep on i9)**
-   * Model weights (100GB+)
-   * Training datasets
-   * Intermediate artifacts
-   * User data (if any)
+
+   - Model weights (100GB+)
+   - Training datasets
+   - Intermediate artifacts
+   - User data (if any)
 
 3. **Encrypted Cloud Storage**
-   * Backup archives (mongodump)
-   * Seed files with sensitive data
-   * Use GPG or AWS KMS
+   - Backup archives (mongodump)
+   - Seed files with sensitive data
+   - Use GPG or AWS KMS
 
-***
+---
 
 ## Cloud Sync Interface Design (Future)
 
@@ -330,7 +341,7 @@ export class CloudSyncService {
     // Load from environment or config
     this.config = {
       provider: 'none',
-      enabled: false,
+      enabled: false
     };
   }
 
@@ -380,7 +391,7 @@ CLOUD_SYNC_PROVIDER=none
 # CLOUD_SYNC_API_KEY=your_api_key_here
 ```
 
-***
+---
 
 ## Storage Sizing Estimates
 
@@ -394,7 +405,7 @@ backups/mongo/             ~10GB    (compressed, 7-day retention)
 seeds/                     ~10MB    (JSON, negligible)
 logs/                      ~1GB/year
 ─────────────────────────────────────
-Total:                     ~162GB   
+Total:                     ~162GB
 Growth Rate:               ~1-2GB/month
 ```
 
@@ -406,7 +417,7 @@ Growth Rate:               ~1-2GB/month
 Daily backups (7 days)     ~10GB    ($0.05-0.23/month)
 Seed files                 ~10MB    (negligible)
 ─────────────────────────────────────
-Total:                     ~10GB    
+Total:                     ~10GB
 Monthly Cost:              $0.05-2/month (Backblaze to AWS)
 ```
 
@@ -417,7 +428,7 @@ Metadata database          ~100MB   (SQLite or JSON)
 Static files               ~50MB    (docs, inventories)
 API server RAM             ~50MB    (Node.js Express)
 ─────────────────────────────────────
-Total:                     ~200MB   
+Total:                     ~200MB
 Monthly Cost:              $0 (fits on small server)
 ```
 
@@ -431,34 +442,34 @@ Egress fees                ~10GB    ($1/month)
 Monthly Cost:              ~$306/month
 ```
 
-***
+---
 
 ## Implementation Checklist
 
 ### ✅ Already Implemented (Phase 0)
 
-* \[x] MongoDB Community Edition with Docker
-* \[x] Persistent volumes for data
-* \[x] Daily backup script (mongodump)
-* \[x] JSON seed files for DR
-* \[x] Backup retention (7 days)
+- \[x] MongoDB Community Edition with Docker
+- \[x] Persistent volumes for data
+- \[x] Daily backup script (mongodump)
+- \[x] JSON seed files for DR
+- \[x] Backup retention (7 days)
 
 ### ⏳ Cloud-Ready Preparation (Phase 1)
 
-* \[ ] Add backup encryption (GPG)
-* \[ ] Create cloud sync service stub (NestJS)
-* \[ ] Document cloud sync interfaces
-* \[ ] Add `CLOUD_SYNC_ENABLED=false` to .env
+- \[ ] Add backup encryption (GPG)
+- \[ ] Create cloud sync service stub (NestJS)
+- \[ ] Document cloud sync interfaces
+- \[ ] Add `CLOUD_SYNC_ENABLED=false` to .env
 
 ### 🔮 Future Implementation (Phase 2+)
 
-* \[ ] Set up Backblaze B2 or S3 account
-* \[ ] Implement automated cloud backup upload
-* \[ ] Deploy lightweight metadata API to jeffreysanford.us
-* \[ ] Create public read-only inventory endpoint
-* \[ ] Add cloud restore scripts
+- \[ ] Set up Backblaze B2 or S3 account
+- \[ ] Implement automated cloud backup upload
+- \[ ] Deploy lightweight metadata API to jeffreysanford.us
+- \[ ] Create public read-only inventory endpoint
+- \[ ] Add cloud restore scripts
 
-***
+---
 
 ## Conclusion
 
@@ -471,7 +482,8 @@ Monthly Cost:              ~$306/month
 3. **6-12 months:** Deploy lightweight metadata API to jeffreysanford.us (read-only)
 4. **3+ years:** Consider MongoDB Atlas if team/scale demands it
 
-**Key Insight:** Your models are static (100GB) and rarely change. MongoDB is overkill for cloud sync—just sync metadata (1MB) and keep models local. Use object storage (S3/B2) for disaster recovery backups only.
+**Key Insight:** Your models are static (100GB) and rarely change. MongoDB is overkill for cloud sync—just sync metadata
+(1MB) and keep models local. Use object storage (S3/B2) for disaster recovery backups only.
 
 **Next Steps:**
 
@@ -480,11 +492,11 @@ Monthly Cost:              ~$306/month
 3. Document cloud sync interfaces (no implementation)
 4. Revisit cloud sync when you have remote access needs
 
-***
+---
 
 ## References
 
-* MongoDB Community vs Enterprise: <https://www.mongodb.com/community/licensing>
-* MongoDB Atlas Pricing: <https://www.mongodb.com/pricing>
-* Backblaze B2 Pricing: <https://www.backblaze.com/b2/cloud-storage-pricing.html>
-* AWS S3 Pricing: <https://aws.amazon.com/s3/pricing/>
+- MongoDB Community vs Enterprise: <https://www.mongodb.com/community/licensing>
+- MongoDB Atlas Pricing: <https://www.mongodb.com/pricing>
+- Backblaze B2 Pricing: <https://www.backblaze.com/b2/cloud-storage-pricing.html>
+- AWS S3 Pricing: <https://aws.amazon.com/s3/pricing/>

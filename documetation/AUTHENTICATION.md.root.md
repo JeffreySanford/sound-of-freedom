@@ -2,20 +2,21 @@
 
 ## Overview
 
-Comprehensive authentication and authorization system with role-based access control (RBAC), JWT tokens, Redis session caching, and MongoDB user storage.
+Comprehensive authentication and authorization system with role-based access control (RBAC), JWT tokens, Redis session
+caching, and MongoDB user storage.
 
 **Core Features**:
 
-* User registration and login with bcrypt password hashing
-* JWT token-based authentication with refresh tokens
-* Role-based access control (user, admin groups)
-* Permission inheritance (admin inherits user rights)
-* Route guards for protected views
-* Redis session caching for performance
-* MongoDB user and session storage
-* Login overlay modal (non-intrusive UI)
-* Header user menu with dropdown
-* Secure HTTP-only cookies for token storage
+- User registration and login with bcrypt password hashing
+- JWT token-based authentication with refresh tokens
+- Role-based access control (user, admin groups)
+- Permission inheritance (admin inherits user rights)
+- Route guards for protected views
+- Redis session caching for performance
+- MongoDB user and session storage
+- Login overlay modal (non-intrusive UI)
+- Header user menu with dropdown
+- Secure HTTP-only cookies for token storage
 
 ## Architecture Diagram
 
@@ -83,7 +84,7 @@ Comprehensive authentication and authorization system with role-based access con
 ```typescript
 enum UserGroup {
   USER = 'user', // Basic authenticated user
-  ADMIN = 'admin', // Administrator with elevated privileges
+  ADMIN = 'admin' // Administrator with elevated privileges
 }
 
 // Permission inheritance
@@ -99,14 +100,14 @@ const defaultUsers = [
     username: 'user',
     email: 'user@harmonia.local',
     password: 'user123!',
-    group: UserGroup.USER,
+    group: UserGroup.USER
   },
   {
     username: 'admin',
     email: 'admin@harmonia.local',
     password: 'admin123!',
-    group: UserGroup.ADMIN,
-  },
+    group: UserGroup.ADMIN
+  }
 ];
 ```
 
@@ -123,73 +124,73 @@ const defaultUsers = [
 
 1. **Login Modal Component** (`features/auth/login-modal/`)
 
-   * Component, template, styles, tests
-   * Dual-mode form (login/register)
-   * Material Design with validation
-   * NGRX integration for state
+   - Component, template, styles, tests
+   - Dual-mode form (login/register)
+   - Material Design with validation
+   - NGRX integration for state
 
 2. **Header User Menu** (`features/auth/header-user-menu/`)
-   * Component, template, styles, tests
-   * Dropdown menu with navigation
-   * Role-based conditional rendering
-   * Logout functionality
+   - Component, template, styles, tests
+   - Dropdown menu with navigation
+   - Role-based conditional rendering
+   - Logout functionality
 
 ##### Placeholder Pages
 
 1. **Library Module** (`features/library/`)
 
-   * Module, routing, component (ts, html, scss)
-   * Material module for icons
-   * Protected by `authGuard`
+   - Module, routing, component (ts, html, scss)
+   - Material module for icons
+   - Protected by `authGuard`
 
 2. **Profile Module** (`features/profile/`)
 
-   * Module, routing, component (ts, html, scss)
-   * Material module for icons
-   * User info display
-   * Protected by `authGuard`
+   - Module, routing, component (ts, html, scss)
+   - Material module for icons
+   - User info display
+   - Protected by `authGuard`
 
 3. **Admin Module** (`features/admin/`)
-   * Module, routing, component (ts, html, scss)
-   * Material module for icons
-   * Feature grid layout
-   * Protected by `authGuard` + `adminGuard`
+   - Module, routing, component (ts, html, scss)
+   - Material module for icons
+   - Feature grid layout
+   - Protected by `authGuard` + `adminGuard`
 
 ##### Infrastructure
 
 1. **Route Guards** (`guards/`)
 
-   * `authGuard` - Protect authenticated routes
-   * `adminGuard` - Admin-only access
-   * `guestGuard` - Prevent authenticated access
-   * Unit tests for all guards
-   * Index file for exports
+   - `authGuard` - Protect authenticated routes
+   - `adminGuard` - Admin-only access
+   - `guestGuard` - Prevent authenticated access
+   - Unit tests for all guards
+   - Index file for exports
 
 2. **HTTP Interceptor** (`interceptors/`)
 
-   * `AuthInterceptor` - Auto-attach JWT tokens
-   * 401 error handling with auto-logout
-   * Skip auth endpoints
-   * Unit tests
+   - `AuthInterceptor` - Auto-attach JWT tokens
+   - 401 error handling with auto-logout
+   - Skip auth endpoints
+   - Unit tests
 
 3. **Services**
 
-   * `AuthUiService` - Modal management
-   * Unit tests
+   - `AuthUiService` - Modal management
+   - Unit tests
 
 4. **Routing** (`app.routes.ts`)
-   * Library route with `authGuard`
-   * Profile route with `authGuard`
-   * Admin route with `authGuard` + `adminGuard`
-   * Lazy-loaded modules
+   - Library route with `authGuard`
+   - Profile route with `authGuard`
+   - Admin route with `authGuard` + `adminGuard`
+   - Lazy-loaded modules
 
 #### Quality Metrics
 
-* **Lint Status**: ✅ 0 errors, 22 warnings (non-blocking)
-* **Type Safety**: ✅ All TypeScript compiles
-* **Test Coverage**: 25+ unit tests created
-* **Code Style**: ✅ Uses inject() pattern throughout
-* **Selectors**: ✅ All use "harmonia-" prefix
+- **Lint Status**: ✅ 0 errors, 22 warnings (non-blocking)
+- **Type Safety**: ✅ All TypeScript compiles
+- **Test Coverage**: 25+ unit tests created
+- **Code Style**: ✅ Uses inject() pattern throughout
+- **Selectors**: ✅ All use "harmonia-" prefix
 
 ### ⏳ Next Phase - Backend Implementation
 
@@ -259,10 +260,10 @@ UserSchema.pre<User>('save', async function (next) {
 
 **Security Considerations**:
 
-* Time-limited reset tokens (15 minutes)
-* Single-use tokens
-* Rate limiting on reset requests
-* Secure token generation and validation
+- Time-limited reset tokens (15 minutes)
+- Single-use tokens
+- Rate limiting on reset requests
+- Secure token generation and validation
 
 #### User Flow
 
@@ -282,14 +283,14 @@ UserSchema.pre<User>('save', async function (next) {
 // forgot-password.component.ts
 export class ForgotPasswordComponent {
   resetForm = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
+    email: ['', [Validators.required, Validators.email]]
   });
 
   onSubmit(): void {
     const email = this.resetForm.value.email;
     this.authService.requestPasswordReset(email).subscribe({
       next: () => this.showSuccessMessage(),
-      error: (error) => this.handleError(error),
+      error: (error) => this.handleError(error)
     });
   }
 }
@@ -302,7 +303,7 @@ export class ResetPasswordComponent implements OnInit {
     {
       token: ['', Validators.required],
       newPassword: ['', [Validators.required, passwordStrengthValidator]],
-      confirmPassword: ['', Validators.required],
+      confirmPassword: ['', Validators.required]
     },
     { validators: passwordMatchValidator }
   );
@@ -317,7 +318,7 @@ export class ResetPasswordComponent implements OnInit {
   onSubmit(): void {
     this.authService.resetPassword(this.resetForm.value).subscribe({
       next: () => this.router.navigate(['/login']),
-      error: (error) => this.handleError(error),
+      error: (error) => this.handleError(error)
     });
   }
 }
@@ -369,9 +370,9 @@ async requestPasswordReset(email: string): Promise<void> {
 
 **Supported Methods**:
 
-* TOTP (Time-based One-Time Password) via authenticator apps
-* SMS-based codes
-* Email-based codes
+- TOTP (Time-based One-Time Password) via authenticator apps
+- SMS-based codes
+- Email-based codes
 
 #### Technical Implementation
 
@@ -412,13 +413,13 @@ export class EnableTwoFactorComponent {
       next: (response) => {
         this.qrCodeUrl = response.qrCodeUrl;
         this.backupCodes = response.backupCodes;
-      },
+      }
     });
   }
 
   verifyAndEnable(code: string): void {
     this.authService.verifyTOTP(code).subscribe({
-      next: () => this.showSuccess(),
+      next: () => this.showSuccess()
     });
   }
 }
@@ -428,9 +429,9 @@ export class EnableTwoFactorComponent {
 
 #### Supported Providers
 
-* Google OAuth 2.0
-* GitHub OAuth
-* Microsoft Azure AD
+- Google OAuth 2.0
+- GitHub OAuth
+- Microsoft Azure AD
 
 #### Implementation Strategy
 
@@ -487,19 +488,19 @@ async loginWithGoogle(googleUser: any): Promise<{ accessToken: string }> {
 
 #### Concurrent Session Limits
 
-* Limit users to maximum 5 concurrent sessions
-* Automatic logout of oldest session when limit exceeded
-* Session management dashboard for users
+- Limit users to maximum 5 concurrent sessions
+- Automatic logout of oldest session when limit exceeded
+- Session management dashboard for users
 
 #### Device Tracking
 
-* Track login device information (OS, browser, IP)
-* Display active sessions in user profile
-* Allow users to revoke specific sessions
+- Track login device information (OS, browser, IP)
+- Display active sessions in user profile
+- Allow users to revoke specific sessions
 
 #### Security Monitoring
 
-* Failed login attempt tracking
-* Suspicious activity detection
-* Account lockout after multiple failures
-* Security event logging and alerting
+- Failed login attempt tracking
+- Suspicious activity detection
+- Account lockout after multiple failures
+- Security event logging and alerting

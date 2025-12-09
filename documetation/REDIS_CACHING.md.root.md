@@ -2,22 +2,23 @@
 
 ## Overview
 
-Redis is integrated as a high-performance in-memory data store for session management and request/response caching. This significantly improves application performance by reducing database queries and speeding up authentication checks.
+Redis is integrated as a high-performance in-memory data store for session management and request/response caching. This
+significantly improves application performance by reducing database queries and speeding up authentication checks.
 
 **Key Use Cases**:
 
-* **Session Storage**: JWT tokens, user authentication state
-* **Request/Response Caching**: API responses, computation results
-* **Rate Limiting**: Track API request counts per user/IP
-* **Temporary Data**: Generation job status, progress tracking
-* **Pub/Sub**: Real-time notifications, WebSocket messaging
+- **Session Storage**: JWT tokens, user authentication state
+- **Request/Response Caching**: API responses, computation results
+- **Rate Limiting**: Track API request counts per user/IP
+- **Temporary Data**: Generation job status, progress tracking
+- **Pub/Sub**: Real-time notifications, WebSocket messaging
 
 **Performance Benefits**:
 
-* Sub-millisecond latency for cached data
-* Reduced MongoDB load (80-90% query reduction for sessions)
-* Faster authentication checks (no DB lookup on every request)
-* Improved scalability (horizontal scaling with Redis Cluster)
+- Sub-millisecond latency for cached data
+- Reduced MongoDB load (80-90% query reduction for sessions)
+- Faster authentication checks (no DB lookup on every request)
+- Improved scalability (horizontal scaling with Redis Cluster)
 
 ## Architecture
 
@@ -91,15 +92,15 @@ services:
     container_name: harmonia-redis
     restart: unless-stopped
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - '${REDIS_PORT:-6379}:6379'
     volumes:
       - redis-data:/data
-      - ./redis.conf:/usr/local/etc/redis/redis.conf  # Optional: custom config
+      - ./redis.conf:/usr/local/etc/redis/redis.conf # Optional: custom config
     command: redis-server /usr/local/etc/redis/redis.conf --requirepass ${REDIS_PASSWORD}
     networks:
       - harmonia-network
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
       interval: 10s
       timeout: 3s
       retries: 3
@@ -115,7 +116,7 @@ services:
     container_name: harmonia-backend
     restart: unless-stopped
     ports:
-      - "${BACKEND_PORT:-3333}:3333"
+      - '${BACKEND_PORT:-3333}:3333'
     environment:
       - NODE_ENV=production
       - MONGODB_URI=${MONGODB_URI}
@@ -141,7 +142,7 @@ services:
     container_name: harmonia-mongodb
     restart: unless-stopped
     ports:
-      - "${MONGODB_PORT:-27017}:27017"
+      - '${MONGODB_PORT:-27017}:27017'
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
@@ -152,7 +153,7 @@ services:
     networks:
       - harmonia-network
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ['CMD', 'mongosh', '--eval', "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -245,11 +246,11 @@ import { Module, Global } from '@nestjs/common';
 import { RedisService } from './redis.service';
 import { ConfigModule } from '@nestjs/config';
 
-@Global()  // Make available across entire app
+@Global() // Make available across entire app
 @Module({
   imports: [ConfigModule],
   providers: [RedisService],
-  exports: [RedisService],
+  exports: [RedisService]
 })
 export class RedisModule {}
 ```
@@ -271,10 +272,10 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     this.client = createClient({
       socket: {
         host: this.configService.get('REDIS_HOST', 'localhost'),
-        port: this.configService.get('REDIS_PORT', 6379),
+        port: this.configService.get('REDIS_PORT', 6379)
       },
       password: this.configService.get('REDIS_PASSWORD'),
-      database: this.configService.get('REDIS_DB', 0),
+      database: this.configService.get('REDIS_DB', 0)
     });
 
     // Error handling
@@ -524,11 +525,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   /**
    * Cache-aside pattern: get from cache or execute function and cache result
    */
-  async getOrSet<T>(
-    key: string,
-    fetcher: () => Promise<T>,
-    ttl?: number
-  ): Promise<T> {
+  async getOrSet<T>(key: string, fetcher: () => Promise<T>, ttl?: number): Promise<T> {
     // Try to get from cache
     const cached = await this.getJson<T>(key);
     if (cached !== null) {
@@ -627,14 +624,11 @@ export class AuthService {
 ```typescript
 // users.service.ts (excerpt)
 export class UsersService {
-  constructor(
-    private redisService: RedisService,
-    @InjectModel(User.name) private userModel: Model<UserDocument>
-  ) {}
+  constructor(private redisService: RedisService, @InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async getUserById(userId: string): Promise<User> {
     const cacheKey = `cache:user:${userId}`;
-    const ttl = 60 * 60;  // 1 hour
+    const ttl = 60 * 60; // 1 hour
 
     return this.redisService.getOrSet(
       cacheKey,
@@ -674,7 +668,7 @@ export class LibraryService {
   async findByUserId(userId: string, filters: any, page: number) {
     // Generate cache key based on filters and pagination
     const cacheKey = `cache:library:${userId}:${JSON.stringify(filters)}:${page}`;
-    const ttl = 30 * 60;  // 30 minutes
+    const ttl = 30 * 60; // 30 minutes
 
     return this.redisService.getOrSet(
       cacheKey,
@@ -695,7 +689,7 @@ export class LibraryService {
         ]);
 
         return {
-          items: items.map(item => this.mapToDto(item)),
+          items: items.map((item) => this.mapToDto(item)),
           total,
           page,
           pageSize
@@ -718,10 +712,7 @@ export class LibraryService {
     await this.libraryItemModel.findByIdAndDelete(id);
 
     // Invalidate cache
-    await this.redisService.invalidateMultiple([
-      `cache:library:${userId}:*`,
-      `cache:songs:${id}`
-    ]);
+    await this.redisService.invalidateMultiple([`cache:library:${userId}:*`, `cache:songs:${id}`]);
   }
 }
 ```
@@ -736,17 +727,14 @@ import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class RateLimitGuard implements CanActivate {
-  constructor(
-    private reflector: Reflector,
-    private redisService: RedisService
-  ) {}
+  constructor(private reflector: Reflector, private redisService: RedisService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
     if (!user) {
-      return true;  // Skip rate limiting for unauthenticated requests
+      return true; // Skip rate limiting for unauthenticated requests
     }
 
     const route = request.route.path;
@@ -755,7 +743,7 @@ export class RateLimitGuard implements CanActivate {
     // Rate limit: 100 requests per minute per user per route
     const key = `rate:${userId}:${route}`;
     const limit = 100;
-    const window = 60;  // seconds
+    const window = 60; // seconds
 
     const current = await this.redisService.incr(key);
 
@@ -765,10 +753,7 @@ export class RateLimitGuard implements CanActivate {
     }
 
     if (current > limit) {
-      throw new HttpException(
-        'Too many requests. Please try again later.',
-        HttpStatus.TOO_MANY_REQUESTS
-      );
+      throw new HttpException('Too many requests. Please try again later.', HttpStatus.TOO_MANY_REQUESTS);
     }
 
     return true;
@@ -853,7 +838,7 @@ export class JobsService {
 
 ```typescript
 // Automatic expiration
-await this.redisService.setJson(key, data, 3600);  // Expires in 1 hour
+await this.redisService.setJson(key, data, 3600); // Expires in 1 hour
 ```
 
 ### 2. Event-Based Invalidation
@@ -862,7 +847,7 @@ await this.redisService.setJson(key, data, 3600);  // Expires in 1 hour
 // On user update, invalidate related caches
 async updateUser(userId: string, updates: any) {
   await this.userModel.findByIdAndUpdate(userId, updates);
-  
+
   // Invalidate all user-related caches
   await this.redisService.invalidateMultiple([
     `cache:user:${userId}`,
@@ -888,11 +873,11 @@ await this.redisService.invalidate(`cache:songs:*`);
 // Update cache immediately after database write
 async updateUser(userId: string, updates: any) {
   const user = await this.userModel.findByIdAndUpdate(userId, updates, { new: true });
-  
+
   // Update cache
   const cacheKey = `cache:user:${userId}`;
   await this.redisService.setJson(cacheKey, this.mapToDto(user), 3600);
-  
+
   return user;
 }
 ```
@@ -1088,18 +1073,15 @@ async getWithLock<T>(key: string, fetcher: () => Promise<T>, ttl: number): Promi
 
 ### 5. Connection Pooling
 
-Redis client already handles connection pooling internally. No additional configuration needed for single-instance Redis.
+Redis client already handles connection pooling internally. No additional configuration needed for single-instance
+Redis.
 
 For Redis Cluster, use:
 
 ```typescript
 // redis.service.ts (cluster mode)
 this.client = createCluster({
-  rootNodes: [
-    { url: 'redis://redis-1:6379' },
-    { url: 'redis://redis-2:6379' },
-    { url: 'redis://redis-3:6379' }
-  ],
+  rootNodes: [{ url: 'redis://redis-1:6379' }, { url: 'redis://redis-2:6379' }, { url: 'redis://redis-3:6379' }],
   defaults: {
     password: this.configService.get('REDIS_PASSWORD')
   }
@@ -1177,55 +1159,54 @@ describe('Auth Service with Redis', () => {
 
 **Issue**: "ECONNREFUSED: Connection refused"
 
-* **Cause**: Redis container not running
-* **Solution**: `docker-compose up redis -d`
+- **Cause**: Redis container not running
+- **Solution**: `docker-compose up redis -d`
 
 **Issue**: "NOAUTH Authentication required"
 
-* **Cause**: Password not provided or incorrect
-* **Solution**: Check `REDIS_PASSWORD` in `.env`
+- **Cause**: Password not provided or incorrect
+- **Solution**: Check `REDIS_PASSWORD` in `.env`
 
 **Issue**: "OOM command not allowed when used memory > 'maxmemory'"
 
-* **Cause**: Redis memory limit reached
-* **Solution**: Increase `maxmemory` in `redis.conf` or enable LRU eviction
+- **Cause**: Redis memory limit reached
+- **Solution**: Increase `maxmemory` in `redis.conf` or enable LRU eviction
 
 **Issue**: Keys not expiring
 
-* **Cause**: TTL not set or system clock issues
-* **Solution**: Verify TTL with `TTL key-name`, check system time
+- **Cause**: TTL not set or system clock issues
+- **Solution**: Verify TTL with `TTL key-name`, check system time
 
 **Issue**: Slow performance
 
-* **Cause**: Large keys, blocking commands (KEYS \*), high memory usage
-* **Solution**: Use SCAN instead of KEYS, optimize key sizes, monitor with `INFO`
+- **Cause**: Large keys, blocking commands (KEYS \*), high memory usage
+- **Solution**: Use SCAN instead of KEYS, optimize key sizes, monitor with `INFO`
 
 ## Production Checklist
 
-* \[ ] Set strong `REDIS_PASSWORD` (minimum 32 characters)
-* \[ ] Enable Redis persistence (RDB + AOF)
-* \[ ] Set `maxmemory` and `maxmemory-policy`
-* \[ ] Configure backup strategy (RDB snapshots to S3)
-* \[ ] Enable Redis authentication (`requirepass`)
-* \[ ] Use TLS for Redis connections (in cloud deployments)
-* \[ ] Monitor memory usage and hit rates
-* \[ ] Set up alerts for high memory usage
-* \[ ] Implement graceful degradation (fallback to DB on Redis failure)
-* \[ ] Document cache invalidation strategies
-* \[ ] Load test cache performance
-* \[ ] Set up Redis Sentinel or Cluster for high availability (production)
+- \[ ] Set strong `REDIS_PASSWORD` (minimum 32 characters)
+- \[ ] Enable Redis persistence (RDB + AOF)
+- \[ ] Set `maxmemory` and `maxmemory-policy`
+- \[ ] Configure backup strategy (RDB snapshots to S3)
+- \[ ] Enable Redis authentication (`requirepass`)
+- \[ ] Use TLS for Redis connections (in cloud deployments)
+- \[ ] Monitor memory usage and hit rates
+- \[ ] Set up alerts for high memory usage
+- \[ ] Implement graceful degradation (fallback to DB on Redis failure)
+- \[ ] Document cache invalidation strategies
+- \[ ] Load test cache performance
+- \[ ] Set up Redis Sentinel or Cluster for high availability (production)
 
-***
+---
 
 **Document Version**: 1.0.0\
 **Last Updated**: December 2, 2025\
 **Status**: Design Complete - Implementation Ready\
 **Priority**: HIGH - Performance Critical
 
-**LEGENDARY IS OUR STANDARD!** ⚡
-)
+**LEGENDARY IS OUR STANDARD!** ⚡ )
 
-***
+---
 
 **Document Version**: 1.0.0\
 **Last Updated**: December 2, 2025\

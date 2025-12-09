@@ -2,7 +2,9 @@
 
 ## Overview
 
-Harmonia uses **dedicated Material Design modules** for each feature to enable tree-shaking, centralize imports, and optimize bundle sizes. This architecture ensures that only the Material components actually used by each feature are included in the final bundle.
+Harmonia uses **dedicated Material Design modules** for each feature to enable tree-shaking, centralize imports, and
+optimize bundle sizes. This architecture ensures that only the Material components actually used by each feature are
+included in the final bundle.
 
 ## Architecture Benefits
 
@@ -10,11 +12,12 @@ Harmonia uses **dedicated Material Design modules** for each feature to enable t
 
 By creating separate Material modules per feature, Angular's build optimizer can:
 
-* Eliminate unused Material components from final bundles
-* Reduce bundle size for each lazy-loaded route
-* Improve initial load performance
+- Eliminate unused Material components from final bundles
+- Reduce bundle size for each lazy-loaded route
+- Improve initial load performance
 
-**Example**: If Music Generation uses 8 Material components and Video Generation uses 7, only those specific components are included in each route's bundle.
+**Example**: If Music Generation uses 8 Material components and Video Generation uses 7, only those specific components
+are included in each route's bundle.
 
 ### 2. Centralized Imports
 
@@ -47,17 +50,17 @@ import { MusicGenerationMaterialModule } from './music-generation-material.modul
 
 ### 3. Maintainability
 
-* **Single source of truth**: All Material imports for a feature in one file
-* **Easy auditing**: Quickly see which Material components each feature uses
-* **Consistent patterns**: Same module structure across all features
+- **Single source of truth**: All Material imports for a feature in one file
+- **Easy auditing**: Quickly see which Material components each feature uses
+- **Consistent patterns**: Same module structure across all features
 
 ### 4. Bundle Analysis
 
 With dedicated modules, you can easily analyze:
 
-* Which Material components contribute most to bundle size
-* Opportunities to reduce Material usage
-* Duplicate component imports across features
+- Which Material components contribute most to bundle size
+- Opportunities to reduce Material usage
+- Duplicate component imports across features
 
 ## Module Structure
 
@@ -103,16 +106,16 @@ import { MatIconModule } from '@angular/material/icon';
     // Import all Material modules this feature needs
     MatButtonModule,
     MatCardModule,
-    MatIconModule,
+    MatIconModule
   ],
   exports: [
     // Export all imported modules (required for template usage)
     MatButtonModule,
     MatCardModule,
-    MatIconModule,
+    MatIconModule
   ]
 })
-export class FeatureMaterialModule { }
+export class FeatureMaterialModule {}
 ```
 
 ### Critical Rules
@@ -140,22 +143,16 @@ import { MatIconModule } from '@angular/material/icon';
  * Only imports what's needed for tree-shaking optimization
  */
 @NgModule({
-  imports: [
-    MatCardModule,
-    MatIconModule,
-  ],
-  exports: [
-    MatCardModule,
-    MatIconModule,
-  ]
+  imports: [MatCardModule, MatIconModule],
+  exports: [MatCardModule, MatIconModule]
 })
-export class AppMaterialModule { }
+export class AppMaterialModule {}
 ```
 
 **Components**:
 
-* `MatCardModule` (2 KB) - For layout cards
-* `MatIconModule` (1.5 KB) - For sidebar navigation icons
+- `MatCardModule` (2 KB) - For layout cards
+- `MatIconModule` (1.5 KB) - For sidebar navigation icons
 
 **Total Size**: ~3.5 KB
 
@@ -168,9 +165,9 @@ import { AppMaterialModule } from './app-material.module';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    AppMaterialModule,  // Import once
+    AppMaterialModule // Import once
     // ...
-  ],
+  ]
 })
 export class AppModule {}
 ```
@@ -205,7 +202,7 @@ import { MatOptionModule } from '@angular/material/core';
     MatInputModule,
     MatSelectModule,
     MatSliderModule,
-    MatOptionModule,
+    MatOptionModule
   ],
   exports: [
     MatButtonModule,
@@ -215,22 +212,22 @@ import { MatOptionModule } from '@angular/material/core';
     MatInputModule,
     MatSelectModule,
     MatSliderModule,
-    MatOptionModule,
+    MatOptionModule
   ]
 })
-export class MusicGenerationMaterialModule { }
+export class MusicGenerationMaterialModule {}
 ```
 
 **Components**:
 
-* `MatButtonModule` (3 KB) - Action buttons
-* `MatCardModule` (2 KB) - Form container
-* `MatFormFieldModule` (4 KB) - Form field wrapper
-* `MatIconModule` (1.5 KB) - Icons in buttons
-* `MatInputModule` (2.5 KB) - Text inputs
-* `MatSelectModule` (5 KB) - Dropdown selectors
-* `MatSliderModule` (4 KB) - BPM range slider (unique to this module)
-* `MatOptionModule` (1 KB) - Select options
+- `MatButtonModule` (3 KB) - Action buttons
+- `MatCardModule` (2 KB) - Form container
+- `MatFormFieldModule` (4 KB) - Form field wrapper
+- `MatIconModule` (1.5 KB) - Icons in buttons
+- `MatInputModule` (2.5 KB) - Text inputs
+- `MatSelectModule` (5 KB) - Dropdown selectors
+- `MatSliderModule` (4 KB) - BPM range slider (unique to this module)
+- `MatOptionModule` (1 KB) - Select options
 
 **Total Size**: ~23 KB
 
@@ -264,7 +261,7 @@ import { MatSliderModule } from '@angular/material/slider';
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    MatSliderModule,
+    MatSliderModule
   ],
   exports: [
     MatButtonModule,
@@ -273,14 +270,13 @@ import { MatSliderModule } from '@angular/material/slider';
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    MatSliderModule,
+    MatSliderModule
   ]
 })
-export class SongGenerationMaterialModule { }
+export class SongGenerationMaterialModule {}
 ```
 
-**Components**: 7 standard form components
-**Total Size**: ~22 KB
+**Components**: 7 standard form components **Total Size**: ~22 KB
 
 ### Video Generation Material Module
 
@@ -310,7 +306,7 @@ import { MatSliderModule } from '@angular/material/slider';
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    MatSliderModule,
+    MatSliderModule
   ],
   exports: [
     MatButtonModule,
@@ -319,15 +315,14 @@ import { MatSliderModule } from '@angular/material/slider';
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    MatSliderModule,
+    MatSliderModule
   ]
 })
-export class VideoGenerationMaterialModule { }
+export class VideoGenerationMaterialModule {}
 ```
 
-**Components**: 7 components including slider
-**Total Size**: ~22 KB
-**Special Feature**: Enhanced duration slider with tick marks (5-60 seconds)
+**Components**: 7 components including slider **Total Size**: ~22 KB **Special Feature**: Enhanced duration slider with
+tick marks (5-60 seconds)
 
 ### Video Editing Material Module
 
@@ -349,37 +344,22 @@ import { MatToolbarModule } from '@angular/material/toolbar';
  * Only imports what's needed for tree-shaking optimization
  */
 @NgModule({
-  imports: [
-    MatButtonModule,
-    MatCardModule,
-    MatDividerModule,
-    MatIconModule,
-    MatListModule,
-    MatToolbarModule,
-  ],
-  exports: [
-    MatButtonModule,
-    MatCardModule,
-    MatDividerModule,
-    MatIconModule,
-    MatListModule,
-    MatToolbarModule,
-  ]
+  imports: [MatButtonModule, MatCardModule, MatDividerModule, MatIconModule, MatListModule, MatToolbarModule],
+  exports: [MatButtonModule, MatCardModule, MatDividerModule, MatIconModule, MatListModule, MatToolbarModule]
 })
-export class VideoEditingMaterialModule { }
+export class VideoEditingMaterialModule {}
 ```
 
 **Components**:
 
-* `MatButtonModule` (3 KB) - Timeline controls
-* `MatCardModule` (2 KB) - Section containers
-* `MatDividerModule` (0.5 KB) - Section separators (unique to this module)
-* `MatIconModule` (1.5 KB) - UI icons
-* `MatListModule` (3 KB) - Scene list (unique to this module)
-* `MatToolbarModule` (2 KB) - Timeline header (unique to this module)
+- `MatButtonModule` (3 KB) - Timeline controls
+- `MatCardModule` (2 KB) - Section containers
+- `MatDividerModule` (0.5 KB) - Section separators (unique to this module)
+- `MatIconModule` (1.5 KB) - UI icons
+- `MatListModule` (3 KB) - Scene list (unique to this module)
+- `MatToolbarModule` (2 KB) - Timeline header (unique to this module)
 
-**Total Size**: ~12 KB
-**Unique Features**: Toolbar, List, and Divider components for timeline UI
+**Total Size**: ~12 KB **Unique Features**: Toolbar, List, and Divider components for timeline UI
 
 ## Integration into Feature Modules
 
@@ -402,8 +382,8 @@ import { VideoGenerationMaterialModule } from './video-generation-material.modul
     ReactiveFormsModule,
     FormsModule,
     VideoGenerationRoutingModule,
-    VideoGenerationMaterialModule,  // Single Material module import
-  ],
+    VideoGenerationMaterialModule // Single Material module import
+  ]
 })
 export class VideoGenerationModule {}
 ```
@@ -430,7 +410,7 @@ export class VideoGenerationModule {}
     </mat-form-field>
 
     <mat-slider min="5" max="60" step="5" showTickMarks discrete>
-      <input matSliderThumb [(value)]="duration">
+      <input matSliderThumb [(value)]="duration" />
     </mat-slider>
   </mat-card-content>
 
@@ -447,19 +427,19 @@ export class VideoGenerationModule {}
 
 ### Current Usage Across All Features
 
-| Component | App | Music Gen | Song Gen | Video Gen | Video Edit | Total Uses |
-|-----------|-----|-----------|----------|-----------|------------|------------|
-| MatButtonModule | - | ✓ | ✓ | ✓ | ✓ | 4 |
-| MatCardModule | ✓ | ✓ | ✓ | ✓ | ✓ | 5 |
-| MatIconModule | ✓ | ✓ | ✓ | ✓ | ✓ | 5 |
-| MatFormFieldModule | - | ✓ | ✓ | ✓ | - | 3 |
-| MatInputModule | - | ✓ | ✓ | ✓ | - | 3 |
-| MatSelectModule | - | ✓ | ✓ | ✓ | - | 3 |
-| MatSliderModule | - | ✓ | ✓ | ✓ | - | 3 |
-| MatOptionModule | - | ✓ | - | - | - | 1 |
-| MatToolbarModule | - | - | - | - | ✓ | 1 |
-| MatListModule | - | - | - | - | ✓ | 1 |
-| MatDividerModule | - | - | - | - | ✓ | 1 |
+| Component          | App | Music Gen | Song Gen | Video Gen | Video Edit | Total Uses |
+| ------------------ | --- | --------- | -------- | --------- | ---------- | ---------- |
+| MatButtonModule    | -   | ✓         | ✓        | ✓         | ✓          | 4          |
+| MatCardModule      | ✓   | ✓         | ✓        | ✓         | ✓          | 5          |
+| MatIconModule      | ✓   | ✓         | ✓        | ✓         | ✓          | 5          |
+| MatFormFieldModule | -   | ✓         | ✓        | ✓         | -          | 3          |
+| MatInputModule     | -   | ✓         | ✓        | ✓         | -          | 3          |
+| MatSelectModule    | -   | ✓         | ✓        | ✓         | -          | 3          |
+| MatSliderModule    | -   | ✓         | ✓        | ✓         | -          | 3          |
+| MatOptionModule    | -   | ✓         | -        | -         | -          | 1          |
+| MatToolbarModule   | -   | -         | -        | -         | ✓          | 1          |
+| MatListModule      | -   | -         | -        | -         | ✓          | 1          |
+| MatDividerModule   | -   | -         | -        | -         | ✓          | 1          |
 
 **Total Unique Components**: 11\
 **Total Material Imports Centralized**: 33
@@ -476,8 +456,8 @@ export class VideoGenerationModule {}
 
 ### Feature-Specific Components
 
-* **Music Generation**: MatOptionModule (select options)
-* **Video Editing**: MatToolbarModule (timeline), MatListModule (scenes), MatDividerModule (sections)
+- **Music Generation**: MatOptionModule (select options)
+- **Video Editing**: MatToolbarModule (timeline), MatListModule (scenes), MatDividerModule (sections)
 
 ## Bundle Size Analysis
 
@@ -513,14 +493,14 @@ Users only download Material components for routes they visit:
 
 **Initial Load** (App + First Route):
 
-* Before: ~100 KB (App + First feature with all Material)
-* After: ~25.5 KB (App 3.5 KB + Music Gen 23 KB)
-* **Savings**: 74.5 KB (75% reduction)
+- Before: ~100 KB (App + First feature with all Material)
+- After: ~25.5 KB (App 3.5 KB + Music Gen 23 KB)
+- **Savings**: 74.5 KB (75% reduction)
 
 **Subsequent Route Navigation**:
 
-* Only loads that route's specific Material components
-* No duplicate downloads
+- Only loads that route's specific Material components
+- No duplicate downloads
 
 ## Advanced Features
 
@@ -530,16 +510,16 @@ Users only download Material components for routes they visit:
 
 ```html
 <mat-slider min="5" max="60" step="5" showTickMarks discrete [displayWith]="formatDurationLabel">
-  <input matSliderThumb [(value)]="duration" (valueChange)="onDurationChange($event)">
+  <input matSliderThumb [(value)]="duration" (valueChange)="onDurationChange($event)" />
 </mat-slider>
 ```
 
 **Features**:
 
-* Tick marks every 5 seconds (5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60)
-* Custom label formatter: `formatDurationLabel = (value: number) =>`${value}s`;`
-* Two-way data binding with `[(value)]`
-* Change event handler for real-time updates
+- Tick marks every 5 seconds (5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60)
+- Custom label formatter: `formatDurationLabel = (value: number) =>`${value}s`;`
+- Two-way data binding with `[(value)]`
+- Change event handler for real-time updates
 
 **Completion Time Estimation**:
 
@@ -630,9 +610,9 @@ pnpm webpack-bundle-analyzer dist/apps/frontend/stats.json
 
 Before adding Material components, consider:
 
-* **Native HTML**: Can we use `<select>` instead of `<mat-select>`?
-* **Custom Components**: Would a lightweight custom component work?
-* **CSS-Only**: Can we achieve this with pure CSS?
+- **Native HTML**: Can we use `<select>` instead of `<mat-select>`?
+- **Custom Components**: Would a lightweight custom component work?
+- **CSS-Only**: Can we achieve this with pure CSS?
 
 ## Migration Guide
 
@@ -662,7 +642,7 @@ Before adding Material components, consider:
    ```html
    <mat-form-field>
      <mat-label>Choose a date</mat-label>
-     <input matInput [matDatepicker]="picker">
+     <input matInput [matDatepicker]="picker" />
      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
      <mat-datepicker #picker></mat-datepicker>
    </mat-form-field>
@@ -687,7 +667,7 @@ Before adding Material components, consider:
      imports: [MatButtonModule, MatCardModule],
      exports: [MatButtonModule, MatCardModule]
    })
-   export class NewFeatureMaterialModule { }
+   export class NewFeatureMaterialModule {}
    ```
 
 3. **Import in feature module**:
@@ -696,10 +676,7 @@ Before adding Material components, consider:
    import { NewFeatureMaterialModule } from './new-feature-material.module';
 
    @NgModule({
-     imports: [
-       CommonModule,
-       NewFeatureMaterialModule,
-     ],
+     imports: [CommonModule, NewFeatureMaterialModule]
    })
    export class NewFeatureModule {}
    ```
@@ -737,10 +714,10 @@ pnpm install @angular/material @angular/cdk
 
 ## Resources
 
-* [Angular Material Documentation](https://material.angular.io)
-* [Angular Tree-Shaking Guide](https://angular.io/guide/lightweight-injection-tokens)
-* [Material Component CDK](https://material.angular.io/cdk/categories)
-* [Bundle Analysis Tools](https://github.com/webpack-contrib/webpack-bundle-analyzer)
+- [Angular Material Documentation](https://material.angular.io)
+- [Angular Tree-Shaking Guide](https://angular.io/guide/lightweight-injection-tokens)
+- [Material Component CDK](https://material.angular.io/cdk/categories)
+- [Bundle Analysis Tools](https://github.com/webpack-contrib/webpack-bundle-analyzer)
 
 ## Summary
 
@@ -752,8 +729,8 @@ Dedicated Material Design modules provide:
 ✅ **Better performance** with lazy-loaded Material components\
 ✅ **Clear documentation** of Material usage across application
 
-Total Material imports centralized: **33 across 5 modules**
-alysis Tools]\(https://github.com/webpack-contrib/webpack-bundle-analyzer)
+Total Material imports centralized: **33 across 5 modules** alysis
+Tools]\(https://github.com/webpack-contrib/webpack-bundle-analyzer)
 
 ## Summary
 

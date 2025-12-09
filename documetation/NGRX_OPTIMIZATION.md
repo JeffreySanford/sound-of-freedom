@@ -730,7 +730,7 @@ export class SongsService {
 ### Scenario: 100 Songs in Library
 
 | Approach                                   | Bandwidth | Memory | API Calls | Complexity |
-|--------------------------------------------|-----------|--------|-----------|------------|
+| ------------------------------------------ | --------- | ------ | --------- | ---------- |
 | **Your Proposal** (context-aware reducers) | 5MB       | 5MB    | 1         | HIGH       |
 | **Standard NGRX** (with field filtering)   | 50KB      | 50KB   | 1 + 1     | LOW        |
 | **GraphQL** (optimal)                      | 50KB      | 50KB   | 1 + 1     | MEDIUM     |

@@ -2,24 +2,25 @@
 
 ## Overview
 
-The Admin Dashboard is a comprehensive management interface accessible only to users with the `admin` group. It provides centralized control over users, files, system performance, and audit logging.
+The Admin Dashboard is a comprehensive management interface accessible only to users with the `admin` group. It provides
+centralized control over users, files, system performance, and audit logging.
 
 **Key Features**:
 
-* **User Management**: View, create, edit, delete users; modify group assignments
-* **File Tracking**: View all users' generated files with filtering and search
-* **Audit Logging**: Track all system actions with timestamps and user attribution
-* **Performance Metrics**: Real-time charts showing generation times, success rates, system health
-* **System Configuration**: Manage app settings, model configurations (future)
-* **Real-time Updates**: WebSocket integration for live metrics
-* **Data Export**: CSV/JSON export for reports
+- **User Management**: View, create, edit, delete users; modify group assignments
+- **File Tracking**: View all users' generated files with filtering and search
+- **Audit Logging**: Track all system actions with timestamps and user attribution
+- **Performance Metrics**: Real-time charts showing generation times, success rates, system health
+- **System Configuration**: Manage app settings, model configurations (future)
+- **Real-time Updates**: WebSocket integration for live metrics
+- **Data Export**: CSV/JSON export for reports
 
 **Permission Inheritance**:
 
-* Admin group **inherits all** user group permissions
-* Admins can generate songs, music, videos (like regular users)
-* Admins can access own library AND all users' libraries
-* Admins have additional management capabilities
+- Admin group **inherits all** user group permissions
+- Admins can generate songs, music, videos (like regular users)
+- Admins can access own library AND all users' libraries
+- Admins have additional management capabilities
 
 ## Architecture
 
@@ -102,8 +103,8 @@ The Admin Dashboard is a comprehensive management interface accessible only to u
 interface AdminFileView {
   id: string;
   userId: string;
-  username: string;        // Denormalized for display
-  userEmail: string;       // Denormalized for display
+  username: string; // Denormalized for display
+  userEmail: string; // Denormalized for display
   songId?: string;
   type: 'song' | 'music' | 'audio' | 'style';
   title: string;
@@ -139,7 +140,7 @@ export class AuditLog {
   userId: Types.ObjectId;
 
   @Prop({ required: true })
-  username: string;  // Denormalized for performance
+  username: string; // Denormalized for performance
 
   @Prop({ required: true, enum: ['create', 'read', 'update', 'delete', 'login', 'logout', 'generate'] })
   action: string;
@@ -148,13 +149,13 @@ export class AuditLog {
   resource: string;
 
   @Prop({ type: Types.ObjectId })
-  resourceId?: Types.ObjectId;  // Optional: ID of affected resource
+  resourceId?: Types.ObjectId; // Optional: ID of affected resource
 
   @Prop({ type: Object })
   details: {
-    before?: any;      // State before change
-    after?: any;       // State after change
-    metadata?: any;    // Additional context
+    before?: any; // State before change
+    after?: any; // State after change
+    metadata?: any; // Additional context
   };
 
   @Prop()
@@ -164,13 +165,13 @@ export class AuditLog {
   userAgent?: string;
 
   @Prop({ default: false })
-  isSystemAction: boolean;  // True for automated actions
+  isSystemAction: boolean; // True for automated actions
 
   @Prop({ required: true })
   timestamp: Date;
 
   // TTL index: Auto-delete logs older than 90 days
-  @Prop({ type: Date, expires: 7776000 })  // 90 days in seconds
+  @Prop({ type: Date, expires: 7776000 }) // 90 days in seconds
   expireAt: Date;
 }
 
@@ -189,58 +190,58 @@ AuditLogSchema.index({ timestamp: -1 });
 interface PerformanceMetrics {
   overview: {
     totalUsers: number;
-    activeUsers: number;      // Logged in within last 7 days
+    activeUsers: number; // Logged in within last 7 days
     totalFiles: number;
-    totalStorage: number;     // In bytes
+    totalStorage: number; // In bytes
     totalGenerations: number;
   };
-  
+
   generation: {
     songsGenerated: number;
     musicGenerated: number;
     videosGenerated: number;
-    averageGenerationTime: number;  // Seconds
-    successRate: number;            // Percentage (0-100)
+    averageGenerationTime: number; // Seconds
+    successRate: number; // Percentage (0-100)
     failureCount: number;
   };
-  
+
   usage: {
     dailyActiveUsers: number;
     peakConcurrentUsers: number;
-    averageSessionDuration: number;  // Minutes
+    averageSessionDuration: number; // Minutes
     requestsPerMinute: number;
   };
-  
+
   storage: {
-    totalSize: number;          // Bytes
+    totalSize: number; // Bytes
     audioFiles: number;
     videoFiles: number;
     styleFiles: number;
     averageFileSize: number;
   };
-  
+
   topUsers: {
     username: string;
     generationCount: number;
     storageUsed: number;
   }[];
-  
+
   recentActivity: {
     timestamp: Date;
     action: string;
     username: string;
     resource: string;
   }[];
-  
+
   systemHealth: {
-    cpuUsage: number;           // Percentage
-    memoryUsage: number;        // Percentage
-    diskUsage: number;          // Percentage
+    cpuUsage: number; // Percentage
+    memoryUsage: number; // Percentage
+    diskUsage: number; // Percentage
     databaseConnections: number;
     redisConnections: number;
-    uptime: number;             // Seconds
+    uptime: number; // Seconds
   };
-  
+
   charts: {
     generationsPerDay: { date: string; count: number }[];
     userGrowth: { date: string; count: number }[];
@@ -268,7 +269,7 @@ export interface AdminState {
       isActive: 'all' | 'active' | 'inactive';
     };
   };
-  
+
   files: {
     items: AdminFileView[];
     loading: boolean;
@@ -284,7 +285,7 @@ export interface AdminState {
       total: number;
     };
   };
-  
+
   logs: {
     items: AuditLog[];
     loading: boolean;
@@ -301,7 +302,7 @@ export interface AdminState {
       total: number;
     };
   };
-  
+
   metrics: {
     data: PerformanceMetrics | null;
     loading: boolean;
@@ -369,7 +370,7 @@ import * as AdminActions from '../../store/admin/admin.actions';
   selector: 'harmonia-admin-dashboard',
   standalone: false,
   templateUrl: './admin-dashboard.component.html',
-  styleUrl: './admin-dashboard.component.scss',
+  styleUrl: './admin-dashboard.component.scss'
 })
 export class AdminDashboardComponent implements OnInit, OnDestroy {
   private readonly store = inject(Store<AppState>);
@@ -380,7 +381,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   files$ = this.store.select(fromAdmin.selectAdminFiles);
   logs$ = this.store.select(fromAdmin.selectAdminLogs);
   metrics$ = this.store.select(fromAdmin.selectAdminMetrics);
-  
+
   selectedTab = 0;
 
   ngOnInit(): void {
@@ -402,7 +403,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   onTabChange(index: number): void {
     this.selectedTab = index;
-    
+
     // Load data on-demand when switching tabs
     switch (index) {
       case 0: // Users
@@ -440,7 +441,7 @@ import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confi
   selector: 'harmonia-admin-users',
   standalone: false,
   templateUrl: './admin-users.component.html',
-  styleUrl: './admin-users.component.scss',
+  styleUrl: './admin-users.component.scss'
 })
 export class AdminUsersComponent implements OnInit {
   private readonly store = inject(Store<AppState>);
@@ -461,9 +462,11 @@ export class AdminUsersComponent implements OnInit {
   }
 
   onGroupFilterChange(group: string): void {
-    this.store.dispatch(AdminActions.updateAdminUsersFilters({ 
-      filters: { group: group as any } 
-    }));
+    this.store.dispatch(
+      AdminActions.updateAdminUsersFilters({
+        filters: { group: group as any }
+      })
+    );
   }
 
   onCreateUser(): void {
@@ -472,7 +475,7 @@ export class AdminUsersComponent implements OnInit {
       data: { mode: 'create' }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.store.dispatch(AdminActions.createAdminUser({ user: result }));
       }
@@ -485,12 +488,14 @@ export class AdminUsersComponent implements OnInit {
       data: { mode: 'edit', user }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.store.dispatch(AdminActions.updateAdminUser({ 
-          id: user.id, 
-          updates: result 
-        }));
+        this.store.dispatch(
+          AdminActions.updateAdminUser({
+            id: user.id,
+            updates: result
+          })
+        );
       }
     });
   }
@@ -507,7 +512,7 @@ export class AdminUsersComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.store.dispatch(AdminActions.deleteAdminUser({ id: user.id }));
       }
@@ -515,10 +520,12 @@ export class AdminUsersComponent implements OnInit {
   }
 
   onToggleUserActive(user: AdminUser): void {
-    this.store.dispatch(AdminActions.updateAdminUser({
-      id: user.id,
-      updates: { isActive: !user.isActive }
-    }));
+    this.store.dispatch(
+      AdminActions.updateAdminUser({
+        id: user.id,
+        updates: { isActive: !user.isActive }
+      })
+    );
   }
 
   formatStorage(bytes: number): string {
@@ -537,21 +544,18 @@ export class AdminUsersComponent implements OnInit {
   <div class="toolbar">
     <mat-form-field appearance="outline" class="search-field">
       <mat-label>Search Users</mat-label>
-      <input 
-        matInput 
+      <input
+        matInput
         [value]="(filters$ | async)?.search"
         (input)="onSearchChange($any($event.target).value)"
         placeholder="Username or email"
-      >
+      />
       <mat-icon matPrefix>search</mat-icon>
     </mat-form-field>
 
     <mat-form-field appearance="outline">
       <mat-label>Filter by Group</mat-label>
-      <mat-select 
-        [value]="(filters$ | async)?.group"
-        (selectionChange)="onGroupFilterChange($event.value)"
-      >
+      <mat-select [value]="(filters$ | async)?.group" (selectionChange)="onGroupFilterChange($event.value)">
         <mat-option value="all">All Groups</mat-option>
         <mat-option value="user">User</mat-option>
         <mat-option value="admin">Admin</mat-option>
@@ -601,11 +605,7 @@ export class AdminUsersComponent implements OnInit {
       <ng-container matColumnDef="isActive">
         <th mat-header-cell *matHeaderCellDef>Status</th>
         <td mat-cell *matCellDef="let user">
-          <mat-slide-toggle 
-            [checked]="user.isActive"
-            (change)="onToggleUserActive(user)"
-            [color]="'primary'"
-          >
+          <mat-slide-toggle [checked]="user.isActive" (change)="onToggleUserActive(user)" [color]="'primary'">
             {{ user.isActive ? 'Active' : 'Inactive' }}
           </mat-slide-toggle>
         </td>
@@ -614,9 +614,7 @@ export class AdminUsersComponent implements OnInit {
       <!-- Last Login Column -->
       <ng-container matColumnDef="lastLogin">
         <th mat-header-cell *matHeaderCellDef>Last Login</th>
-        <td mat-cell *matCellDef="let user">
-          {{ user.lastLoginAt ? (user.lastLoginAt | date:'short') : 'Never' }}
-        </td>
+        <td mat-cell *matCellDef="let user">{{ user.lastLoginAt ? (user.lastLoginAt | date:'short') : 'Never' }}</td>
       </ng-container>
 
       <!-- File Count Column -->
@@ -671,7 +669,7 @@ import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confi
   selector: 'harmonia-admin-files',
   standalone: false,
   templateUrl: './admin-files.component.html',
-  styleUrl: './admin-files.component.scss',
+  styleUrl: './admin-files.component.scss'
 })
 export class AdminFilesComponent implements OnInit {
   private readonly store = inject(Store<AppState>);
@@ -689,9 +687,11 @@ export class AdminFilesComponent implements OnInit {
   }
 
   onTypeFilterChange(type: string): void {
-    this.store.dispatch(AdminActions.updateAdminFilesFilters({ 
-      filters: { type: type as any } 
-    }));
+    this.store.dispatch(
+      AdminActions.updateAdminFilesFilters({
+        filters: { type: type as any }
+      })
+    );
   }
 
   onSearchChange(search: string): void {
@@ -714,7 +714,7 @@ export class AdminFilesComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.store.dispatch(AdminActions.deleteAdminFile({ id: file.id }));
       }
@@ -753,7 +753,7 @@ Chart.register(...registerables);
   selector: 'harmonia-admin-metrics',
   standalone: false,
   templateUrl: './admin-metrics.component.html',
-  styleUrl: './admin-metrics.component.scss',
+  styleUrl: './admin-metrics.component.scss'
 })
 export class AdminMetricsComponent implements OnInit {
   private readonly store = inject(Store<AppState>);
@@ -771,7 +771,7 @@ export class AdminMetricsComponent implements OnInit {
     this.store.dispatch(AdminActions.loadAdminMetrics());
 
     // Subscribe to metrics changes to update charts
-    this.metrics$.subscribe(metrics => {
+    this.metrics$.subscribe((metrics) => {
       if (metrics?.charts) {
         this.renderCharts(metrics.charts);
       }
@@ -792,13 +792,15 @@ export class AdminMetricsComponent implements OnInit {
           type: 'line',
           data: {
             labels: charts.generationsPerDay.map((d: any) => d.date),
-            datasets: [{
-              label: 'Generations',
-              data: charts.generationsPerDay.map((d: any) => d.count),
-              borderColor: 'rgb(75, 192, 192)',
-              backgroundColor: 'rgba(75, 192, 192, 0.2)',
-              tension: 0.1
-            }]
+            datasets: [
+              {
+                label: 'Generations',
+                data: charts.generationsPerDay.map((d: any) => d.count),
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.1
+              }
+            ]
           },
           options: {
             responsive: true,
@@ -822,13 +824,15 @@ export class AdminMetricsComponent implements OnInit {
           type: 'line',
           data: {
             labels: charts.userGrowth.map((d: any) => d.date),
-            datasets: [{
-              label: 'Users',
-              data: charts.userGrowth.map((d: any) => d.count),
-              borderColor: 'rgb(153, 102, 255)',
-              backgroundColor: 'rgba(153, 102, 255, 0.2)',
-              tension: 0.1
-            }]
+            datasets: [
+              {
+                label: 'Users',
+                data: charts.userGrowth.map((d: any) => d.count),
+                borderColor: 'rgb(153, 102, 255)',
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                tension: 0.1
+              }
+            ]
           },
           options: {
             responsive: true,
@@ -852,13 +856,15 @@ export class AdminMetricsComponent implements OnInit {
           type: 'line',
           data: {
             labels: charts.successRateOverTime.map((d: any) => d.date),
-            datasets: [{
-              label: 'Success Rate (%)',
-              data: charts.successRateOverTime.map((d: any) => d.rate),
-              borderColor: 'rgb(255, 99, 132)',
-              backgroundColor: 'rgba(255, 99, 132, 0.2)',
-              tension: 0.1
-            }]
+            datasets: [
+              {
+                label: 'Success Rate (%)',
+                data: charts.successRateOverTime.map((d: any) => d.rate),
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                tension: 0.1
+              }
+            ]
           },
           options: {
             responsive: true,
@@ -902,17 +908,7 @@ export class AdminMetricsComponent implements OnInit {
 
 ```typescript
 // admin.controller.ts
-import { 
-  Controller, 
-  Get, 
-  Post,
-  Patch,
-  Delete,
-  Body,
-  Param,
-  Query,
-  UseGuards 
-} from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -922,7 +918,7 @@ import { CreateUserDto, UpdateUserDto } from './dto';
 
 @Controller('api/admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('admin')  // All routes require admin role
+@Roles('admin') // All routes require admin role
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
@@ -943,10 +939,7 @@ export class AdminController {
   }
 
   @Patch('users/:id')
-  async updateUser(
-    @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto
-  ) {
+  async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.adminService.updateUser(id, updateUserDto);
   }
 
@@ -1036,10 +1029,7 @@ export class AdminService {
     const query: any = {};
 
     if (filters.search) {
-      query.$or = [
-        { username: new RegExp(filters.search, 'i') },
-        { email: new RegExp(filters.search, 'i') }
-      ];
+      query.$or = [{ username: new RegExp(filters.search, 'i') }, { email: new RegExp(filters.search, 'i') }];
     }
 
     if (filters.group && filters.group !== 'all') {
@@ -1135,7 +1125,7 @@ export class AdminService {
     if (updateUserDto.email) user.email = updateUserDto.email;
     if (updateUserDto.groups) user.groups = updateUserDto.groups;
     if (typeof updateUserDto.isActive !== 'undefined') user.isActive = updateUserDto.isActive;
-    
+
     if (updateUserDto.password) {
       user.password = await bcrypt.hash(updateUserDto.password, 10);
     }
@@ -1190,7 +1180,7 @@ export class AdminService {
       action: 'delete',
       resource: 'user',
       resourceId: user._id,
-      details: { 
+      details: {
         before: { username: user.username, email: user.email },
         metadata: { filesDeleted: files.length }
       },
@@ -1230,7 +1220,7 @@ export class AdminService {
       this.libraryItemModel.countDocuments(query)
     ]);
 
-    const enrichedItems = items.map(item => ({
+    const enrichedItems = items.map((item) => ({
       id: item._id.toString(),
       userId: item.userId._id.toString(),
       username: (item.userId as any).username,
@@ -1307,16 +1297,12 @@ export class AdminService {
     }
 
     const [logs, total] = await Promise.all([
-      this.auditLogModel
-        .find(query)
-        .sort({ timestamp: -1 })
-        .skip(skip)
-        .limit(pageSize),
+      this.auditLogModel.find(query).sort({ timestamp: -1 }).skip(skip).limit(pageSize),
       this.auditLogModel.countDocuments(query)
     ]);
 
     return {
-      items: logs.map(log => ({
+      items: logs.map((log) => ({
         id: log._id.toString(),
         userId: log.userId.toString(),
         username: log.username,
@@ -1357,16 +1343,15 @@ export class AdminService {
     ]);
 
     // Average generation time (from metadata)
-    const generatedFiles = await this.libraryItemModel.find({ 
-      'metadata.generationTime': { $exists: true } 
-    }, 'metadata.generationTime');
-    
-    const totalGenTime = generatedFiles.reduce((sum, file) => 
-      sum + (file.metadata?.generationTime || 0), 0
+    const generatedFiles = await this.libraryItemModel.find(
+      {
+        'metadata.generationTime': { $exists: true }
+      },
+      'metadata.generationTime'
     );
-    const averageGenerationTime = generatedFiles.length > 0 
-      ? totalGenTime / generatedFiles.length 
-      : 0;
+
+    const totalGenTime = generatedFiles.reduce((sum, file) => sum + (file.metadata?.generationTime || 0), 0);
+    const averageGenerationTime = generatedFiles.length > 0 ? totalGenTime / generatedFiles.length : 0;
 
     // Top users
     const userAggregation = await this.libraryItemModel.aggregate([
@@ -1393,10 +1378,7 @@ export class AdminService {
     );
 
     // Recent activity
-    const recentLogs = await this.auditLogModel
-      .find()
-      .sort({ timestamp: -1 })
-      .limit(10);
+    const recentLogs = await this.auditLogModel.find().sort({ timestamp: -1 }).limit(10);
 
     // Charts data (simplified - should aggregate by date)
     const generationsPerDay = await this.aggregateByDay('library', 30);
@@ -1415,18 +1397,18 @@ export class AdminService {
         musicGenerated,
         videosGenerated,
         averageGenerationTime,
-        successRate: 95,  // TODO: Calculate from actual failure logs
+        successRate: 95, // TODO: Calculate from actual failure logs
         failureCount: Math.floor(totalGenerations * 0.05)
       },
       storage: {
         totalSize: totalStorage,
-        audioFiles: files.filter(f => ['song', 'music', 'audio'].includes(f.type)).length,
-        videoFiles: files.filter(f => f.type === 'video').length,
-        styleFiles: files.filter(f => f.type === 'style').length,
+        audioFiles: files.filter((f) => ['song', 'music', 'audio'].includes(f.type)).length,
+        videoFiles: files.filter((f) => f.type === 'video').length,
+        styleFiles: files.filter((f) => f.type === 'style').length,
         averageFileSize: files.length > 0 ? totalStorage / files.length : 0
       },
       topUsers: topUsersEnriched,
-      recentActivity: recentLogs.map(log => ({
+      recentActivity: recentLogs.map((log) => ({
         timestamp: log.timestamp,
         action: log.action,
         username: log.username,
@@ -1435,8 +1417,8 @@ export class AdminService {
       charts: {
         generationsPerDay,
         userGrowth,
-        successRateOverTime: [],  // TODO: Implement
-        averageResponseTime: []    // TODO: Implement
+        successRateOverTime: [], // TODO: Implement
+        averageResponseTime: [] // TODO: Implement
       }
     };
   }
@@ -1447,7 +1429,7 @@ export class AdminService {
     const process = require('process');
 
     return {
-      cpuUsage: os.loadavg()[0] * 100 / os.cpus().length,
+      cpuUsage: (os.loadavg()[0] * 100) / os.cpus().length,
       memoryUsage: (1 - os.freemem() / os.totalmem()) * 100,
       uptime: process.uptime(),
       platform: os.platform(),
@@ -1460,13 +1442,13 @@ export class AdminService {
     await this.auditLogModel.create({
       ...data,
       timestamp: new Date(),
-      expireAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)  // 90 days
+      expireAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days
     });
   }
 
   private async aggregateByDay(collection: string, days: number) {
     const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-    
+
     const results = await this.libraryItemModel.aggregate([
       { $match: { createdAt: { $gte: startDate } } },
       {
@@ -1480,12 +1462,12 @@ export class AdminService {
       { $sort: { _id: 1 } }
     ]);
 
-    return results.map(r => ({ date: r._id, count: r.count }));
+    return results.map((r) => ({ date: r._id, count: r.count }));
   }
 
   private async aggregateUserGrowth(days: number) {
     const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-    
+
     const results = await this.userModel.aggregate([
       { $match: { createdAt: { $gte: startDate } } },
       {
@@ -1501,7 +1483,7 @@ export class AdminService {
 
     // Cumulative count
     let cumulative = await this.userModel.countDocuments({ createdAt: { $lt: startDate } });
-    return results.map(r => {
+    return results.map((r) => {
       cumulative += r.count;
       return { date: r._id, count: cumulative };
     });
@@ -1517,8 +1499,8 @@ export const appRoutes: Route[] = [
   // ... other routes
   {
     path: 'admin',
-    loadChildren: () => import('./features/admin/admin.module').then(m => m.AdminModule),
-    canActivate: [authGuard, adminGuard]  // Requires authentication + admin role
+    loadChildren: () => import('./features/admin/admin.module').then((m) => m.AdminModule),
+    canActivate: [authGuard, adminGuard] // Requires authentication + admin role
   }
 ];
 ```
@@ -1527,18 +1509,13 @@ export const appRoutes: Route[] = [
 
 ```typescript
 // admin.gateway.ts
-import { 
-  WebSocketGateway, 
-  WebSocketServer, 
-  OnGatewayConnection,
-  OnGatewayDisconnect 
-} from '@nestjs/websockets';
+import { WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { AdminService } from './admin.service';
 
-@WebSocketGateway({ 
+@WebSocketGateway({
   namespace: '/admin',
-  cors: { origin: '*' }  // Configure properly in production
+  cors: { origin: '*' } // Configure properly in production
 })
 export class AdminGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
@@ -1606,7 +1583,7 @@ test('admin dashboard flow', async ({ page }) => {
 
   // Check users tab
   await expect(page.locator('.users-table')).toBeVisible();
-  
+
   // Create user
   await page.click('button:has-text("Create User")');
   await page.fill('input[formControlName="username"]', 'newuser');
@@ -1625,87 +1602,86 @@ test('admin dashboard flow', async ({ page }) => {
 
 ### Role Verification
 
-* All admin endpoints protected by `@Roles('admin')` decorator
-* JWT token validated on every request
-* Role checked in RolesGuard
+- All admin endpoints protected by `@Roles('admin')` decorator
+- JWT token validated on every request
+- Role checked in RolesGuard
 
 ### Audit Logging
 
-* All admin actions logged with timestamp
-* User attribution for accountability
-* 90-day retention (configurable TTL)
+- All admin actions logged with timestamp
+- User attribution for accountability
+- 90-day retention (configurable TTL)
 
 ### Data Access Control
 
-* Admins can view all data (by design)
-* Audit logs track who accessed what
-* Consider IP whitelisting for extra security
+- Admins can view all data (by design)
+- Audit logs track who accessed what
+- Consider IP whitelisting for extra security
 
 ## Future Enhancements
 
 ### Advanced Analytics
 
-* Machine learning insights (most popular genres, prediction models)
-* User cohort analysis
-* Retention metrics
+- Machine learning insights (most popular genres, prediction models)
+- User cohort analysis
+- Retention metrics
 
 ### Bulk Operations
 
-* Bulk user import/export (CSV)
-* Bulk file operations
-* Mass notifications
+- Bulk user import/export (CSV)
+- Bulk file operations
+- Mass notifications
 
 ### System Configuration UI
 
-* Model parameter tuning
-* Rate limit configuration
-* Feature flags
+- Model parameter tuning
+- Rate limit configuration
+- Feature flags
 
 ### Advanced Monitoring
 
-* Grafana integration
-* Prometheus metrics export
-* Alert system for anomalies
+- Grafana integration
+- Prometheus metrics export
+- Alert system for anomalies
 
-***
+---
 
 **Document Version**: 1.0.0\
 **Last Updated**: December 2, 2025\
 **Status**: Design Complete - Implementation Ready\
 **Priority**: HIGH - Core Admin Feature
 
-**LEGENDARY IS OUR STANDARD!** 👑
-track who accessed what
+**LEGENDARY IS OUR STANDARD!** 👑 track who accessed what
 
-* Consider IP whitelisting for extra security
+- Consider IP whitelisting for extra security
 
 ## Future Enhancements
 
 ### Advanced Analytics
 
-* Machine learning insights (most popular genres, prediction models)
-* User cohort analysis
-* Retention metrics
+- Machine learning insights (most popular genres, prediction models)
+- User cohort analysis
+- Retention metrics
 
 ### Bulk Operations
 
-* Bulk user import/export (CSV)
-* Bulk file operations
-* Mass notifications
+- Bulk user import/export (CSV)
+- Bulk file operations
+- Mass notifications
 
 ### System Configuration UI
 
-* Model parameter tuning
-* Rate limit configuration
-* Feature flags
+- Model parameter tuning
+- Rate limit configuration
+- Feature flags
 
 ### Advanced Monitoring
 
-* Grafana integration
-* Prometheus metrics export
-* Alert system for anomalies
+- Grafana integration
+- Prometheus metrics export
+- Alert system for anomalies
 
-***
+---
 
 **Document Version**: 1.0.0\
 **Last Updated**: December 2, 2025\

@@ -4,7 +4,7 @@
 **Status**: 🔴 Critical - Blocks all UI testing\
 **Date**: December 3, 2025
 
-***
+---
 
 ## Symptoms
 
@@ -14,7 +14,7 @@
 4. IDE shows 65+ TypeScript compilation errors
 5. Dev server running on port 4200
 
-***
+---
 
 ## Root Cause Analysis
 
@@ -33,29 +33,31 @@ Application bundle generation failed [3.233 seconds]
 ⚠️ **65+ TypeScript errors in IDE** (non-blocking for build):
 
 1. **Router Module Issues** (7 files):
-   * `Unable to import class RouterModule from '@angular/router'`
-   * Affects: admin, profile, library modules
+
+   - `Unable to import class RouterModule from '@angular/router'`
+   - Affects: admin, profile, library modules
 
 2. **Angular Material Issues** (50+ errors):
-   * `'mat-icon' is not a known element`
-   * `'mat-button' is not a known element`
-   * `'mat-form-field' is not a known element`
-   * `Can't bind to 'matMenuTriggerFor'`
-   * Affects: login-modal, header-user-menu components
+
+   - `'mat-icon' is not a known element`
+   - `'mat-button' is not a known element`
+   - `'mat-form-field' is not a known element`
+   - `Can't bind to 'matMenuTriggerFor'`
+   - Affects: login-modal, header-user-menu components
 
 3. **Forms Module Issues**:
-   * `Can't bind to 'formGroup'` - ReactiveFormsModule not imported
-   * Affects: login-modal component
+   - `Can't bind to 'formGroup'` - ReactiveFormsModule not imported
+   - Affects: login-modal component
 
 ### Runtime Analysis
 
 The build succeeds, suggesting:
 
-* Webpack bundling works correctly
-* Angular compiler can process templates
-* **Issue is likely runtime error in browser console**
+- Webpack bundling works correctly
+- Angular compiler can process templates
+- **Issue is likely runtime error in browser console**
 
-***
+---
 
 ## Diagnostic Steps
 
@@ -99,7 +101,7 @@ curl http://localhost:4200
 # Should return HTML, not error page
 ```
 
-***
+---
 
 ## Solution Steps
 
@@ -160,13 +162,13 @@ Check if Angular app bootstraps correctly:
 
 ```typescript
 // In browser console, type:
-ng.probe(document.querySelector('harmonia-root'))
+ng.probe(document.querySelector('harmonia-root'));
 
 // If undefined, Angular didn't bootstrap
 // Check main.ts and app-module.ts
 ```
 
-***
+---
 
 ## Quick Fixes
 
@@ -205,7 +207,7 @@ pnpm list zone.js
 # Expected: zone.js 0.16.0
 ```
 
-***
+---
 
 ## Known Issues
 
@@ -217,9 +219,9 @@ pnpm list zone.js
 
 **Explanation**:
 
-* Angular CLI uses its own TypeScript compiler
-* IDE errors may be false positives from language service
-* Build uses stricter compilation settings
+- Angular CLI uses its own TypeScript compiler
+- IDE errors may be false positives from language service
+- Build uses stricter compilation settings
 
 **Action**: Can be ignored if build succeeds
 
@@ -231,9 +233,9 @@ pnpm list zone.js
 
 **Explanation**:
 
-* Development build is larger than production
-* Material Design and NGRX add significant size
-* Lazy loading is configured (8 lazy chunks)
+- Development build is larger than production
+- Material Design and NGRX add significant size
+- Lazy loading is configured (8 lazy chunks)
 
 **Action**: Adjust budgets in angular.json or optimize later
 
@@ -245,76 +247,78 @@ pnpm list zone.js
 
 **Files Affected**:
 
-* song-generation-page.component.scss (6.59 KB)
-* header-user-menu.component.scss (7.61 KB)
-* profile.component.scss (6.71 KB)
-* video-generation-page.component.scss (8.61 KB) - **ERROR level**
-* library.component.scss (6.07 KB)
-* video-editing-page.component.scss (7.48 KB)
-* admin.component.scss (6.77 KB)
-* music-generation-page.component.scss (7.13 KB)
-* app.scss (6.76 KB)
+- song-generation-page.component.scss (6.59 KB)
+- header-user-menu.component.scss (7.61 KB)
+- profile.component.scss (6.71 KB)
+- video-generation-page.component.scss (8.61 KB) - **ERROR level**
+- library.component.scss (6.07 KB)
+- video-editing-page.component.scss (7.48 KB)
+- admin.component.scss (6.77 KB)
+- music-generation-page.component.scss (7.13 KB)
+- app.scss (6.76 KB)
 
 **Action**: Refactor styles or adjust budgets
 
-***
+---
 
 ## Expected Behavior
 
 Once fixed, frontend should display:
 
 1. **Header**:
-   * "Harmonia" title
-   * Sign In / Sign Up buttons (for unauthenticated users)
+
+   - "Harmonia" title
+   - Sign In / Sign Up buttons (for unauthenticated users)
 
 2. **Sidebar**:
-   * Song Generation link
-   * Music Generation link
-   * Video Generation link
-   * Video Editing link
+
+   - Song Generation link
+   - Music Generation link
+   - Video Generation link
+   - Video Editing link
 
 3. **Main Content**:
-   * Router outlet with default route content
+
+   - Router outlet with default route content
 
 4. **Footer**:
-   * "© 2025 Harmonia - Phase 1"
+   - "© 2025 Harmonia - Phase 1"
 
-***
+---
 
 ## Verification Checklist
 
 After applying fixes:
 
-* \[ ] Browser shows Harmonia header (not blank white page)
-* \[ ] Sign In / Sign Up buttons visible in header
-* \[ ] Sidebar navigation visible with 4 links
-* \[ ] Browser console shows no errors (warnings OK)
-* \[ ] Click "Sign In" opens login modal
-* \[ ] Click sidebar links navigates to pages
-* \[ ] Footer displays copyright text
+- \[ ] Browser shows Harmonia header (not blank white page)
+- \[ ] Sign In / Sign Up buttons visible in header
+- \[ ] Sidebar navigation visible with 4 links
+- \[ ] Browser console shows no errors (warnings OK)
+- \[ ] Click "Sign In" opens login modal
+- \[ ] Click sidebar links navigates to pages
+- \[ ] Footer displays copyright text
 
-***
+---
 
 ## Next Steps
 
 Once white page is resolved:
 
-1. Test authentication flow (TESTING\_CHECKLIST.md)
+1. Test authentication flow (TESTING_CHECKLIST.md)
 2. Verify all routes work
 3. Test protected routes redirect correctly
 4. Complete E2E testing scenarios
 
-***
+---
 
 ## Additional Resources
 
-* [TESTING\_CHECKLIST.md](./TESTING_CHECKLIST.md) - E2E test scenarios
-* [FRONTEND\_BACKEND\_INTEGRATION.md](./FRONTEND_BACKEND_INTEGRATION.md) - Integration guide
-* [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) - General troubleshooting
-* [Angular Debugging Guide](https://angular.io/guide/debugging)
+- [TESTING_CHECKLIST.md](./TESTING_CHECKLIST.md) - E2E test scenarios
+- [FRONTEND_BACKEND_INTEGRATION.md](./FRONTEND_BACKEND_INTEGRATION.md) - Integration guide
+- [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) - General troubleshooting
+- [Angular Debugging Guide](https://angular.io/guide/debugging)
 
-***
+---
 
 **Last Updated**: December 3, 2025\
-**Status**: 🔴 Critical Issue - Investigation in Progress
-gress
+**Status**: 🔴 Critical Issue - Investigation in Progress gress

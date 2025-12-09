@@ -2,7 +2,8 @@
 
 ## Overview
 
-Harmonia uses **NGRX 20.1.0** for predictable state management following Redux patterns. This guide covers architecture, best practices, and implementation patterns for Phase 1.
+Harmonia uses **NGRX 20.1.0** for predictable state management following Redux patterns. This guide covers architecture,
+best practices, and implementation patterns for Phase 1.
 
 ## Store Architecture
 
@@ -10,10 +11,10 @@ Harmonia uses **NGRX 20.1.0** for predictable state management following Redux p
 
 ```typescript
 export interface AppState {
-  auth: AuthState;       // User authentication and session
-  models: ModelsState;   // Model artifact management
+  auth: AuthState; // User authentication and session
+  models: ModelsState; // Model artifact management
   datasets: DatasetsState; // Audio dataset explorer
-  jobs: JobsState;       // Job queue and real-time updates
+  jobs: JobsState; // Job queue and real-time updates
 }
 ```
 
@@ -52,7 +53,7 @@ export const initialAuthState: AuthState = {
   refreshToken: null,
   isAuthenticated: false,
   loading: false,
-  error: null,
+  error: null
 };
 ```
 
@@ -90,9 +91,9 @@ export interface ModelsState extends EntityState<ModelArtifact> {
 
 Examples:
 
-* `[Auth] Login`
-* `[Models] Load Models Success`
-* `[Jobs] Job Progress Updated`
+- `[Auth] Login`
+- `[Models] Load Models Success`
+- `[Jobs] Job Progress Updated`
 
 ### Action Structure
 
@@ -103,10 +104,7 @@ import { createAction, props } from '@ngrx/store';
 export const logout = createAction('[Auth] Logout');
 
 // Action with payload
-export const login = createAction(
-  '[Auth] Login',
-  props<{ email: string; password: string }>()
-);
+export const login = createAction('[Auth] Login', props<{ email: string; password: string }>());
 
 // Success/Failure pattern
 export const loginSuccess = createAction(
@@ -114,10 +112,7 @@ export const loginSuccess = createAction(
   props<{ user: User; token: string; refreshToken: string }>()
 );
 
-export const loginFailure = createAction(
-  '[Auth] Login Failure',
-  props<{ error: string }>()
-);
+export const loginFailure = createAction('[Auth] Login Failure', props<{ error: string }>());
 ```
 
 ### Async Operation Pattern (Request/Success/Failure)
@@ -126,25 +121,16 @@ export const loginFailure = createAction(
 // Load operation
 export const loadModels = createAction('[Models] Load Models');
 
-export const loadModelsSuccess = createAction(
-  '[Models] Load Models Success',
-  props<{ models: ModelArtifact[] }>()
-);
+export const loadModelsSuccess = createAction('[Models] Load Models Success', props<{ models: ModelArtifact[] }>());
 
-export const loadModelsFailure = createAction(
-  '[Models] Load Models Failure',
-  props<{ error: string }>()
-);
+export const loadModelsFailure = createAction('[Models] Load Models Failure', props<{ error: string }>());
 ```
 
 ### Real-Time Update Actions
 
 ```typescript
 // WebSocket events dispatch these actions
-export const jobStatusUpdated = createAction(
-  '[Jobs] Job Status Updated',
-  props<{ id: string; status: JobStatus }>()
-);
+export const jobStatusUpdated = createAction('[Jobs] Job Status Updated', props<{ id: string; status: JobStatus }>());
 
 export const jobProgressUpdated = createAction(
   '[Jobs] Job Progress Updated',
@@ -167,7 +153,7 @@ export const authReducer = createReducer(
   on(AuthActions.login, (state) => ({
     ...state,
     loading: true,
-    error: null,
+    error: null
   })),
 
   // Success state (update multiple properties)
@@ -177,14 +163,14 @@ export const authReducer = createReducer(
     token,
     refreshToken,
     isAuthenticated: true,
-    loading: false,
+    loading: false
   })),
 
   // Error state
   on(AuthActions.loginFailure, (state, { error }) => ({
     ...state,
     loading: false,
-    error,
+    error
   })),
 
   // Reset state
@@ -198,17 +184,16 @@ export const authReducer = createReducer(
 import { createReducer, on } from '@ngrx/store';
 import { createEntityAdapter, EntityAdapter } from '@ngrx/entity';
 
-export const modelsAdapter: EntityAdapter<ModelArtifact> =
-  createEntityAdapter<ModelArtifact>({
-    selectId: (model) => model.id,
-    sortComparer: (a, b) => b.createdAt.localeCompare(a.createdAt),
-  });
+export const modelsAdapter: EntityAdapter<ModelArtifact> = createEntityAdapter<ModelArtifact>({
+  selectId: (model) => model.id,
+  sortComparer: (a, b) => b.createdAt.localeCompare(a.createdAt)
+});
 
 export const initialModelsState: ModelsState = modelsAdapter.getInitialState({
   selectedModelId: null,
   loading: false,
   error: null,
-  filters: { search: '', modelType: null, tags: [] },
+  filters: { search: '', modelType: null, tags: [] }
 });
 
 export const modelsReducer = createReducer(
@@ -220,27 +205,19 @@ export const modelsReducer = createReducer(
   ),
 
   // Add one entity
-  on(ModelsActions.createModelSuccess, (state, { model }) =>
-    modelsAdapter.addOne(model, { ...state, loading: false })
-  ),
+  on(ModelsActions.createModelSuccess, (state, { model }) => modelsAdapter.addOne(model, { ...state, loading: false })),
 
   // Update one entity
   on(ModelsActions.updateModelSuccess, (state, { model }) =>
-    modelsAdapter.updateOne(
-      { id: model.id, changes: model },
-      { ...state, loading: false }
-    )
+    modelsAdapter.updateOne({ id: model.id, changes: model }, { ...state, loading: false })
   ),
 
   // Remove one entity
-  on(ModelsActions.deleteModelSuccess, (state, { id }) =>
-    modelsAdapter.removeOne(id, { ...state, loading: false })
-  )
+  on(ModelsActions.deleteModelSuccess, (state, { id }) => modelsAdapter.removeOne(id, { ...state, loading: false }))
 );
 
 // Export entity adapter selectors
-export const { selectAll, selectEntities, selectIds, selectTotal } =
-  modelsAdapter.getSelectors();
+export const { selectAll, selectEntities, selectIds, selectTotal } = modelsAdapter.getSelectors();
 ```
 
 ## Selectors Pattern
@@ -259,26 +236,14 @@ export const selectAuthState = createFeatureSelector<AuthState>('auth');
 import { createSelector } from '@ngrx/store';
 
 // Direct property access
-export const selectUser = createSelector(
-  selectAuthState,
-  (state) => state.user
-);
+export const selectUser = createSelector(selectAuthState, (state) => state.user);
 
-export const selectIsAuthenticated = createSelector(
-  selectAuthState,
-  (state) => state.isAuthenticated
-);
+export const selectIsAuthenticated = createSelector(selectAuthState, (state) => state.isAuthenticated);
 
 // Derived/computed selectors
-export const selectUserRole = createSelector(
-  selectUser,
-  (user) => user?.role || 'guest'
-);
+export const selectUserRole = createSelector(selectUser, (user) => user?.role || 'guest');
 
-export const selectIsAdmin = createSelector(
-  selectUserRole,
-  (role) => role === 'admin'
-);
+export const selectIsAdmin = createSelector(selectUserRole, (role) => role === 'admin');
 
 // Combining multiple selectors
 export const selectAuthStatus = createSelector(
@@ -286,7 +251,7 @@ export const selectAuthStatus = createSelector(
   selectAuthLoading,
   (isAuthenticated, loading) => ({
     isAuthenticated,
-    loading,
+    loading
   })
 );
 ```
@@ -297,21 +262,13 @@ export const selectAuthStatus = createSelector(
 import * as fromModels from './models.reducer';
 
 // Use adapter selectors
-export const selectAllModels = createSelector(
-  selectModelsState,
-  fromModels.selectAll
-);
+export const selectAllModels = createSelector(selectModelsState, fromModels.selectAll);
 
-export const selectModelsEntities = createSelector(
-  selectModelsState,
-  fromModels.selectEntities
-);
+export const selectModelsEntities = createSelector(selectModelsState, fromModels.selectEntities);
 
 // Select specific entity by ID
-export const selectSelectedModel = createSelector(
-  selectModelsEntities,
-  selectSelectedModelId,
-  (entities, selectedId) => (selectedId ? entities[selectedId] : null)
+export const selectSelectedModel = createSelector(selectModelsEntities, selectSelectedModelId, (entities, selectedId) =>
+  selectedId ? entities[selectedId] : null
 );
 ```
 
@@ -319,29 +276,20 @@ export const selectSelectedModel = createSelector(
 
 ```typescript
 // Client-side filtering
-export const selectFilteredModels = createSelector(
-  selectAllModels,
-  selectModelsFilters,
-  (models, filters) => {
-    return models.filter((model) => {
-      const matchesSearch =
-        !filters.search ||
-        model.name.toLowerCase().includes(filters.search.toLowerCase());
+export const selectFilteredModels = createSelector(selectAllModels, selectModelsFilters, (models, filters) => {
+  return models.filter((model) => {
+    const matchesSearch = !filters.search || model.name.toLowerCase().includes(filters.search.toLowerCase());
 
-      const matchesType = !filters.modelType || model.type === filters.modelType;
+    const matchesType = !filters.modelType || model.type === filters.modelType;
 
-      const matchesTags =
-        filters.tags.length === 0 ||
-        filters.tags.some((tag) => model.tags.includes(tag));
+    const matchesTags = filters.tags.length === 0 || filters.tags.some((tag) => model.tags.includes(tag));
 
-      return matchesSearch && matchesType && matchesTags;
-    });
-  }
-);
+    return matchesSearch && matchesType && matchesTags;
+  });
+});
 
 // Parameterized selector factory
-export const selectModelById = (id: string) =>
-  createSelector(selectModelsEntities, (entities) => entities[id]);
+export const selectModelById = (id: string) => createSelector(selectModelsEntities, (entities) => entities[id]);
 ```
 
 ## Effects Pattern
@@ -367,7 +315,7 @@ export class ModelsEffects {
           catchError((error) =>
             of(
               ModelsActions.loadModelsFailure({
-                error: error.message || 'Failed to load models',
+                error: error.message || 'Failed to load models'
               })
             )
           )
@@ -376,10 +324,7 @@ export class ModelsEffects {
     )
   );
 
-  constructor(
-    private actions$: Actions,
-    private modelsService: ModelsService
-  ) {}
+  constructor(private actions$: Actions, private modelsService: ModelsService) {}
 }
 ```
 
@@ -401,10 +346,7 @@ export class AuthEffects {
     { dispatch: false } // Non-dispatching effect
   );
 
-  constructor(
-    private actions$: Actions,
-    private router: Router
-  ) {}
+  constructor(private actions$: Actions, private router: Router) {}
 }
 ```
 
@@ -419,14 +361,14 @@ createJob$ = createEffect(() =>
         .createJob({
           jobType: action.jobType,
           parameters: action.parameters,
-          priority: action.priority,
+          priority: action.priority
         })
         .pipe(
           map((job) => JobsActions.createJobSuccess({ job })),
           catchError((error) =>
             of(
               JobsActions.createJobFailure({
-                error: error.message || 'Failed to create job',
+                error: error.message || 'Failed to create job'
               })
             )
           )
@@ -461,7 +403,7 @@ import { ModelsEffects } from './store/models/models.effects';
         auth: authReducer,
         models: modelsReducer,
         datasets: datasetsReducer,
-        jobs: jobsReducer,
+        jobs: jobsReducer
       },
       {
         runtimeChecks: {
@@ -470,22 +412,17 @@ import { ModelsEffects } from './store/models/models.effects';
           strictStateSerializability: true,
           strictActionSerializability: true,
           strictActionWithinNgZone: true,
-          strictActionTypeUniqueness: true,
-        },
+          strictActionTypeUniqueness: true
+        }
       }
     ),
-    EffectsModule.forRoot([
-      AuthEffects,
-      ModelsEffects,
-      DatasetsEffects,
-      JobsEffects,
-    ]),
+    EffectsModule.forRoot([AuthEffects, ModelsEffects, DatasetsEffects, JobsEffects]),
     StoreDevtoolsModule.instrument({
       maxAge: 25,
       logOnly: !isDevMode(),
-      autoPause: true,
-    }),
-  ],
+      autoPause: true
+    })
+  ]
 })
 export class AppModule {}
 ```
@@ -502,7 +439,7 @@ import * as AuthActions from './store/auth/auth.actions';
 
 @Component({
   selector: 'app-login',
-  templateUrl: './login.component.html',
+  templateUrl: './login.component.html'
 })
 export class LoginComponent {
   constructor(private store: Store<AppState>) {}
@@ -524,7 +461,7 @@ import * as fromAuth from './store/auth/auth.selectors';
 
 @Component({
   selector: 'app-header',
-  templateUrl: './header.component.html',
+  templateUrl: './header.component.html'
 })
 export class HeaderComponent implements OnInit {
   user$!: Observable<User | null>;
@@ -586,7 +523,7 @@ on(AuthActions.loginSuccess, (state, { user }) => {
 on(AuthActions.loginSuccess, (state, { user }) => ({
   ...state,
   user,
-  isAuthenticated: true,
+  isAuthenticated: true
 }));
 ```
 
@@ -601,9 +538,7 @@ loadModels$ = createEffect(() =>
     mergeMap(() =>
       this.modelsService.getModels().pipe(
         map((models) => ModelsActions.loadModelsSuccess({ models })),
-        catchError((error) =>
-          of(ModelsActions.loadModelsFailure({ error: error.message }))
-        )
+        catchError((error) => of(ModelsActions.loadModelsFailure({ error: error.message })))
       )
     )
   )
@@ -616,10 +551,8 @@ loadModels$ = createEffect(() =>
 
 ```typescript
 // Memoized - only recalculates when dependencies change
-export const selectFilteredModels = createSelector(
-  selectAllModels,
-  selectFilters,
-  (models, filters) => models.filter(/* ... */)
+export const selectFilteredModels = createSelector(selectAllModels, selectFilters, (models, filters) =>
+  models.filter(/* ... */)
 );
 ```
 
@@ -634,10 +567,7 @@ export const updateData = createAction('[App] Update', props<{ data: any }>());
 ✅ **Good**:
 
 ```typescript
-export const updateModel = createAction(
-  '[Models] Update',
-  props<{ id: string; changes: Partial<ModelArtifact> }>()
-);
+export const updateModel = createAction('[Models] Update', props<{ id: string; changes: Partial<ModelArtifact> }>());
 ```
 
 ### 6. Use Entity Adapters for Collections
@@ -648,7 +578,7 @@ export const updateModel = createAction(
 import { createEntityAdapter } from '@ngrx/entity';
 
 export const modelsAdapter = createEntityAdapter<ModelArtifact>({
-  selectId: (model) => model.id,
+  selectId: (model) => model.id
 });
 ```
 
@@ -672,10 +602,10 @@ Install [Redux DevTools](https://github.com/reduxjs/redux-devtools) browser exte
 
 Features:
 
-* **Action Inspector**: See all dispatched actions
-* **State Diff**: View state changes
-* **Time Travel**: Jump to any previous state
-* **Action Replay**: Replay actions
+- **Action Inspector**: See all dispatched actions
+- **State Diff**: View state changes
+- **Time Travel**: Jump to any previous state
+- **Action Replay**: Replay actions
 
 ### Console Logging
 
@@ -741,8 +671,8 @@ describe('AuthSelectors', () => {
       user: { id: '1', username: 'test', role: 'admin' },
       isAuthenticated: true,
       loading: false,
-      error: null,
-    },
+      error: null
+    }
   };
 
   it('should select user', () => {
@@ -776,11 +706,7 @@ describe('ModelsEffects', () => {
     const spy = jasmine.createSpyObj('ModelsService', ['getModels']);
 
     TestBed.configureTestingModule({
-      providers: [
-        ModelsEffects,
-        provideMockActions(() => actions$),
-        { provide: ModelsService, useValue: spy },
-      ],
+      providers: [ModelsEffects, provideMockActions(() => actions$), { provide: ModelsService, useValue: spy }]
     });
 
     effects = TestBed.inject(ModelsEffects);
@@ -802,9 +728,8 @@ describe('ModelsEffects', () => {
 
 ## Resources
 
-* [NGRX Documentation](https://ngrx.io)
-* [NGRX Entity Adapter](https://ngrx.io/guide/entity)
-* [Redux DevTools](https://github.com/reduxjs/redux-devtools)
-* [RxJS Operators](https://rxjs.dev/guide/operators)
-  s]\(https://github.com/reduxjs/redux-devtools)
-* [RxJS Operators](https://rxjs.dev/guide/operators)
+- [NGRX Documentation](https://ngrx.io)
+- [NGRX Entity Adapter](https://ngrx.io/guide/entity)
+- [Redux DevTools](https://github.com/reduxjs/redux-devtools)
+- [RxJS Operators](https://rxjs.dev/guide/operators) s]\(https://github.com/reduxjs/redux-devtools)
+- [RxJS Operators](https://rxjs.dev/guide/operators)

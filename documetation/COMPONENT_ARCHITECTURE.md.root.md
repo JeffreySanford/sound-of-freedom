@@ -2,7 +2,8 @@
 
 ## Overview
 
-Harmonia follows a **strict NgModule-based architecture** with separated HTML/SCSS files for all components. This guide covers component patterns, styling architecture, and best practices for Phase 1.
+Harmonia follows a **strict NgModule-based architecture** with separated HTML/SCSS files for all components. This guide
+covers component patterns, styling architecture, and best practices for Phase 1.
 
 ## Component Principles
 
@@ -14,7 +15,7 @@ Harmonia follows a **strict NgModule-based architecture** with separated HTML/SC
 @Component({
   selector: 'app-example',
   standalone: true, // NEVER USE THIS
-  templateUrl: './example.component.html',
+  templateUrl: './example.component.html'
 })
 export class ExampleComponent {}
 ```
@@ -26,7 +27,7 @@ export class ExampleComponent {}
   selector: 'app-example',
   standalone: false, // Always explicitly set to false
   templateUrl: './example.component.html',
-  styleUrl: './example.component.scss',
+  styleUrl: './example.component.scss'
 })
 export class ExampleComponent {}
 ```
@@ -37,9 +38,9 @@ export class ExampleComponent {}
 
 ✅ **Every component must have**:
 
-* `.ts` - Component logic
-* `.html` - Template (no inline templates)
-* `.scss` - Styles (no inline styles)
+- `.ts` - Component logic
+- `.html` - Template (no inline templates)
+- `.scss` - Styles (no inline styles)
 
 ```text
 src/app/components/example/
@@ -78,11 +79,11 @@ src/app/components/example/
 
 **Never duplicate styles** - use the shared SCSS modules:
 
-* `styles/_colors.scss` - Color palette, semantic colors
-* `styles/_mixins.scss` - Reusable patterns (flex, elevation, hover)
-* `styles/_typography.scss` - Font scales, text styles
-* `styles/_layout.scss` - Spacing utilities, grid
-* `styles/_animations.scss` - Keyframes, transitions
+- `styles/_colors.scss` - Color palette, semantic colors
+- `styles/_mixins.scss` - Reusable patterns (flex, elevation, hover)
+- `styles/_typography.scss` - Font scales, text styles
+- `styles/_layout.scss` - Spacing utilities, grid
+- `styles/_animations.scss` - Keyframes, transitions
 
 ## Application Layout Structure
 
@@ -124,7 +125,7 @@ import { Component } from '@angular/core';
   selector: 'harmonia-root',
   standalone: false,
   templateUrl: './app.html',
-  styleUrl: './app.scss',
+  styleUrl: './app.scss'
 })
 export class App {
   protected title = 'frontend';
@@ -145,11 +146,7 @@ export class App {
   <div class="app-content">
     <aside class="app-sidebar">
       <nav class="sidebar-nav">
-        <a
-          routerLink="/generate/song"
-          routerLinkActive="active"
-          class="nav-item"
-        >
+        <a routerLink="/generate/song" routerLinkActive="active" class="nav-item">
           <span class="nav-icon">🎵</span>
           <span class="nav-label">Song Generation</span>
         </a>
@@ -224,26 +221,26 @@ export class App {
 
 1. **Song Generation** (`/generate/song`)
 
-   * Narrative-driven song creation
-   * Style and title selection
-   * Lyric generation
+   - Narrative-driven song creation
+   - Style and title selection
+   - Lyric generation
 
 2. **Music Generation** (`/generate/music`)
 
-   * Instrumental music creation
-   * Genre and mood selection
-   * MusicGen integration
+   - Instrumental music creation
+   - Genre and mood selection
+   - MusicGen integration
 
 3. **Video Generation** (`/generate/video`)
 
-   * Text-to-video generation
-   * Scene composition
-   * Style transfer
+   - Text-to-video generation
+   - Scene composition
+   - Style transfer
 
 4. **Video Editing** (`/edit/video`)
-   * Storyboard editor
-   * Scene arrangement
-   * Timeline editing
+   - Storyboard editor
+   - Scene arrangement
+   - Timeline editing
 
 ### Sidebar Component Pattern
 
@@ -255,14 +252,14 @@ import { Component } from '@angular/core';
   selector: 'app-sidebar',
   standalone: false,
   templateUrl: './sidebar.component.html',
-  styleUrl: './sidebar.component.scss',
+  styleUrl: './sidebar.component.scss'
 })
 export class SidebarComponent {
   navItems = [
     { icon: '🎵', label: 'Song Generation', route: '/generate/song' },
     { icon: '🎼', label: 'Music Generation', route: '/generate/music' },
     { icon: '🎬', label: 'Video Generation', route: '/generate/video' },
-    { icon: '✂️', label: 'Video Editing', route: '/edit/video' },
+    { icon: '✂️', label: 'Video Editing', route: '/edit/video' }
   ];
 }
 ```
@@ -270,12 +267,7 @@ export class SidebarComponent {
 ```html
 <!-- sidebar.component.html -->
 <nav class="sidebar-nav">
-  <a
-    *ngFor="let item of navItems"
-    [routerLink]="item.route"
-    routerLinkActive="active"
-    class="nav-item"
-  >
+  <a *ngFor="let item of navItems" [routerLink]="item.route" routerLinkActive="active" class="nav-item">
     <span class="nav-icon">{{ item.icon }}</span>
     <span class="nav-label">{{ item.label }}</span>
   </a>
@@ -333,7 +325,8 @@ export class SidebarComponent {
 
 ### Advanced Song Generation Component Architecture
 
-The song generation feature implements a sophisticated multi-stage AI pipeline with specialized components for each phase:
+The song generation feature implements a sophisticated multi-stage AI pipeline with specialized components for each
+phase:
 
 ```text
 src/app/features/song-generation/
@@ -402,10 +395,10 @@ src/app/features/song-generation/
 
 **Smart Components** (Container/Page):
 
-* Connect to NGRX store
-* Handle business logic
-* Dispatch actions
-* Pass data to presentational components
+- Connect to NGRX store
+- Handle business logic
+- Dispatch actions
+- Pass data to presentational components
 
 ```typescript
 // song-generation-page.component.ts
@@ -420,7 +413,7 @@ import * as fromJobs from '../../../../store/jobs/jobs.selectors';
   selector: 'app-song-generation-page',
   standalone: false,
   templateUrl: './song-generation-page.component.html',
-  styleUrl: './song-generation-page.component.scss',
+  styleUrl: './song-generation-page.component.scss'
 })
 export class SongGenerationPageComponent implements OnInit {
   jobs$!: Observable<Job[]>;
@@ -438,7 +431,7 @@ export class SongGenerationPageComponent implements OnInit {
     this.store.dispatch(
       JobsActions.createJob({
         jobType: 'generate',
-        parameters: params,
+        parameters: params
       })
     );
   }
@@ -447,10 +440,10 @@ export class SongGenerationPageComponent implements OnInit {
 
 **Presentational Components** (Dumb):
 
-* Receive data via `@Input()`
-* Emit events via `@Output()`
-* No NGRX dependencies
-* Pure presentation logic
+- Receive data via `@Input()`
+- Emit events via `@Output()`
+- No NGRX dependencies
+- Pure presentation logic
 
 ```typescript
 // song-form.component.ts
@@ -460,7 +453,7 @@ import { Component, Output, EventEmitter } from '@angular/core';
   selector: 'app-song-form',
   standalone: false,
   templateUrl: './song-form.component.html',
-  styleUrl: './song-form.component.scss',
+  styleUrl: './song-form.component.scss'
 })
 export class SongFormComponent {
   @Output() submit = new EventEmitter<SongParams>();
@@ -477,23 +470,19 @@ export class SongFormComponent {
 
 **Harmonia uses dedicated Material Design modules per feature** for tree-shaking and centralized imports.
 
-See [MATERIAL\_MODULES.md](./MATERIAL_MODULES.md) for complete documentation.
+See [MATERIAL_MODULES.md](./MATERIAL_MODULES.md) for complete documentation.
 
 ```typescript
 // Import dedicated Material module (preferred approach)
 import { SongGenerationMaterialModule } from './song-generation-material.module';
 
 @NgModule({
-  declarations: [
-    SongGenerationPageComponent,
-    SongFormComponent,
-    StyleSelectorComponent,
-  ],
+  declarations: [SongGenerationPageComponent, SongFormComponent, StyleSelectorComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    SongGenerationMaterialModule, // Single import for all Material components
-  ],
+    SongGenerationMaterialModule // Single import for all Material components
+  ]
 })
 export class SongGenerationModule {}
 ```
@@ -509,30 +498,18 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
 @NgModule({
-  imports: [
-    MatButtonModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-  ],
-  exports: [
-    MatButtonModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-  ],
+  imports: [MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule],
+  exports: [MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule]
 })
 export class SongGenerationMaterialModule {}
 ```
 
 **Benefits**:
 
-* 67% bundle size reduction through tree-shaking
-* Centralized Material imports per feature
-* Only loads Material components needed by each route
-* Easier to audit and maintain
+- 67% bundle size reduction through tree-shaking
+- Centralized Material imports per feature
+- Only loads Material components needed by each route
+- Easier to audit and maintain
 
 ```text
 (See MATERIAL_MODULES.md for complete implementation details)
@@ -608,13 +585,13 @@ import { SongGenerationPageComponent } from './pages/song-generation-page/song-g
 const routes: Routes = [
   {
     path: '',
-    component: SongGenerationPageComponent,
-  },
+    component: SongGenerationPageComponent
+  }
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
+  exports: [RouterModule]
 })
 export class SongGenerationRoutingModule {}
 ```
@@ -628,37 +605,27 @@ import { Route } from '@angular/router';
 export const appRoutes: Route[] = [
   {
     path: 'generate/song',
-    loadChildren: () =>
-      import('./features/song-generation/song-generation.module').then(
-        (m) => m.SongGenerationModule
-      ),
+    loadChildren: () => import('./features/song-generation/song-generation.module').then((m) => m.SongGenerationModule)
   },
   {
     path: 'generate/music',
     loadChildren: () =>
-      import('./features/music-generation/music-generation.module').then(
-        (m) => m.MusicGenerationModule
-      ),
+      import('./features/music-generation/music-generation.module').then((m) => m.MusicGenerationModule)
   },
   {
     path: 'generate/video',
     loadChildren: () =>
-      import('./features/video-generation/video-generation.module').then(
-        (m) => m.VideoGenerationModule
-      ),
+      import('./features/video-generation/video-generation.module').then((m) => m.VideoGenerationModule)
   },
   {
     path: 'edit/video',
-    loadChildren: () =>
-      import('./features/video-editing/video-editing.module').then(
-        (m) => m.VideoEditingModule
-      ),
+    loadChildren: () => import('./features/video-editing/video-editing.module').then((m) => m.VideoEditingModule)
   },
   {
     path: '',
     redirectTo: '/generate/song',
-    pathMatch: 'full',
-  },
+    pathMatch: 'full'
+  }
 ];
 ```
 
@@ -692,9 +659,9 @@ export const appRoutes: Route[] = [
 
 ### 2. Component Naming
 
-* **PascalCase** for component classes: `SongFormComponent`
-* **kebab-case** for selectors: `app-song-form`
-* **kebab-case** for files: `song-form.component.ts`
+- **PascalCase** for component classes: `SongFormComponent`
+- **kebab-case** for selectors: `app-song-form`
+- **kebab-case** for files: `song-form.component.ts`
 
 ### 3. Module Structure
 
@@ -711,7 +678,7 @@ export const appRoutes: Route[] = [
   ],
   providers: [
     /* Services scoped to this module */
-  ],
+  ]
 })
 export class FeatureModule {}
 ```
@@ -784,7 +751,7 @@ describe('SongFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [SongFormComponent],
-      imports: [ReactiveFormsModule, NoopAnimationsModule],
+      imports: [ReactiveFormsModule, NoopAnimationsModule]
     }).compileComponents();
 
     fixture = TestBed.createComponent(SongFormComponent);
@@ -802,7 +769,7 @@ describe('SongFormComponent', () => {
     component.onSubmit();
     expect(component.submit.emit).toHaveBeenCalledWith({
       title: 'Test Song',
-      genre: 'rock',
+      genre: 'rock'
     });
   });
 });
@@ -810,7 +777,7 @@ describe('SongFormComponent', () => {
 
 ## Resources
 
-* [Angular Style Guide](https://angular.io/guide/styleguide)
-* [Angular Material Components](https://material.angular.io/components)
-* [SCSS @use Rule](https://sass-lang.com/documentation/at-rules/use)
-* [Flexbox Guide](https://css-tricks.com/snippets/css/a-guide-to-flexbox/)
+- [Angular Style Guide](https://angular.io/guide/styleguide)
+- [Angular Material Components](https://material.angular.io/components)
+- [SCSS @use Rule](https://sass-lang.com/documentation/at-rules/use)
+- [Flexbox Guide](https://css-tricks.com/snippets/css/a-guide-to-flexbox/)

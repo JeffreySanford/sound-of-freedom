@@ -4,7 +4,7 @@
 **Date**: December 3, 2025\
 **Component**: Full-Stack Authentication System
 
-***
+---
 
 ## Prerequisites
 
@@ -32,15 +32,18 @@ pnpm nx serve frontend
 
 **Pre-created user**:
 
-* **Email**: `admin@harmonia.com`
-* **Username**: admin
-* **Password**: Admin123456
+- **Email**: `admin@harmonia.com`
+- **Username**: admin
+- **Password**: Admin123456
 
 **Local Dev Convenience**:
 
-You may enable `DEV_AUTOGEN_TEST_USER=true` in your local `.env` to auto-create a weak local dev test user (`test` / `password`) when standard E2E env vars are not set. This is only intended for local development; do not enable in CI or production.
+You may enable `DEV_AUTOGEN_TEST_USER=true` in your local `.env` to auto-create a weak local dev test user (`test` /
+`password`) when standard E2E env vars are not set. This is only intended for local development; do not enable in CI or
+production.
 
-Note: If you enable `DEV_AUTOGEN_TEST_USER=true` and the script appends env values to `.env`, you'll need to restart the backend to pick up the new `E2E_TEST_USER_*` values before running Playwright tests.
+Note: If you enable `DEV_AUTOGEN_TEST_USER=true` and the script appends env values to `.env`, you'll need to restart the
+backend to pick up the new `E2E_TEST_USER_*` values before running Playwright tests.
 
 Quick verification commands (local convenience):
 
@@ -63,16 +66,20 @@ pnpm test:e2e:check-user
 pnpm test:e2e:verify-user
 ```
 
-If your backend is configured with a runtime `MONGODB_URI` (for example in Docker/remote DB), the setup script will attempt to seed that runtime DB as well; it now passes `--mongo-uri` to the seeder. If seeding fails, run the seeder manually and inspect logs:
+If your backend is configured with a runtime `MONGODB_URI` (for example in Docker/remote DB), the setup script will
+attempt to seed that runtime DB as well; it now passes `--mongo-uri` to the seeder. If seeding fails, run the seeder
+manually and inspect logs:
 
 ```bash
 # Example: seed runtime DB explicitly using a provided MONGODB_URI
 node scripts/add-test-user.js --mongo-uri="$MONGODB_URI" --env=<db_name> --username=test --email=test@harmonia.local --password=password
 ```
 
-If the user exists in the DB but you still receive "invalid credentials" in the frontend, re-run the verification step to see the HTTP response and check backend logs for 401/Unauthorized messages.
+If the user exists in the DB but you still receive "invalid credentials" in the frontend, re-run the verification step
+to see the HTTP response and check backend logs for 401/Unauthorized messages.
 
-To help debug why the login comparison fails locally, run the password verification tool which compares a plain password against the hash stored in the DB (does not contact the backend):
+To help debug why the login comparison fails locally, run the password verification tool which compares a plain password
+against the hash stored in the DB (does not contact the backend):
 
 ```bash
 # Verify the stored password hash for the test user using the MONGODB_URI
@@ -81,20 +88,26 @@ pnpm test:e2e:verify-password
 node scripts/verify-user-password.js --mongo-uri="$MONGODB_URI" --emailOrUsername=test --password=password
 ```
 
-> 💡 Note: E2E tests capture network responses for `POST /api/auth/login` and `POST /api/auth/register` and assert HTTP status codes (201 for register, 200 for login). If a test fails to navigate after a successful response, inspect the captured response JSON for details.
-> 💡 Developer Note: The E2E helper `loginViaModal(page, { emailOrUsername, password })` is available at `tests/e2e/helpers/auth.ts` (centralizes login flow, retries on 429, asserts tokens exist in localStorage, and waits for UI updates).
+> 💡 Note: E2E tests capture network responses for `POST /api/auth/login` and `POST /api/auth/register` and assert HTTP
+> status codes (201 for register, 200 for login). If a test fails to navigate after a successful response, inspect the
+> captured response JSON for details. 💡 Developer Note: The E2E helper
+> `loginViaModal(page, { emailOrUsername, password })` is available at `tests/e2e/helpers/auth.ts` (centralizes login
+> flow, retries on 429, asserts tokens exist in localStorage, and waits for UI updates).
 >
-> The helper now exposes both Promise-based and Observable-based variants (choose the idiom matching your test framework):
+> The helper now exposes both Promise-based and Observable-based variants (choose the idiom matching your test
+> framework):
 >
-> * `loginViaModal(page, creds)` → returns a Promise (backwards-compatible)
+> - `loginViaModal(page, creds)` → returns a Promise (backwards-compatible)
 >
-> * `loginViaModal$(page, creds)` → returns a hot Observable (ReplaySubject) — use if you prefer RxJS-style composition and operators.
+> - `loginViaModal$(page, creds)` → returns a hot Observable (ReplaySubject) — use if you prefer RxJS-style composition
+>   and operators.
 >
-> Recommendation: For Jest and Playwright tests prefer the Promise wrapper `loginViaModal(...)` and `async/await` for clean, idiomatic testing code. Observables are available for those who prefer RxJS.
+> Recommendation: For Jest and Playwright tests prefer the Promise wrapper `loginViaModal(...)` and `async/await` for
+> clean, idiomatic testing code. Observables are available for those who prefer RxJS.
 >
 > Use these helpers to reduce flakiness in login flows.
 
-***
+---
 
 ## Test Suite
 
@@ -107,35 +120,35 @@ node scripts/verify-user-password.js --mongo-uri="$MONGODB_URI" --emailOrUsernam
 1. \[ ] Click "Sign Up" button in header
 2. \[ ] Modal opens with registration form
 3. \[ ] Fill form:
-   * Email: `newuser@test.com`
-   * Username: `newuser`
-   * Password: `TestPass123`
+   - Email: `newuser@test.com`
+   - Username: `newuser`
+   - Password: `TestPass123`
 4. \[ ] Click "Create Account"
 5. \[ ] Verify loading spinner appears
 6. \[ ] Wait for response
 
 **Expected Results**:
 
-* \[ ] Modal closes automatically
-* \[ ] Header shows user menu with "newuser" username
-* \[ ] Redirected to `/library` page
-* \[ ] Browser localStorage contains:
-  * `auth_token` (JWT access token)
-  * `refresh_token` (JWT refresh token)
-* \[ ] Browser Network tab shows:
-  * POST `http://localhost:3000/api/auth/register` → 201 Created
-  * Response body contains `user`, `accessToken`, `refreshToken`
+- \[ ] Modal closes automatically
+- \[ ] Header shows user menu with "newuser" username
+- \[ ] Redirected to `/library` page
+- \[ ] Browser localStorage contains:
+  - `auth_token` (JWT access token)
+  - `refresh_token` (JWT refresh token)
+- \[ ] Browser Network tab shows:
+  - POST `http://localhost:3000/api/auth/register` → 201 Created
+  - Response body contains `user`, `accessToken`, `refreshToken`
 
 **Error Cases to Test**:
 
-* \[ ] Empty fields → Form validation prevents submission
-* \[ ] Invalid email format → Error message displayed
-* \[ ] Password < 8 chars → Error message displayed
-* \[ ] Username < 3 chars → Error message displayed
-* \[ ] Duplicate email → 409 Conflict error displayed in modal
-* \[ ] Duplicate username → 409 Conflict error displayed in modal
+- \[ ] Empty fields → Form validation prevents submission
+- \[ ] Invalid email format → Error message displayed
+- \[ ] Password < 8 chars → Error message displayed
+- \[ ] Username < 3 chars → Error message displayed
+- \[ ] Duplicate email → 409 Conflict error displayed in modal
+- \[ ] Duplicate username → 409 Conflict error displayed in modal
 
-***
+---
 
 ### 2. Login Flow
 
@@ -147,38 +160,38 @@ node scripts/verify-user-password.js --mongo-uri="$MONGODB_URI" --emailOrUsernam
 2. \[ ] Click "Sign In" button in header
 3. \[ ] Modal opens with login form
 4. \[ ] Test login with **username**:
-   * Email or Username: `admin`
-   * Password: `Admin123456`
+   - Email or Username: `admin`
+   - Password: `Admin123456`
 5. \[ ] Click "Sign In"
 6. \[ ] Verify loading spinner appears
 7. \[ ] Wait for response
 
 **Expected Results**:
 
-* \[ ] Modal closes automatically
-* \[ ] Header shows user menu with "admin" username
-* \[ ] Redirected to `/library` page
-* \[ ] Browser localStorage contains JWT tokens
-* \[ ] Browser Network tab shows:
-  * POST `http://localhost:3000/api/auth/login` → 200 OK
-  * Response body contains `user`, `accessToken`, `refreshToken`, `expiresIn: 900`
+- \[ ] Modal closes automatically
+- \[ ] Header shows user menu with "admin" username
+- \[ ] Redirected to `/library` page
+- \[ ] Browser localStorage contains JWT tokens
+- \[ ] Browser Network tab shows:
+  - POST `http://localhost:3000/api/auth/login` → 200 OK
+  - Response body contains `user`, `accessToken`, `refreshToken`, `expiresIn: 900`
 
 **Test with Email**:
 
 1. \[ ] Logout and login again
 2. \[ ] Use email instead of username:
-   * Email or Username: `admin@harmonia.com`
-   * Password: `Admin123456`
+   - Email or Username: `admin@harmonia.com`
+   - Password: `Admin123456`
 3. \[ ] Should work identically
 
 **Error Cases to Test**:
 
-* \[ ] Empty fields → Form validation prevents submission
-* \[ ] Wrong password → 401 Unauthorized error displayed
-* \[ ] Non-existent username → 401 Unauthorized error displayed
-* \[ ] Backend down → Network error handled gracefully
+- \[ ] Empty fields → Form validation prevents submission
+- \[ ] Wrong password → 401 Unauthorized error displayed
+- \[ ] Non-existent username → 401 Unauthorized error displayed
+- \[ ] Backend down → Network error handled gracefully
 
-***
+---
 
 ### 3. Protected Routes
 
@@ -187,31 +200,31 @@ node scripts/verify-user-password.js --mongo-uri="$MONGODB_URI" --emailOrUsernam
 **Steps (While Logged In)**:
 
 1. \[ ] Navigate to `/library`
-   * **Expected**: Page loads successfully
+   - **Expected**: Page loads successfully
 2. \[ ] Navigate to `/profile`
-   * **Expected**: Page loads successfully
+   - **Expected**: Page loads successfully
 3. \[ ] Navigate to `/admin`
-   * **Expected**: Redirected to `/` (non-admin user)
+   - **Expected**: Redirected to `/` (non-admin user)
 4. \[ ] Check browser Network tab for any requests to `/library` or `/profile`
-   * **Expected**: All requests include `Authorization: Bearer <token>` header
+   - **Expected**: All requests include `Authorization: Bearer <token>` header
 
 **Steps (While Logged Out)**:
 
 1. \[ ] Click user menu → Logout
 2. \[ ] Manually navigate to `/library` via URL bar
-   * **Expected**: Redirected to `/` (home page)
+   - **Expected**: Redirected to `/` (home page)
 3. \[ ] Manually navigate to `/profile` via URL bar
-   * **Expected**: Redirected to `/` (home page)
+   - **Expected**: Redirected to `/` (home page)
 4. \[ ] Navigate to `/` (home page)
-   * **Expected**: Loads successfully (public route)
+   - **Expected**: Loads successfully (public route)
 
 **Guest Guard Test**:
 
 1. \[ ] While logged in, navigate to home `/`
-   * **Expected**: Should load (no guestGuard applied to home in current implementation)
-   * **Note**: If guestGuard is applied, should redirect to `/library`
+   - **Expected**: Should load (no guestGuard applied to home in current implementation)
+   - **Note**: If guestGuard is applied, should redirect to `/library`
 
-***
+---
 
 ### 4. Session Validation
 
@@ -229,9 +242,9 @@ node scripts/verify-user-password.js --mongo-uri="$MONGODB_URI" --emailOrUsernam
 
 **Expected Results**:
 
-* \[ ] Request includes `Authorization: Bearer <token>` header
-* \[ ] Response status: 200 OK
-* \[ ] Response body contains:
+- \[ ] Request includes `Authorization: Bearer <token>` header
+- \[ ] Response status: 200 OK
+- \[ ] Response body contains:
 
   ```json
   {
@@ -248,7 +261,7 @@ node scripts/verify-user-password.js --mongo-uri="$MONGODB_URI" --emailOrUsernam
 2. \[ ] Navigate to `/library`
 3. \[ ] **Expected**: Redirected to `/` (authGuard blocks)
 
-***
+---
 
 ### 5. Logout Flow
 
@@ -263,24 +276,24 @@ node scripts/verify-user-password.js --mongo-uri="$MONGODB_URI" --emailOrUsernam
 
 **Expected Results**:
 
-* \[ ] User menu disappears from header
-* \[ ] "Sign In" button reappears in header
-* \[ ] Redirected to `/` (home page)
-* \[ ] Browser localStorage cleared:
-  * `auth_token` removed
-  * `refresh_token` removed
-* \[ ] Browser Network tab shows:
-  * POST `http://localhost:3000/api/auth/logout` → 200 OK
-  * Response body: `{ "message": "Logged out successfully", "success": true }`
+- \[ ] User menu disappears from header
+- \[ ] "Sign In" button reappears in header
+- \[ ] Redirected to `/` (home page)
+- \[ ] Browser localStorage cleared:
+  - `auth_token` removed
+  - `refresh_token` removed
+- \[ ] Browser Network tab shows:
+  - POST `http://localhost:3000/api/auth/logout` → 200 OK
+  - Response body: `{ "message": "Logged out successfully", "success": true }`
 
 **Post-Logout Verification**:
 
 1. \[ ] Try navigating to `/library`
-   * **Expected**: Redirected to `/` (authGuard blocks)
+   - **Expected**: Redirected to `/` (authGuard blocks)
 2. \[ ] Click "Sign In" and login again
-   * **Expected**: Works normally
+   - **Expected**: Works normally
 
-***
+---
 
 ### 6. Token Refresh (Advanced)
 
@@ -309,21 +322,21 @@ node scripts/verify-user-password.js --mongo-uri="$MONGODB_URI" --emailOrUsernam
 
 **Expected Results** (if auto-refresh implemented):
 
-* \[ ] First request fails with 401
-* \[ ] AuthInterceptor catches 401
-* \[ ] POST `http://localhost:3000/api/auth/refresh` is called
-* \[ ] New tokens received
-* \[ ] Original request retried with new token
-* \[ ] User remains logged in
+- \[ ] First request fails with 401
+- \[ ] AuthInterceptor catches 401
+- \[ ] POST `http://localhost:3000/api/auth/refresh` is called
+- \[ ] New tokens received
+- \[ ] Original request retried with new token
+- \[ ] User remains logged in
 
 **Expected Results** (if auto-refresh NOT implemented):
 
-* \[ ] First request fails with 401
-* \[ ] User logged out automatically
-* \[ ] Redirected to `/` (home page)
-* \[ ] "Sign In" button reappears
+- \[ ] First request fails with 401
+- \[ ] User logged out automatically
+- \[ ] Redirected to `/` (home page)
+- \[ ] "Sign In" button reappears
 
-***
+---
 
 ### 7. HTTP Interceptor
 
@@ -339,10 +352,10 @@ node scripts/verify-user-password.js --mongo-uri="$MONGODB_URI" --emailOrUsernam
 
 **Expected Results**:
 
-* \[ ] All requests to `http://localhost:3000/api/*` include:
-  * `Authorization: Bearer <access_token>` header
-* \[ ] Requests to `/auth/login`, `/auth/register`, `/auth/refresh` do NOT include auth header
-* \[ ] Other requests (future endpoints like `/api/library`) include auth header
+- \[ ] All requests to `http://localhost:3000/api/*` include:
+  - `Authorization: Bearer <access_token>` header
+- \[ ] Requests to `/auth/login`, `/auth/register`, `/auth/refresh` do NOT include auth header
+- \[ ] Other requests (future endpoints like `/api/library`) include auth header
 
 **401 Error Handling**:
 
@@ -352,12 +365,12 @@ node scripts/verify-user-password.js --mongo-uri="$MONGODB_URI" --emailOrUsernam
 
 **Expected Results**:
 
-* \[ ] Request to `/api/auth/session` returns 401
-* \[ ] AuthInterceptor catches error
-* \[ ] User logged out automatically
-* \[ ] Redirected to `/` (home page)
+- \[ ] Request to `/api/auth/session` returns 401
+- \[ ] AuthInterceptor catches error
+- \[ ] User logged out automatically
+- \[ ] Redirected to `/` (home page)
 
-***
+---
 
 ### 8. User Menu Functionality
 
@@ -371,13 +384,13 @@ node scripts/verify-user-password.js --mongo-uri="$MONGODB_URI" --emailOrUsernam
 
 **Expected Menu Items**:
 
-* \[ ] Username display (e.g., "admin")
-* \[ ] Email display (e.g., `admin@harmonia.com`)
-* \[ ] "My Library" button → navigates to `/library`
-* \[ ] "Profile" button → navigates to `/profile`
-* \[ ] "Admin Dashboard" button (only if admin role) → navigates to `/admin`
-* \[ ] Divider
-* \[ ] "Logout" button → logs out user
+- \[ ] Username display (e.g., "admin")
+- \[ ] Email display (e.g., `admin@harmonia.com`)
+- \[ ] "My Library" button → navigates to `/library`
+- \[ ] "Profile" button → navigates to `/profile`
+- \[ ] "Admin Dashboard" button (only if admin role) → navigates to `/admin`
+- \[ ] Divider
+- \[ ] "Logout" button → logs out user
 
 **Admin Role Test**:
 
@@ -389,7 +402,7 @@ node scripts/verify-user-password.js --mongo-uri="$MONGODB_URI" --emailOrUsernam
 6. \[ ] Open user menu
 7. \[ ] **Expected**: "Admin Dashboard" option NOT visible
 
-***
+---
 
 ### 9. Form Validation
 
@@ -399,27 +412,27 @@ node scripts/verify-user-password.js --mongo-uri="$MONGODB_URI" --emailOrUsernam
 
 1. \[ ] Open login modal
 2. \[ ] Click "Sign In" without filling form
-   * **Expected**: Both fields show "required" error
+   - **Expected**: Both fields show "required" error
 3. \[ ] Enter text in password field, then clear it
-   * **Expected**: "Password is required" error appears
+   - **Expected**: "Password is required" error appears
 4. \[ ] Enter short password (< 8 chars)
-   * **Expected**: "Password must be at least 8 characters" error
+   - **Expected**: "Password must be at least 8 characters" error
 
 **Register Form**:
 
 1. \[ ] Open login modal → click "Sign Up"
 2. \[ ] Click "Create Account" without filling form
-   * **Expected**: All fields show "required" error
+   - **Expected**: All fields show "required" error
 3. \[ ] Enter invalid email (e.g., "notanemail")
-   * **Expected**: "Please enter a valid email address" error
+   - **Expected**: "Please enter a valid email address" error
 4. \[ ] Enter short username (< 3 chars)
-   * **Expected**: "Username must be at least 3 characters" error
+   - **Expected**: "Username must be at least 3 characters" error
 5. \[ ] Enter long username (> 20 chars)
-   * **Expected**: "Username must be no more than 20 characters" error
+   - **Expected**: "Username must be no more than 20 characters" error
 6. \[ ] Enter short password (< 8 chars)
-   * **Expected**: "Password must be at least 8 characters" error
+   - **Expected**: "Password must be at least 8 characters" error
 
-***
+---
 
 ### 10. Navigation & Routing
 
@@ -428,46 +441,46 @@ node scripts/verify-user-password.js --mongo-uri="$MONGODB_URI" --emailOrUsernam
 **Public Routes**:
 
 1. \[ ] Navigate to `/` (home page)
-   * **Expected**: Loads without redirect
+   - **Expected**: Loads without redirect
 2. \[ ] Navigate to non-existent route (e.g., `/does-not-exist`)
-   * **Expected**: 404 page or redirect to home
+   - **Expected**: 404 page or redirect to home
 
 **Protected Routes (Not Logged In)**:
 
 1. \[ ] Logout if logged in
 2. \[ ] Navigate to `/library`
-   * **Expected**: Redirect to `/`
+   - **Expected**: Redirect to `/`
 3. \[ ] Navigate to `/profile`
-   * **Expected**: Redirect to `/`
+   - **Expected**: Redirect to `/`
 4. \[ ] Navigate to `/admin`
-   * **Expected**: Redirect to `/`
+   - **Expected**: Redirect to `/`
 
 **Protected Routes (Logged In)**:
 
 1. \[ ] Login as admin
 2. \[ ] Navigate to `/library`
-   * **Expected**: Loads successfully (placeholder page)
+   - **Expected**: Loads successfully (placeholder page)
 3. \[ ] Navigate to `/profile`
-   * **Expected**: Loads successfully (placeholder page)
+   - **Expected**: Loads successfully (placeholder page)
 4. \[ ] Navigate to `/admin`
-   * **Expected**: Loads successfully (placeholder page) OR redirects if not admin
+   - **Expected**: Loads successfully (placeholder page) OR redirects if not admin
 
 **URL Bar Navigation**:
 
 1. \[ ] Manually type `/library` in URL bar
-   * **Expected**: Works same as clicking link
+   - **Expected**: Works same as clicking link
 
-***
+---
 
 ## Browser Compatibility
 
 Test in multiple browsers:
 
-* \[ ] Chrome/Edge (Chromium)
-* \[ ] Firefox
-* \[ ] Safari (if on macOS)
+- \[ ] Chrome/Edge (Chromium)
+- \[ ] Firefox
+- \[ ] Safari (if on macOS)
 
-***
+---
 
 ## Performance Checks
 
@@ -477,7 +490,7 @@ Test in multiple browsers:
 4. \[ ] No console errors in DevTools
 5. \[ ] Network tab shows no failed requests (except intentional error tests)
 
-***
+---
 
 ## Security Checks
 
@@ -487,7 +500,7 @@ Test in multiple browsers:
 4. \[ ] 401 responses correctly clear auth state
 5. \[ ] Protected routes not accessible without auth
 
-***
+---
 
 ## Known Issues / Blockers
 
@@ -504,22 +517,22 @@ but detected Angular version 21.0.2 instead.
 
 **Resolution**: Updated all Angular packages and build tools to compatible versions
 
-***
+---
 
 ## Success Criteria Summary
 
-* \[ ] **Registration**: User can create account, receives tokens, redirected to `/library`
-* \[ ] **Login**: User can login with username OR email, redirected to `/library`
-* \[ ] **Session**: Tokens stored in localStorage, requests include auth headers
-* \[ ] **Protected Routes**: `/library`, `/profile` require authentication
-* \[ ] **Admin Routes**: `/admin` requires admin role (or blocks non-admin)
-* \[ ] **Logout**: Clears tokens, redirects to `/`, shows "Sign In" button
-* \[ ] **User Menu**: Shows username, navigation options, logout
-* \[ ] **Error Handling**: Invalid credentials, network errors handled gracefully
-* \[ ] **Form Validation**: All fields validated, errors displayed
-* \[ ] **Zero Console Errors**: No errors in browser console during normal flow
+- \[ ] **Registration**: User can create account, receives tokens, redirected to `/library`
+- \[ ] **Login**: User can login with username OR email, redirected to `/library`
+- \[ ] **Session**: Tokens stored in localStorage, requests include auth headers
+- \[ ] **Protected Routes**: `/library`, `/profile` require authentication
+- \[ ] **Admin Routes**: `/admin` requires admin role (or blocks non-admin)
+- \[ ] **Logout**: Clears tokens, redirects to `/`, shows "Sign In" button
+- \[ ] **User Menu**: Shows username, navigation options, logout
+- \[ ] **Error Handling**: Invalid credentials, network errors handled gracefully
+- \[ ] **Form Validation**: All fields validated, errors displayed
+- \[ ] **Zero Console Errors**: No errors in browser console during normal flow
 
-***
+---
 
 ## Next Steps After Testing
 
@@ -530,11 +543,11 @@ but detected Angular version 21.0.2 instead.
 5. **Add loading states** to all buttons (already done for login/register)
 6. **Move to Sprint 3**: User Library feature implementation
 
-***
+---
 
 **Last Updated**: December 3, 2025\
 **Related Docs**:
 
-* `FRONTEND_BACKEND_INTEGRATION.md` - Integration details
-* `AUTHENTICATION_SYSTEM.md` - Auth architecture
-* `TODO.md` - Project task tracking
+- `FRONTEND_BACKEND_INTEGRATION.md` - Integration details
+- `AUTHENTICATION_SYSTEM.md` - Auth architecture
+- `TODO.md` - Project task tracking

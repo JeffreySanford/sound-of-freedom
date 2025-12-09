@@ -2,7 +2,8 @@
 
 ## Overview
 
-Harmonia uses **Nx 22.1.3** as a monorepo orchestration tool with pnpm workspace integration. This guide covers Nx commands, workspace structure, and best practices for Phase 1 development.
+Harmonia uses **Nx 22.1.3** as a monorepo orchestration tool with pnpm workspace integration. This guide covers Nx
+commands, workspace structure, and best practices for Phase 1 development.
 
 ## Workspace Structure
 
@@ -161,10 +162,7 @@ Each project has a `project.json` file defining targets (build, serve, test, lin
         "index": "apps/frontend/src/index.html",
         "browser": "apps/frontend/src/main.ts",
         "tsConfig": "apps/frontend/tsconfig.app.json",
-        "styles": [
-          "apps/frontend/src/styles.scss",
-          "apps/frontend/src/theme.scss"
-        ]
+        "styles": ["apps/frontend/src/styles.scss", "apps/frontend/src/theme.scss"]
       }
     },
     "serve": {
@@ -305,7 +303,7 @@ Access in NestJS:
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [ConfigModule.forRoot()],
+  imports: [ConfigModule.forRoot()]
 })
 export class AppModule {}
 ```
@@ -369,10 +367,10 @@ jobs:
 
 Install **Nx Console** for VS Code:
 
-* Visual project explorer
-* GUI for running Nx commands
-* Code generation wizards
-* Dependency graph visualization
+- Visual project explorer
+- GUI for running Nx commands
+- Code generation wizards
+- Dependency graph visualization
 
 ## Troubleshooting
 
@@ -427,11 +425,11 @@ NODE_OPTIONS=--max-old-space-size=4096 nx build frontend
 
 ### Installed Plugins
 
-* `@nx/angular` - Angular application support
-* `@nx/nest` - NestJS application support
-* `@nx/jest` - Jest testing integration
-* `@nx/eslint` - ESLint linting integration
-* `@nx/webpack` - Webpack bundling for backend
+- `@nx/angular` - Angular application support
+- `@nx/nest` - NestJS application support
+- `@nx/jest` - Jest testing integration
+- `@nx/eslint` - ESLint linting integration
+- `@nx/webpack` - Webpack bundling for backend
 
 ### Available Commands
 
@@ -445,14 +443,14 @@ nx list @nx/angular
 
 ## Next Steps
 
-* **Phase 1 Development**: Build UI components and API endpoints
-* **Shared Libraries**: Create `@harmonia/shared` library for DTOs (Phase 2)
-* **Deployment**: Configure production builds with environment-specific configs
-* **Monitoring**: Integrate Nx Cloud for distributed caching (optional)
+- **Phase 1 Development**: Build UI components and API endpoints
+- **Shared Libraries**: Create `@harmonia/shared` library for DTOs (Phase 2)
+- **Deployment**: Configure production builds with environment-specific configs
+- **Monitoring**: Integrate Nx Cloud for distributed caching (optional)
 
 ## Resources
 
-* [Nx Documentation](https://nx.dev)
-* [Nx Angular Plugin](https://nx.dev/packages/angular)
-* [Nx NestJS Plugin](https://nx.dev/packages/nest)
-* [Nx Console VS Code Extension](https://marketplace.visualstudio.com/items?itemName=nrwl.angular-console)
+- [Nx Documentation](https://nx.dev)
+- [Nx Angular Plugin](https://nx.dev/packages/angular)
+- [Nx NestJS Plugin](https://nx.dev/packages/nest)
+- [Nx Console VS Code Extension](https://marketplace.visualstudio.com/items?itemName=nrwl.angular-console)

@@ -2,7 +2,9 @@
 
 ## Overview
 
-Harmonia uses **Socket.IO 4.8.1** for real-time bidirectional communication between frontend and backend during the song generation pipeline. This guide covers the sophisticated WebSocket implementation for multi-stage AI generation progress tracking, real-time status updates, and collaborative features.
+Harmonia uses **Socket.IO 4.8.1** for real-time bidirectional communication between frontend and backend during the song
+generation pipeline. This guide covers the sophisticated WebSocket implementation for multi-stage AI generation progress
+tracking, real-time status updates, and collaborative features.
 
 ## Architecture
 
@@ -12,61 +14,61 @@ The WebSocket system supports Harmonia's two-stage AI pipeline:
 
 **Stage 1 - Metadata Generation (Ollama)**:
 
-* Real-time progress for LLM inference
-* Token generation tracking
-* Model loading status
+- Real-time progress for LLM inference
+- Token generation tracking
+- Model loading status
 
 **Stage 2 - Audio Synthesis (MusicGen)**:
 
-* Audio generation progress (0-100%)
-* Multi-instrument rendering status
-* Post-processing updates
+- Audio generation progress (0-100%)
+- Multi-instrument rendering status
+- Post-processing updates
 
 ### Event-Driven Architecture
 
-* **Room-based subscriptions**: Per-user and per-generation-job rooms
-* **Typed events**: Strongly-typed WebSocket events with validation
-* **Progress streaming**: Real-time percentage updates with status messages
-* **Error propagation**: Immediate error broadcasting with recovery options
-* **Cancellation support**: User-initiated generation cancellation
+- **Room-based subscriptions**: Per-user and per-generation-job rooms
+- **Typed events**: Strongly-typed WebSocket events with validation
+- **Progress streaming**: Real-time percentage updates with status messages
+- **Error propagation**: Immediate error broadcasting with recovery options
+- **Cancellation support**: User-initiated generation cancellation
 
 ### Frontend (Angular)
 
-* **WebSocketService**: Manages connection lifecycle and event streams
-* **Progress tracking components**: Real-time UI updates for generation status
-* **NGRX integration**: WebSocket events dispatch Redux actions
-* **Error handling**: Automatic reconnection and user notifications
+- **WebSocketService**: Manages connection lifecycle and event streams
+- **Progress tracking components**: Real-time UI updates for generation status
+- **NGRX integration**: WebSocket events dispatch Redux actions
+- **Error handling**: Automatic reconnection and user notifications
 
 ### Backend (NestJS)
 
-* **SongGenerationGateway**: Specialized gateway for song generation events
-* **Progress broadcasting**: Structured progress events with metadata
-* **Room management**: User-specific and generation-specific rooms
-* **Authentication**: JWT-based room access control
+- **SongGenerationGateway**: Specialized gateway for song generation events
+- **Progress broadcasting**: Structured progress events with metadata
+- **Room management**: User-specific and generation-specific rooms
+- **Authentication**: JWT-based room access control
 
 ## WebSocket Architecture Overview
 
 ### Event-Driven Architecture
 
-* **Room-based subscriptions**: Per-user and per-generation-job rooms
-* **Typed events**: Strongly-typed WebSocket events with validation
-* **Progress streaming**: Real-time percentage updates with status messages
-* **Error propagation**: Immediate error broadcasting with recovery options
-* **Cancellation support**: User-initiated generation cancellation
+- **Room-based subscriptions**: Per-user and per-generation-job rooms
+- **Typed events**: Strongly-typed WebSocket events with validation
+- **Progress streaming**: Real-time percentage updates with status messages
+- **Error propagation**: Immediate error broadcasting with recovery options
+- **Cancellation support**: User-initiated generation cancellation
 
 ### Frontend Architecture (Angular)
 
-* **WebSocketService**: Manages connection lifecycle and event streams
-* **Progress tracking components**: Real-time UI updates for generation status
-* **NGRX integration**: WebSocket events dispatch Redux actions
-* **Error handling**: Automatic reconnection and user notifications
+- **WebSocketService**: Manages connection lifecycle and event streams
+- **Progress tracking components**: Real-time UI updates for generation status
+- **NGRX integration**: WebSocket events dispatch Redux actions
+- **Error handling**: Automatic reconnection and user notifications
 
 ### Backend Architecture (NestJS)
 
-* **SongGenerationGateway**: Specialized gateway for song generation events
-* **Progress broadcasting**: Structured progress events with metadata
-* **Room management**: User-specific and generation-specific rooms
-* **Authentication**: JWT-based room access control
+- **SongGenerationGateway**: Specialized gateway for song generation events
+- **Progress broadcasting**: Structured progress events with metadata
+- **Room management**: User-specific and generation-specific rooms
+- **Authentication**: JWT-based room access control
 
 ## Installation
 
@@ -204,7 +206,7 @@ export class WebSocketService {
       transports: ['websocket'],
       reconnection: true,
       reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
+      reconnectionDelay: 1000
     });
 
     this.setupConnectionEvents();
@@ -254,96 +256,51 @@ export class WebSocketService {
 
   private setupGenerationEvents(): void {
     // Metadata generation events
-    this.socket.on(
-      'metadata-generation-started',
-      (event: MetadataGenerationStartedEvent) => {
-        this.store.dispatch(
-          SongGenerationActions.metadataGenerationStarted({ event })
-        );
-      }
-    );
+    this.socket.on('metadata-generation-started', (event: MetadataGenerationStartedEvent) => {
+      this.store.dispatch(SongGenerationActions.metadataGenerationStarted({ event }));
+    });
 
-    this.socket.on(
-      'metadata-generation-progress',
-      (event: MetadataGenerationProgressEvent) => {
-        this.store.dispatch(
-          SongGenerationActions.metadataGenerationProgress({ event })
-        );
-      }
-    );
+    this.socket.on('metadata-generation-progress', (event: MetadataGenerationProgressEvent) => {
+      this.store.dispatch(SongGenerationActions.metadataGenerationProgress({ event }));
+    });
 
-    this.socket.on(
-      'metadata-generation-complete',
-      (event: MetadataGenerationCompleteEvent) => {
-        this.store.dispatch(
-          SongGenerationActions.metadataGenerationComplete({ event })
-        );
-      }
-    );
+    this.socket.on('metadata-generation-complete', (event: MetadataGenerationCompleteEvent) => {
+      this.store.dispatch(SongGenerationActions.metadataGenerationComplete({ event }));
+    });
 
     // Audio generation events
-    this.socket.on(
-      'audio-generation-started',
-      (event: AudioGenerationStartedEvent) => {
-        this.store.dispatch(
-          SongGenerationActions.audioGenerationStarted({ event })
-        );
-      }
-    );
+    this.socket.on('audio-generation-started', (event: AudioGenerationStartedEvent) => {
+      this.store.dispatch(SongGenerationActions.audioGenerationStarted({ event }));
+    });
 
-    this.socket.on(
-      'audio-generation-progress',
-      (event: AudioGenerationProgressEvent) => {
-        this.store.dispatch(
-          SongGenerationActions.audioGenerationProgress({ event })
-        );
-      }
-    );
+    this.socket.on('audio-generation-progress', (event: AudioGenerationProgressEvent) => {
+      this.store.dispatch(SongGenerationActions.audioGenerationProgress({ event }));
+    });
 
-    this.socket.on(
-      'audio-generation-complete',
-      (event: AudioGenerationCompleteEvent) => {
-        this.store.dispatch(
-          SongGenerationActions.audioGenerationComplete({ event })
-        );
-      }
-    );
+    this.socket.on('audio-generation-complete', (event: AudioGenerationCompleteEvent) => {
+      this.store.dispatch(SongGenerationActions.audioGenerationComplete({ event }));
+    });
 
     // Error and control events
     this.socket.on('generation-error', (event: GenerationErrorEvent) => {
       this.store.dispatch(SongGenerationActions.generationError({ event }));
     });
 
-    this.socket.on(
-      'generation-cancelled',
-      (event: GenerationCancelledEvent) => {
-        this.store.dispatch(
-          SongGenerationActions.generationCancelled({ event })
-        );
-      }
-    );
+    this.socket.on('generation-cancelled', (event: GenerationCancelledEvent) => {
+      this.store.dispatch(SongGenerationActions.generationCancelled({ event }));
+    });
   }
 
   // Observable streams for components
-  getMetadataProgress(
-    generationId: string
-  ): Observable<MetadataGenerationProgressEvent> {
+  getMetadataProgress(generationId: string): Observable<MetadataGenerationProgressEvent> {
     return fromEvent(this.socket, 'metadata-generation-progress').pipe(
-      filter(
-        (event: MetadataGenerationProgressEvent) =>
-          event.generationId === generationId
-      )
+      filter((event: MetadataGenerationProgressEvent) => event.generationId === generationId)
     );
   }
 
-  getAudioProgress(
-    generationId: string
-  ): Observable<AudioGenerationProgressEvent> {
+  getAudioProgress(generationId: string): Observable<AudioGenerationProgressEvent> {
     return fromEvent(this.socket, 'audio-generation-progress').pipe(
-      filter(
-        (event: AudioGenerationProgressEvent) =>
-          event.generationId === generationId
-      )
+      filter((event: AudioGenerationProgressEvent) => event.generationId === generationId)
     );
   }
 
@@ -365,10 +322,7 @@ export class WebSocketService {
   selector: 'app-generation-progress',
   template: `
     <div class="progress-container">
-      <mat-progress-bar
-        [value]="progress"
-        [mode]="progress < 100 ? 'indeterminate' : 'determinate'"
-      >
+      <mat-progress-bar [value]="progress" [mode]="progress < 100 ? 'indeterminate' : 'determinate'">
       </mat-progress-bar>
 
       <div class="progress-info">
@@ -378,21 +332,12 @@ export class WebSocketService {
 
       <div class="stage-info" *ngIf="currentStage">
         <span class="stage">Stage: {{ currentStage }}</span>
-        <span class="instrument" *ngIf="currentInstrument">
-          Instrument: {{ currentInstrument }}
-        </span>
+        <span class="instrument" *ngIf="currentInstrument"> Instrument: {{ currentInstrument }} </span>
       </div>
 
-      <button
-        mat-raised-button
-        color="warn"
-        (click)="cancelGeneration()"
-        *ngIf="canCancel"
-      >
-        Cancel Generation
-      </button>
+      <button mat-raised-button color="warn" (click)="cancelGeneration()" *ngIf="canCancel">Cancel Generation</button>
     </div>
-  `,
+  `
 })
 export class GenerationProgressComponent implements OnInit, OnDestroy {
   @Input() generationId!: string;
@@ -405,10 +350,7 @@ export class GenerationProgressComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private websocketService: WebSocketService,
-    private store: Store<AppState>
-  ) {}
+  constructor(private websocketService: WebSocketService, private store: Store<AppState>) {}
 
   ngOnInit(): void {
     // Join generation room
@@ -454,18 +396,13 @@ export class GenerationProgressComponent implements OnInit, OnDestroy {
 ```typescript
 // song-generation.gateway.ts
 @Injectable()
-export class SongGenerationGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
-{
+export class SongGenerationGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
   private readonly logger = new Logger(SongGenerationGateway.name);
 
-  constructor(
-    private readonly jwtService: JwtService,
-    private readonly songGenerationService: SongGenerationService
-  ) {}
+  constructor(private readonly jwtService: JwtService, private readonly songGenerationService: SongGenerationService) {}
 
   async handleConnection(client: Socket): Promise<void> {
     try {
@@ -486,20 +423,14 @@ export class SongGenerationGateway
   }
 
   @SubscribeMessage('join-generation')
-  handleJoinGeneration(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: { generationId: string }
-  ): void {
+  handleJoinGeneration(@ConnectedSocket() client: Socket, @MessageBody() data: { generationId: string }): void {
     const roomName = `generation-${data.generationId}`;
     client.join(roomName);
     this.logger.log(`Client ${client.id} joined generation room: ${roomName}`);
   }
 
   @SubscribeMessage('leave-generation')
-  handleLeaveGeneration(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: { generationId: string }
-  ): void {
+  handleLeaveGeneration(@ConnectedSocket() client: Socket, @MessageBody() data: { generationId: string }): void {
     const roomName = `generation-${data.generationId}`;
     client.leave(roomName);
     this.logger.log(`Client ${client.id} left generation room: ${roomName}`);
@@ -513,16 +444,13 @@ export class SongGenerationGateway
     const userId = client.data.userId;
 
     try {
-      await this.songGenerationService.cancelGeneration(
-        data.generationId,
-        userId
-      );
+      await this.songGenerationService.cancelGeneration(data.generationId, userId);
 
       const roomName = `generation-${data.generationId}`;
       this.server.to(roomName).emit('generation-cancelled', {
         generationId: data.generationId,
         reason: 'user_cancelled',
-        cancelledAt: new Date(),
+        cancelledAt: new Date()
       } as GenerationCancelledEvent);
     } catch (error) {
       client.emit('generation-error', {
@@ -530,9 +458,9 @@ export class SongGenerationGateway
         error: {
           code: 'CANCEL_FAILED',
           message: error.message,
-          recoverable: false,
+          recoverable: false
         },
-        stage: 'unknown',
+        stage: 'unknown'
       } as GenerationErrorEvent);
     }
   }
@@ -549,23 +477,16 @@ export class ProgressBroadcastingService {
     private readonly webSocketServer: Server // Injected from gateway
   ) {}
 
-  broadcastMetadataProgress(
-    generationId: string,
-    progress: number,
-    status: string,
-    currentStep: string
-  ): void {
+  broadcastMetadataProgress(generationId: string, progress: number, status: string, currentStep: string): void {
     const roomName = `generation-${generationId}`;
     const event: MetadataGenerationProgressEvent = {
       generationId,
       progress,
       status,
-      currentStep: currentStep as any,
+      currentStep: currentStep as any
     };
 
-    this.webSocketServer
-      .to(roomName)
-      .emit('metadata-generation-progress', event);
+    this.webSocketServer.to(roomName).emit('metadata-generation-progress', event);
   }
 
   broadcastAudioProgress(
@@ -583,7 +504,7 @@ export class ProgressBroadcastingService {
       status,
       currentInstrument,
       instrumentsCompleted: instrumentsCompleted || 0,
-      totalInstruments: totalInstruments || 0,
+      totalInstruments: totalInstruments || 0
     };
 
     this.webSocketServer.to(roomName).emit('audio-generation-progress', event);
@@ -604,7 +525,7 @@ export class ProgressBroadcastingService {
       audioUrl,
       duration,
       fileSize,
-      checksum,
+      checksum
     };
 
     this.webSocketServer.to(roomName).emit('audio-generation-complete', event);
@@ -624,7 +545,7 @@ export class ProgressBroadcastingService {
     const event: GenerationErrorEvent = {
       generationId,
       error,
-      stage,
+      stage
     };
 
     this.webSocketServer.to(roomName).emit('generation-error', event);
@@ -692,7 +613,7 @@ export interface SongGenerationState {
 const initialState: SongGenerationState = {
   activeGenerations: {},
   completedGenerations: {},
-  errors: {},
+  errors: {}
 };
 
 export const songGenerationReducer = createReducer(
@@ -707,9 +628,9 @@ export const songGenerationReducer = createReducer(
         stage: 'metadata',
         progress: 0,
         status: 'Starting metadata generation...',
-        startedAt: new Date(),
-      },
-    },
+        startedAt: new Date()
+      }
+    }
   })),
 
   on(metadataGenerationProgress, (state, { event }) => ({
@@ -720,9 +641,9 @@ export const songGenerationReducer = createReducer(
         ...state.activeGenerations[event.generationId],
         progress: event.progress,
         status: event.status,
-        currentStep: event.currentStep,
-      },
-    },
+        currentStep: event.currentStep
+      }
+    }
   })),
 
   on(metadataGenerationComplete, (state, { event }) => ({
@@ -734,9 +655,9 @@ export const songGenerationReducer = createReducer(
         stage: 'metadata-complete',
         progress: 100,
         status: 'Metadata generation complete',
-        metadata: event.metadata,
-      },
-    },
+        metadata: event.metadata
+      }
+    }
   })),
 
   on(audioGenerationStarted, (state, { event }) => ({
@@ -748,9 +669,9 @@ export const songGenerationReducer = createReducer(
         stage: 'audio',
         progress: 0,
         status: 'Starting audio generation...',
-        instruments: event.instruments,
-      },
-    },
+        instruments: event.instruments
+      }
+    }
   })),
 
   on(audioGenerationProgress, (state, { event }) => ({
@@ -763,14 +684,13 @@ export const songGenerationReducer = createReducer(
         status: event.status,
         currentInstrument: event.currentInstrument,
         instrumentsCompleted: event.instrumentsCompleted,
-        totalInstruments: event.totalInstruments,
-      },
-    },
+        totalInstruments: event.totalInstruments
+      }
+    }
   })),
 
   on(audioGenerationComplete, (state, { event }) => {
-    const { [event.generationId]: completed, ...remainingActive } =
-      state.activeGenerations;
+    const { [event.generationId]: completed, ...remainingActive } = state.activeGenerations;
     return {
       ...state,
       activeGenerations: remainingActive,
@@ -783,9 +703,9 @@ export const songGenerationReducer = createReducer(
           duration: event.duration,
           fileSize: event.fileSize,
           checksum: event.checksum,
-          completedAt: new Date(),
-        },
-      },
+          completedAt: new Date()
+        }
+      }
     };
   }),
 
@@ -797,14 +717,13 @@ export const songGenerationReducer = createReducer(
         id: event.generationId,
         error: event.error,
         stage: event.stage,
-        occurredAt: new Date(),
-      },
-    },
+        occurredAt: new Date()
+      }
+    }
   })),
 
   on(generationCancelled, (state, { event }) => {
-    const { [event.generationId]: cancelled, ...remainingActive } =
-      state.activeGenerations;
+    const { [event.generationId]: cancelled, ...remainingActive } = state.activeGenerations;
     return {
       ...state,
       activeGenerations: remainingActive,
@@ -814,9 +733,9 @@ export const songGenerationReducer = createReducer(
           id: event.generationId,
           error: { code: 'CANCELLED', message: 'Generation cancelled by user' },
           stage: cancelled?.stage || 'unknown',
-          occurredAt: new Date(),
-        },
-      },
+          occurredAt: new Date()
+        }
+      }
     };
   })
 );
@@ -897,15 +816,15 @@ async broadcastErrorWithRecovery(
 
 ### Connection Pooling
 
-* **Room-based multiplexing**: Single WebSocket connection serves multiple generation rooms
-* **Event batching**: Group rapid progress updates to reduce network overhead
-* **Compression**: Enable Socket.IO compression for large event payloads
+- **Room-based multiplexing**: Single WebSocket connection serves multiple generation rooms
+- **Event batching**: Group rapid progress updates to reduce network overhead
+- **Compression**: Enable Socket.IO compression for large event payloads
 
 ### Memory Management
 
-* **Automatic cleanup**: Remove inactive generation rooms after timeout
-* **Event throttling**: Limit progress update frequency to prevent UI flooding
-* **Client-side caching**: Cache progress state to handle temporary disconnections
+- **Automatic cleanup**: Remove inactive generation rooms after timeout
+- **Event throttling**: Limit progress update frequency to prevent UI flooding
+- **Client-side caching**: Cache progress state to handle temporary disconnections
 
 ### Monitoring and Observability
 
@@ -918,14 +837,12 @@ export class WebSocketMonitoringService {
     activeGenerations: 0,
     messagesSent: 0,
     errors: 0,
-    averageLatency: 0,
+    averageLatency: 0
   };
 
   trackConnection(clientId: string, userId: string): void {
     this.metrics.connections++;
-    console.log(
-      `WebSocket connection established: ${clientId} (User: ${userId})`
-    );
+    console.log(`WebSocket connection established: ${clientId} (User: ${userId})`);
   }
 
   trackGenerationStart(generationId: string): void {
@@ -952,17 +869,17 @@ export class WebSocketMonitoringService {
 
 ### Authentication and Authorization
 
-* **JWT validation**: All WebSocket connections require valid JWT tokens
-* **Room access control**: Users can only join rooms for their own generations
-* **Rate limiting**: Prevent WebSocket spam and DoS attacks
-* **Input validation**: Validate all incoming event data structures
+- **JWT validation**: All WebSocket connections require valid JWT tokens
+- **Room access control**: Users can only join rooms for their own generations
+- **Rate limiting**: Prevent WebSocket spam and DoS attacks
+- **Input validation**: Validate all incoming event data structures
 
 ### Data Privacy
 
-* **No sensitive data**: Generation events contain only progress/status information
-* **Ephemeral rooms**: Generation rooms are cleaned up after completion
-* **Audit logging**: Log all WebSocket events for security monitoring
-* **Encryption**: All WebSocket traffic uses WSS in production
+- **No sensitive data**: Generation events contain only progress/status information
+- **Ephemeral rooms**: Generation rooms are cleaned up after completion
+- **Audit logging**: Log all WebSocket events for security monitoring
+- **Encryption**: All WebSocket traffic uses WSS in production
 
 ## Testing Strategy
 
@@ -975,14 +892,9 @@ describe('WebSocketService', () => {
   let mockSocket: jasmine.SpyObj<Socket>;
 
   beforeEach(() => {
-    mockSocket = jasmine.createSpyObj('Socket', [
-      'on',
-      'emit',
-      'disconnect',
-      'connect',
-    ]);
+    mockSocket = jasmine.createSpyObj('Socket', ['on', 'emit', 'disconnect', 'connect']);
     TestBed.configureTestingModule({
-      providers: [WebSocketService],
+      providers: [WebSocketService]
     });
     service = TestBed.inject(WebSocketService);
   });
@@ -997,7 +909,7 @@ describe('WebSocketService', () => {
       generationId: 'gen-123',
       progress: 50,
       status: 'Generating lyrics...',
-      currentStep: 'lyrics',
+      currentStep: 'lyrics'
     };
 
     service.getMetadataProgress('gen-123').subscribe((event) => {
@@ -1094,46 +1006,48 @@ describe('Song Generation WebSocket Integration', () => {
 export const websocketConfig = {
   cors: {
     origin: process.env.FRONTEND_URL,
-    credentials: true,
+    credentials: true
   },
   transports: ['websocket', 'polling'], // Fallback for corporate firewalls
   pingTimeout: 60000, // 60 seconds
   pingInterval: 25000, // 25 seconds
   maxHttpBufferSize: 1e8, // 100MB for large audio metadata
-  connectTimeout: 20000, // 20 seconds
+  connectTimeout: 20000 // 20 seconds
 };
 ```
 
 ### Load Balancing
 
-* **Sticky sessions**: Ensure WebSocket connections stay on same server instance
-* **Redis adapter**: For multi-server WebSocket broadcasting
-* **Health checks**: Monitor WebSocket connection health and latency
-* **Auto-scaling**: Scale WebSocket servers based on active connections
+- **Sticky sessions**: Ensure WebSocket connections stay on same server instance
+- **Redis adapter**: For multi-server WebSocket broadcasting
+- **Health checks**: Monitor WebSocket connection health and latency
+- **Auto-scaling**: Scale WebSocket servers based on active connections
 
 ### Monitoring and Alerting
 
-* **Connection metrics**: Track active connections, rooms, and message rates
-* **Performance monitoring**: WebSocket latency and throughput
-* **Error tracking**: Failed connections, disconnections, and generation errors
-* **Business metrics**: Generation success rates, user engagement with real-time features
+- **Connection metrics**: Track active connections, rooms, and message rates
+- **Performance monitoring**: WebSocket latency and throughput
+- **Error tracking**: Failed connections, disconnections, and generation errors
+- **Business metrics**: Generation success rates, user engagement with real-time features
 
-***
+---
 
 ## Summary
 
-The WebSocket integration provides real-time, bidirectional communication for Harmonia's sophisticated song generation pipeline. Key features include:
+The WebSocket integration provides real-time, bidirectional communication for Harmonia's sophisticated song generation
+pipeline. Key features include:
 
-* **Multi-stage progress tracking**: Detailed progress updates for both metadata and audio generation phases
-* **Room-based subscriptions**: Efficient event routing for multiple concurrent generations
-* **Error handling and recovery**: Robust error propagation with recovery strategies
-* **NGRX integration**: Seamless state management for complex generation workflows
-* **Performance optimization**: Connection pooling, event batching, and memory management
-* **Security**: JWT authentication, rate limiting, and input validation
-* **Testing**: Comprehensive unit and integration tests for reliability
-* **Monitoring**: Production-ready observability and alerting
+- **Multi-stage progress tracking**: Detailed progress updates for both metadata and audio generation phases
+- **Room-based subscriptions**: Efficient event routing for multiple concurrent generations
+- **Error handling and recovery**: Robust error propagation with recovery strategies
+- **NGRX integration**: Seamless state management for complex generation workflows
+- **Performance optimization**: Connection pooling, event batching, and memory management
+- **Security**: JWT authentication, rate limiting, and input validation
+- **Testing**: Comprehensive unit and integration tests for reliability
+- **Monitoring**: Production-ready observability and alerting
 
-This WebSocket system enables the rich, interactive user experience required for AI-powered music generation while maintaining the performance and reliability needed for production deployment.
+This WebSocket system enables the rich, interactive user experience required for AI-powered music generation while
+maintaining the performance and reliability needed for production deployment.
 
 ```typescript
 @Injectable({ providedIn: 'root' })
@@ -1283,13 +1197,10 @@ import * as fromAuth from './store/auth/auth.selectors';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
+  templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit, OnDestroy {
-  constructor(
-    private store: Store<AppState>,
-    private websocketService: WebSocketService
-  ) {}
+  constructor(private store: Store<AppState>, private websocketService: WebSocketService) {}
 
   ngOnInit(): void {
     // Connect WebSocket when user logs in
@@ -1328,7 +1239,7 @@ import {
   ConnectedSocket,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  WebSocketServer,
+  WebSocketServer
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
@@ -1336,9 +1247,9 @@ import { Logger } from '@nestjs/common';
 @WebSocketGateway({
   cors: {
     origin: '*',
-    credentials: true,
+    credentials: true
   },
-  namespace: '/',
+  namespace: '/'
 })
 export class JobsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
@@ -1380,20 +1291,14 @@ export class JobsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('job:subscribe')
-  handleSubscribeToJob(
-    @MessageBody() data: { jobId: string },
-    @ConnectedSocket() client: Socket
-  ): void {
+  handleSubscribeToJob(@MessageBody() data: { jobId: string }, @ConnectedSocket() client: Socket): void {
     const room = `job:${data.jobId}`;
     client.join(room);
     this.logger.log(`Client ${client.id} subscribed to job ${data.jobId}`);
   }
 
   @SubscribeMessage('job:unsubscribe')
-  handleUnsubscribeFromJob(
-    @MessageBody() data: { jobId: string },
-    @ConnectedSocket() client: Socket
-  ): void {
+  handleUnsubscribeFromJob(@MessageBody() data: { jobId: string }, @ConnectedSocket() client: Socket): void {
     const room = `job:${data.jobId}`;
     client.leave(room);
     this.logger.log(`Client ${client.id} unsubscribed from job ${data.jobId}`);
@@ -1441,9 +1346,7 @@ export class JobsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ): void {
     const room = `job:${jobId}`;
     this.server.to(room).emit('job:progress', { id: jobId, progress });
-    this.logger.debug(
-      `Emitted progress update for job ${jobId}: ${progress.percentage}%`
-    );
+    this.logger.debug(`Emitted progress update for job ${jobId}: ${progress.percentage}%`);
   }
 
   emitJobCompleted(job: Record<string, unknown>): void {
@@ -1460,10 +1363,7 @@ export class JobsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const jobRoom = `job:${jobId}`;
     const userRoom = `user:${userId}:jobs`;
 
-    this.server
-      .to(jobRoom)
-      .to(userRoom)
-      .emit('job:failed', { id: jobId, error });
+    this.server.to(jobRoom).to(userRoom).emit('job:failed', { id: jobId, error });
     this.logger.log(`Emitted failure for job ${jobId}`);
   }
 
@@ -1481,7 +1381,7 @@ import { Module } from '@nestjs/common';
 import { JobsGateway } from './gateways/jobs.gateway';
 
 @Module({
-  providers: [JobsGateway],
+  providers: [JobsGateway]
 })
 export class AppModule {}
 ```
@@ -1528,20 +1428,13 @@ const adminRoom = `admin:jobs`;
 
 ```typescript
 // Broadcast to specific job subscribers
-this.server
-  .to(`job:${jobId}`)
-  .emit('job:status', { id: jobId, status: 'processing' });
+this.server.to(`job:${jobId}`).emit('job:status', { id: jobId, status: 'processing' });
 
 // Broadcast to user's jobs
-this.server
-  .to(`user:${userId}:jobs`)
-  .emit('job:status', { id: jobId, status: 'completed' });
+this.server.to(`user:${userId}:jobs`).emit('job:status', { id: jobId, status: 'completed' });
 
 // Broadcast to multiple rooms
-this.server
-  .to(`job:${jobId}`)
-  .to(`user:${userId}:jobs`)
-  .emit('job:completed', { job });
+this.server.to(`job:${jobId}`).to(`user:${userId}:jobs`).emit('job:completed', { job });
 ```
 
 ## NGRX State Management Integration
@@ -1550,35 +1443,21 @@ this.server
 
 ```typescript
 // WebSocket connection status
-export const realTimeConnectionEstablished = createAction(
-  '[Jobs] Real-Time Connection Established'
-);
+export const realTimeConnectionEstablished = createAction('[Jobs] Real-Time Connection Established');
 
-export const realTimeConnectionLost = createAction(
-  '[Jobs] Real-Time Connection Lost',
-  props<{ error: string }>()
-);
+export const realTimeConnectionLost = createAction('[Jobs] Real-Time Connection Lost', props<{ error: string }>());
 
 // Job status updates (from WebSocket)
-export const jobStatusUpdated = createAction(
-  '[Jobs] Job Status Updated',
-  props<{ id: string; status: JobStatus }>()
-);
+export const jobStatusUpdated = createAction('[Jobs] Job Status Updated', props<{ id: string; status: JobStatus }>());
 
 export const jobProgressUpdated = createAction(
   '[Jobs] Job Progress Updated',
   props<{ id: string; progress: JobProgress }>()
 );
 
-export const jobCompleted = createAction(
-  '[Jobs] Job Completed',
-  props<{ job: Job }>()
-);
+export const jobCompleted = createAction('[Jobs] Job Completed', props<{ job: Job }>());
 
-export const jobFailed = createAction(
-  '[Jobs] Job Failed',
-  props<{ id: string; error: string }>()
-);
+export const jobFailed = createAction('[Jobs] Job Failed', props<{ id: string; error: string }>());
 ```
 
 ### Reducer Handling
@@ -1598,9 +1477,7 @@ export const jobsReducer = createReducer(
   ),
 
   // Job completed (full update)
-  on(JobsActions.jobCompleted, (state, { job }) =>
-    jobsAdapter.updateOne({ id: job.id, changes: job }, state)
-  ),
+  on(JobsActions.jobCompleted, (state, { job }) => jobsAdapter.updateOne({ id: job.id, changes: job }, state)),
 
   // Job failed
   on(JobsActions.jobFailed, (state, { id, error }) =>
@@ -1609,8 +1486,8 @@ export const jobsReducer = createReducer(
         id,
         changes: {
           status: 'failed',
-          result: { error },
-        },
+          result: { error }
+        }
       },
       state
     )
@@ -1647,7 +1524,7 @@ export class JobsGateway {
 ```typescript
 this.socket = io('http://localhost:3333', {
   auth: { token: this.authToken },
-  transports: ['websocket'],
+  transports: ['websocket']
 });
 ```
 
@@ -1658,9 +1535,7 @@ this.socket = io('http://localhost:3333', {
 ```typescript
 this.socket.on('connect_error', (error) => {
   console.error('WebSocket connection error:', error);
-  this.store.dispatch(
-    JobsActions.realTimeConnectionLost({ error: error.message })
-  );
+  this.store.dispatch(JobsActions.realTimeConnectionLost({ error: error.message }));
 });
 ```
 
@@ -1672,7 +1547,7 @@ this.socket = io('http://localhost:3333', {
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
   reconnectionDelayMax: 5000,
-  randomizationFactor: 0.5,
+  randomizationFactor: 0.5
 });
 
 this.socket.on('reconnect', (attemptNumber) => {
@@ -1706,7 +1581,7 @@ import * as fromJobs from '../../store/jobs/jobs.selectors';
 
 @Component({
   selector: 'app-job-detail',
-  templateUrl: './job-detail.component.html',
+  templateUrl: './job-detail.component.html'
 })
 export class JobDetailComponent implements OnInit, OnDestroy {
   job$!: Observable<Job | null>;
@@ -1741,8 +1616,7 @@ export class JobDetailComponent implements OnInit, OnDestroy {
   <p>Status: {{ job.status }}</p>
 
   <div *ngIf="job.progress">
-    <mat-progress-bar mode="determinate" [value]="job.progress.percentage">
-    </mat-progress-bar>
+    <mat-progress-bar mode="determinate" [value]="job.progress.percentage"> </mat-progress-bar>
     <p>{{ job.progress.message }}</p>
     <p>{{ job.progress.current }} / {{ job.progress.total }}</p>
   </div>
@@ -1772,7 +1646,7 @@ describe('WebSocketService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [WebSocketService, provideMockStore()],
+      providers: [WebSocketService, provideMockStore()]
     });
     service = TestBed.inject(WebSocketService);
   });
@@ -1804,14 +1678,14 @@ describe('JobsGateway', () => {
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
-      providers: [JobsGateway],
+      providers: [JobsGateway]
     }).compile();
 
     app = module.createNestApplication();
     await app.listen(3333);
 
     client = io('http://localhost:3333', {
-      auth: { token: 'test-token' },
+      auth: { token: 'test-token' }
     });
   });
 
@@ -1878,7 +1752,7 @@ ngOnDestroy(): void {
 
 ## Resources
 
-* [Socket.IO Documentation](https://socket.io/docs/v4/)
-* [NestJS WebSockets](https://docs.nestjs.com/websockets/gateways)
-* [RxJS fromEvent](https://rxjs.dev/api/index/function/fromEvent)
-* [NGRX Effects](https://ngrx.io/guide/effects)
+- [Socket.IO Documentation](https://socket.io/docs/v4/)
+- [NestJS WebSockets](https://docs.nestjs.com/websockets/gateways)
+- [RxJS fromEvent](https://rxjs.dev/api/index/function/fromEvent)
+- [NGRX Effects](https://ngrx.io/guide/effects)

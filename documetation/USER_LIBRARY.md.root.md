@@ -2,19 +2,21 @@
 
 ## Overview
 
-The User Library is a personalized view where authenticated users can browse, play, download, and manage their generated content. It serves as a central hub for all music generation output, including songs, audio files, and saved style presets.
+The User Library is a personalized view where authenticated users can browse, play, download, and manage their generated
+content. It serves as a central hub for all music generation output, including songs, audio files, and saved style
+presets.
 
 **Key Features**:
 
-* Grid/list view of user's generated content
-* Audio playback with HTML5 player controls
-* Download functionality for wav/mp3 files
-* Delete functionality with confirmation
-* Filter by content type (songs, styles, audio)
-* Search by title, genre, or metadata
-* Pagination or infinite scroll for large collections
-* Integration with NGRX for state management
-* Route guard protection (requires authentication)
+- Grid/list view of user's generated content
+- Audio playback with HTML5 player controls
+- Download functionality for wav/mp3 files
+- Delete functionality with confirmation
+- Filter by content type (songs, styles, audio)
+- Search by title, genre, or metadata
+- Pagination or infinite scroll for large collections
+- Integration with NGRX for state management
+- Route guard protection (requires authentication)
 
 ## Architecture
 
@@ -94,7 +96,7 @@ export class LibraryItem {
   userId: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, ref: 'Song', index: true })
-  songId?: Types.ObjectId;  // Optional: Link to original song metadata
+  songId?: Types.ObjectId; // Optional: Link to original song metadata
 
   @Prop({ required: true, enum: ['song', 'music', 'audio', 'style'] })
   type: 'song' | 'music' | 'audio' | 'style';
@@ -106,19 +108,19 @@ export class LibraryItem {
   description?: string;
 
   @Prop({ required: true })
-  fileUrl: string;  // S3 URL or local file path
+  fileUrl: string; // S3 URL or local file path
 
   @Prop({ enum: ['wav', 'mp3', 'flac', 'json'] })
   fileType: string;
 
   @Prop()
-  fileSize?: number;  // In bytes
+  fileSize?: number; // In bytes
 
   @Prop()
-  duration?: number;  // Audio duration in seconds
+  duration?: number; // Audio duration in seconds
 
   @Prop()
-  thumbnailUrl?: string;  // Waveform image or album art
+  thumbnailUrl?: string; // Waveform image or album art
 
   @Prop({ type: Object })
   metadata: {
@@ -127,12 +129,12 @@ export class LibraryItem {
     bpm?: number;
     key?: string;
     instruments?: string[];
-    model?: string;  // AI model used
-    generationTime?: number;  // Time to generate (seconds)
+    model?: string; // AI model used
+    generationTime?: number; // Time to generate (seconds)
   };
 
   @Prop({ default: false })
-  isPublic: boolean;  // Future: Share with others
+  isPublic: boolean; // Future: Share with others
 
   @Prop({ default: 0 })
   playCount: number;
@@ -150,7 +152,7 @@ export const LibraryItemSchema = SchemaFactory.createForClass(LibraryItem);
 // Compound index for efficient queries
 LibraryItemSchema.index({ userId: 1, createdAt: -1 });
 LibraryItemSchema.index({ userId: 1, type: 1 });
-LibraryItemSchema.index({ userId: 1, title: 'text' });  // Text search
+LibraryItemSchema.index({ userId: 1, title: 'text' }); // Text search
 ```
 
 ## Frontend Implementation
@@ -239,53 +241,27 @@ export const loadLibrarySuccess = createAction(
   props<{ items: LibraryItem[]; total: number }>()
 );
 
-export const loadLibraryFailure = createAction(
-  '[Library] Load Library Failure',
-  props<{ error: string }>()
-);
+export const loadLibraryFailure = createAction('[Library] Load Library Failure', props<{ error: string }>());
 
 // Select item
-export const selectLibraryItem = createAction(
-  '[Library] Select Item',
-  props<{ item: LibraryItem }>()
-);
+export const selectLibraryItem = createAction('[Library] Select Item', props<{ item: LibraryItem }>());
 
-export const deselectLibraryItem = createAction(
-  '[Library] Deselect Item'
-);
+export const deselectLibraryItem = createAction('[Library] Deselect Item');
 
 // Delete item
-export const deleteLibraryItem = createAction(
-  '[Library] Delete Item',
-  props<{ id: string }>()
-);
+export const deleteLibraryItem = createAction('[Library] Delete Item', props<{ id: string }>());
 
-export const deleteLibraryItemSuccess = createAction(
-  '[Library] Delete Item Success',
-  props<{ id: string }>()
-);
+export const deleteLibraryItemSuccess = createAction('[Library] Delete Item Success', props<{ id: string }>());
 
-export const deleteLibraryItemFailure = createAction(
-  '[Library] Delete Item Failure',
-  props<{ error: string }>()
-);
+export const deleteLibraryItemFailure = createAction('[Library] Delete Item Failure', props<{ error: string }>());
 
 // Download item
-export const downloadLibraryItem = createAction(
-  '[Library] Download Item',
-  props<{ id: string; title: string }>()
-);
+export const downloadLibraryItem = createAction('[Library] Download Item', props<{ id: string; title: string }>());
 
-export const downloadLibraryItemSuccess = createAction(
-  '[Library] Download Item Success',
-  props<{ id: string }>()
-);
+export const downloadLibraryItemSuccess = createAction('[Library] Download Item Success', props<{ id: string }>());
 
 // Play item
-export const playLibraryItem = createAction(
-  '[Library] Play Item',
-  props<{ id: string }>()
-);
+export const playLibraryItem = createAction('[Library] Play Item', props<{ id: string }>());
 
 // Update filters
 export const updateLibraryFilters = createAction(
@@ -294,10 +270,7 @@ export const updateLibraryFilters = createAction(
 );
 
 // Update pagination
-export const updateLibraryPagination = createAction(
-  '[Library] Update Pagination',
-  props<{ page: number }>()
-);
+export const updateLibraryPagination = createAction('[Library] Update Pagination', props<{ page: number }>());
 ```
 
 ### Library Reducer
@@ -309,14 +282,14 @@ import * as LibraryActions from './library.actions';
 
 export const libraryReducer = createReducer(
   initialLibraryState,
-  
+
   // Load library
   on(LibraryActions.loadLibrary, (state) => ({
     ...state,
     loading: true,
     error: null
   })),
-  
+
   on(LibraryActions.loadLibrarySuccess, (state, { items, total }) => ({
     ...state,
     items,
@@ -324,61 +297,57 @@ export const libraryReducer = createReducer(
     loading: false,
     error: null
   })),
-  
+
   on(LibraryActions.loadLibraryFailure, (state, { error }) => ({
     ...state,
     loading: false,
     error
   })),
-  
+
   // Select/deselect item
   on(LibraryActions.selectLibraryItem, (state, { item }) => ({
     ...state,
     selectedItem: item
   })),
-  
+
   on(LibraryActions.deselectLibraryItem, (state) => ({
     ...state,
     selectedItem: null
   })),
-  
+
   // Delete item
   on(LibraryActions.deleteLibraryItem, (state) => ({
     ...state,
     loading: true
   })),
-  
+
   on(LibraryActions.deleteLibraryItemSuccess, (state, { id }) => ({
     ...state,
-    items: state.items.filter(item => item.id !== id),
+    items: state.items.filter((item) => item.id !== id),
     selectedItem: state.selectedItem?.id === id ? null : state.selectedItem,
     loading: false,
     pagination: { ...state.pagination, total: state.pagination.total - 1 }
   })),
-  
+
   on(LibraryActions.deleteLibraryItemFailure, (state, { error }) => ({
     ...state,
     loading: false,
     error
   })),
-  
+
   // Play item (increment play count)
   on(LibraryActions.playLibraryItem, (state, { id }) => ({
     ...state,
-    items: state.items.map(item =>
-      item.id === id
-        ? { ...item, playCount: item.playCount + 1 }
-        : item
-    )
+    items: state.items.map((item) => (item.id === id ? { ...item, playCount: item.playCount + 1 } : item))
   })),
-  
+
   // Update filters
   on(LibraryActions.updateLibraryFilters, (state, { filters }) => ({
     ...state,
     filters: { ...state.filters, ...filters },
-    pagination: { ...state.pagination, page: 1 }  // Reset to page 1 on filter change
+    pagination: { ...state.pagination, page: 1 } // Reset to page 1 on filter change
   })),
-  
+
   // Update pagination
   on(LibraryActions.updateLibraryPagination, (state, { page }) => ({
     ...state,
@@ -408,13 +377,19 @@ export class LibraryEffects {
       ofType(LibraryActions.loadLibrary),
       switchMap(({ filters, page }) =>
         this.libraryService.getLibrary(filters, page).pipe(
-          map(response => LibraryActions.loadLibrarySuccess({
-            items: response.items,
-            total: response.total
-          })),
-          catchError(error => of(LibraryActions.loadLibraryFailure({
-            error: error.message || 'Failed to load library'
-          })))
+          map((response) =>
+            LibraryActions.loadLibrarySuccess({
+              items: response.items,
+              total: response.total
+            })
+          ),
+          catchError((error) =>
+            of(
+              LibraryActions.loadLibraryFailure({
+                error: error.message || 'Failed to load library'
+              })
+            )
+          )
         )
       )
     )
@@ -426,9 +401,13 @@ export class LibraryEffects {
       switchMap(({ id }) =>
         this.libraryService.deleteItem(id).pipe(
           map(() => LibraryActions.deleteLibraryItemSuccess({ id })),
-          catchError(error => of(LibraryActions.deleteLibraryItemFailure({
-            error: error.message || 'Failed to delete item'
-          })))
+          catchError((error) =>
+            of(
+              LibraryActions.deleteLibraryItemFailure({
+                error: error.message || 'Failed to delete item'
+              })
+            )
+          )
         )
       )
     )
@@ -440,7 +419,7 @@ export class LibraryEffects {
       switchMap(({ id, title }) =>
         this.libraryService.downloadItem(id, title).pipe(
           map(() => LibraryActions.downloadLibraryItemSuccess({ id })),
-          catchError(error => {
+          catchError((error) => {
             console.error('Download failed:', error);
             return of({ type: '[Library] Download Item Failure' });
           })
@@ -460,10 +439,7 @@ export class LibraryEffects {
   // Reload library after filter or pagination change
   reloadOnFilterChange$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(
-        LibraryActions.updateLibraryFilters,
-        LibraryActions.updateLibraryPagination
-      ),
+      ofType(LibraryActions.updateLibraryFilters, LibraryActions.updateLibraryPagination),
       map(() => LibraryActions.loadLibrary({}))
     )
   );
@@ -488,19 +464,19 @@ export class LibraryService {
 
   getLibrary(filters?: any, page?: number): Observable<{ items: LibraryItem[]; total: number }> {
     let params = new HttpParams();
-    
+
     if (filters?.type && filters.type !== 'all') {
       params = params.set('type', filters.type);
     }
-    
+
     if (filters?.search) {
       params = params.set('search', filters.search);
     }
-    
+
     if (filters?.sortBy) {
       params = params.set('sortBy', filters.sortBy);
     }
-    
+
     if (page) {
       params = params.set('page', page.toString());
     }
@@ -517,19 +493,21 @@ export class LibraryService {
   }
 
   downloadItem(id: string, title: string): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/${id}/download`, {
-      responseType: 'blob'
-    }).pipe(
-      tap(blob => {
-        // Trigger browser download
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${title}.mp3`;  // Or extract extension from response
-        link.click();
-        window.URL.revokeObjectURL(url);
+    return this.http
+      .get(`${this.apiUrl}/${id}/download`, {
+        responseType: 'blob'
       })
-    );
+      .pipe(
+        tap((blob) => {
+          // Trigger browser download
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${title}.mp3`; // Or extract extension from response
+          link.click();
+          window.URL.revokeObjectURL(url);
+        })
+      );
   }
 }
 ```
@@ -552,7 +530,7 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
   selector: 'harmonia-library-page',
   standalone: false,
   templateUrl: './library-page.component.html',
-  styleUrl: './library-page.component.scss',
+  styleUrl: './library-page.component.scss'
 })
 export class LibraryPageComponent implements OnInit {
   private readonly store = inject(Store<AppState>);
@@ -594,10 +572,12 @@ export class LibraryPageComponent implements OnInit {
   }
 
   onDownloadItem(item: LibraryItem): void {
-    this.store.dispatch(LibraryActions.downloadLibraryItem({ 
-      id: item.id, 
-      title: item.title 
-    }));
+    this.store.dispatch(
+      LibraryActions.downloadLibraryItem({
+        id: item.id,
+        title: item.title
+      })
+    );
   }
 
   onDeleteItem(item: LibraryItem): void {
@@ -612,7 +592,7 @@ export class LibraryPageComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.store.dispatch(LibraryActions.deleteLibraryItem({ id: item.id }));
       }
@@ -652,7 +632,7 @@ export class LibraryPageComponent implements OnInit {
   <!-- Toolbar -->
   <mat-toolbar class="library-toolbar">
     <!-- Filters -->
-    <mat-button-toggle-group 
+    <mat-button-toggle-group
       [value]="(filters$ | async)?.type"
       (change)="onFilterChange($event.value)"
       class="filter-group"
@@ -669,22 +649,19 @@ export class LibraryPageComponent implements OnInit {
     <!-- Search -->
     <mat-form-field appearance="outline" class="search-field">
       <mat-label>Search</mat-label>
-      <input 
-        matInput 
+      <input
+        matInput
         [value]="(filters$ | async)?.search"
         (input)="onSearchChange($event.target.value)"
         placeholder="Search by title or genre"
-      >
+      />
       <mat-icon matPrefix>search</mat-icon>
     </mat-form-field>
 
     <!-- Sort -->
     <mat-form-field appearance="outline" class="sort-field">
       <mat-label>Sort by</mat-label>
-      <mat-select 
-        [value]="(filters$ | async)?.sortBy"
-        (selectionChange)="onSortChange($event.value)"
-      >
+      <mat-select [value]="(filters$ | async)?.sortBy" (selectionChange)="onSortChange($event.value)">
         <mat-option value="newest">Newest First</mat-option>
         <mat-option value="oldest">Oldest First</mat-option>
         <mat-option value="title">Title</mat-option>
@@ -693,11 +670,7 @@ export class LibraryPageComponent implements OnInit {
     </mat-form-field>
 
     <!-- View Mode Toggle -->
-    <button 
-      mat-icon-button 
-      (click)="toggleViewMode()"
-      [matTooltip]="viewMode === 'grid' ? 'List View' : 'Grid View'"
-    >
+    <button mat-icon-button (click)="toggleViewMode()" [matTooltip]="viewMode === 'grid' ? 'List View' : 'Grid View'">
       <mat-icon>{{ viewMode === 'grid' ? 'view_list' : 'view_module' }}</mat-icon>
     </button>
   </mat-toolbar>
@@ -712,9 +685,7 @@ export class LibraryPageComponent implements OnInit {
   <div *ngIf="error$ | async as error" class="error-container">
     <mat-icon color="warn">error</mat-icon>
     <p>{{ error }}</p>
-    <button mat-raised-button color="primary" (click)="ngOnInit()">
-      Retry
-    </button>
+    <button mat-raised-button color="primary" (click)="ngOnInit()">Retry</button>
   </div>
 
   <!-- Empty State -->
@@ -722,9 +693,7 @@ export class LibraryPageComponent implements OnInit {
     <mat-icon>library_music</mat-icon>
     <h2>No items in your library</h2>
     <p>Start generating music to build your collection!</p>
-    <button mat-raised-button color="primary" routerLink="/generate/song">
-      Generate Song
-    </button>
+    <button mat-raised-button color="primary" routerLink="/generate/song">Generate Song</button>
   </div>
 
   <!-- Grid View -->
@@ -760,42 +729,26 @@ export class LibraryPageComponent implements OnInit {
           </span>
         </div>
 
-        <p class="item-description" *ngIf="item.description">
-          {{ item.description }}
-        </p>
+        <p class="item-description" *ngIf="item.description">{{ item.description }}</p>
       </mat-card-content>
 
       <mat-card-actions>
-        <button 
-          mat-button 
-          color="primary"
-          (click)="onPlayItem(item)"
-          *ngIf="item.type !== 'style'"
-        >
+        <button mat-button color="primary" (click)="onPlayItem(item)" *ngIf="item.type !== 'style'">
           <mat-icon>play_arrow</mat-icon>
           Play
         </button>
-        <button 
-          mat-button 
-          (click)="onDownloadItem(item)"
-        >
+        <button mat-button (click)="onDownloadItem(item)">
           <mat-icon>download</mat-icon>
           Download
         </button>
-        <button 
-          mat-button 
-          color="warn"
-          (click)="onDeleteItem(item)"
-        >
+        <button mat-button color="warn" (click)="onDeleteItem(item)">
           <mat-icon>delete</mat-icon>
           Delete
         </button>
       </mat-card-actions>
 
       <div class="item-footer">
-        <span class="created-date">
-          {{ item.createdAt | date:'short' }}
-        </span>
+        <span class="created-date"> {{ item.createdAt | date:'short' }} </span>
       </div>
     </mat-card>
   </div>
@@ -805,39 +758,24 @@ export class LibraryPageComponent implements OnInit {
     <mat-list>
       <mat-list-item *ngFor="let item of filteredItems$ | async" class="library-list-item">
         <mat-icon matListItemIcon>{{ item.type === 'style' ? 'style' : 'audiotrack' }}</mat-icon>
-        
+
         <div matListItemTitle>{{ item.title }}</div>
         <div matListItemLine>
           <span class="item-meta">
-            {{ item.type }} • 
+            {{ item.type }} •
             <span *ngIf="item.metadata?.genre">{{ item.metadata.genre }} • </span>
-            {{ formatDuration(item.duration) }} • 
-            {{ formatFileSize(item.fileSize) }}
+            {{ formatDuration(item.duration) }} • {{ formatFileSize(item.fileSize) }}
           </span>
         </div>
-        
+
         <div matListItemMeta class="item-actions">
-          <button 
-            mat-icon-button 
-            (click)="onPlayItem(item)"
-            *ngIf="item.type !== 'style'"
-            matTooltip="Play"
-          >
+          <button mat-icon-button (click)="onPlayItem(item)" *ngIf="item.type !== 'style'" matTooltip="Play">
             <mat-icon>play_arrow</mat-icon>
           </button>
-          <button 
-            mat-icon-button 
-            (click)="onDownloadItem(item)"
-            matTooltip="Download"
-          >
+          <button mat-icon-button (click)="onDownloadItem(item)" matTooltip="Download">
             <mat-icon>download</mat-icon>
           </button>
-          <button 
-            mat-icon-button 
-            color="warn"
-            (click)="onDeleteItem(item)"
-            matTooltip="Delete"
-          >
+          <button mat-icon-button color="warn" (click)="onDeleteItem(item)" matTooltip="Delete">
             <mat-icon>delete</mat-icon>
           </button>
         </div>
@@ -857,7 +795,7 @@ export class LibraryPageComponent implements OnInit {
 
   <!-- Audio Player (Fixed Bottom) -->
   <div *ngIf="selectedItem$ | async as item" class="audio-player-container">
-    <harmonia-audio-player 
+    <harmonia-audio-player
       [item]="item"
       (close)="store.dispatch(LibraryActions.deselectLibraryItem())"
     ></harmonia-audio-player>
@@ -876,7 +814,7 @@ import { LibraryItem } from '../../store/library/library.state';
   selector: 'harmonia-audio-player',
   standalone: false,
   templateUrl: './audio-player.component.html',
-  styleUrl: './audio-player.component.scss',
+  styleUrl: './audio-player.component.scss'
 })
 export class AudioPlayerComponent implements OnInit, OnDestroy {
   @Input() item!: LibraryItem;
@@ -891,7 +829,7 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.audio = new Audio(this.item.fileUrl);
-    
+
     this.audio.addEventListener('loadedmetadata', () => {
       this.duration = this.audio!.duration;
     });
@@ -979,37 +917,20 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
       <mat-icon>{{ isPlaying ? 'pause' : 'play_arrow' }}</mat-icon>
     </button>
 
-    <div class="time-display">
-      {{ formatTime(currentTime) }}
-    </div>
+    <div class="time-display">{{ formatTime(currentTime) }}</div>
 
-    <mat-slider 
-      [min]="0" 
-      [max]="duration"
-      [value]="currentTime"
-      (input)="seek($event)"
-      class="progress-slider"
-    >
-      <input matSliderThumb>
+    <mat-slider [min]="0" [max]="duration" [value]="currentTime" (input)="seek($event)" class="progress-slider">
+      <input matSliderThumb />
     </mat-slider>
 
-    <div class="time-display">
-      {{ formatTime(duration) }}
-    </div>
+    <div class="time-display">{{ formatTime(duration) }}</div>
 
     <button mat-icon-button (click)="toggleMute()" class="volume-button">
       <mat-icon>{{ isMuted ? 'volume_off' : 'volume_up' }}</mat-icon>
     </button>
 
-    <mat-slider 
-      [min]="0" 
-      [max]="1" 
-      [step]="0.01"
-      [value]="volume"
-      (input)="setVolume($event)"
-      class="volume-slider"
-    >
-      <input matSliderThumb>
+    <mat-slider [min]="0" [max]="1" [step]="0.01" [value]="volume" (input)="setVolume($event)" class="volume-slider">
+      <input matSliderThumb />
     </mat-slider>
   </div>
 </mat-card>
@@ -1021,17 +942,7 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
 
 ```typescript
 // library.controller.ts
-import { 
-  Controller, 
-  Get, 
-  Delete, 
-  Param, 
-  Query, 
-  UseGuards,
-  Req,
-  Res,
-  StreamableFile
-} from '@nestjs/common';
+import { Controller, Get, Delete, Param, Query, UseGuards, Req, Res, StreamableFile } from '@nestjs/common';
 import { Response } from 'express';
 import { LibraryService } from './library.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -1058,23 +969,17 @@ export class LibraryController {
       sortBy: sortBy || 'newest'
     };
     const pageNum = page ? parseInt(page) : 1;
-    
+
     return this.libraryService.findByUserId(user.sub, filters, pageNum);
   }
 
   @Get(':id')
-  async getLibraryItem(
-    @CurrentUser() user: any,
-    @Param('id') id: string
-  ) {
+  async getLibraryItem(@CurrentUser() user: any, @Param('id') id: string) {
     return this.libraryService.findById(id, user.sub);
   }
 
   @Delete(':id')
-  async deleteLibraryItem(
-    @CurrentUser() user: any,
-    @Param('id') id: string
-  ) {
+  async deleteLibraryItem(@CurrentUser() user: any, @Param('id') id: string) {
     await this.libraryService.delete(id, user.sub);
     return { message: 'Item deleted successfully' };
   }
@@ -1086,14 +991,14 @@ export class LibraryController {
     @Res({ passthrough: true }) res: Response
   ): Promise<StreamableFile> {
     const item = await this.libraryService.findById(id, user.sub);
-    
+
     // Increment download count
     await this.libraryService.incrementDownloadCount(id);
-    
+
     // Stream file
     const file = createReadStream(item.fileUrl);
     const filename = `${item.title}.${item.fileType}`;
-    
+
     res.set({
       'Content-Type': `audio/${item.fileType}`,
       'Content-Disposition': `attachment; filename="${filename}"`
@@ -1116,7 +1021,7 @@ import { LibraryItem, LibraryItemDocument } from '../schemas/library-item.schema
 @Injectable()
 export class LibraryService {
   constructor(
-    @InjectModel(LibraryItem.name) 
+    @InjectModel(LibraryItem.name)
     private libraryItemModel: Model<LibraryItemDocument>
   ) {}
 
@@ -1136,8 +1041,8 @@ export class LibraryService {
     }
 
     // Build sort
-    let sort: any = { createdAt: -1 };  // Default: newest first
-    
+    let sort: any = { createdAt: -1 }; // Default: newest first
+
     if (filters.sortBy === 'oldest') {
       sort = { createdAt: 1 };
     } else if (filters.sortBy === 'title') {
@@ -1148,17 +1053,12 @@ export class LibraryService {
 
     // Execute query with pagination
     const [items, total] = await Promise.all([
-      this.libraryItemModel
-        .find(query)
-        .sort(sort)
-        .skip(skip)
-        .limit(pageSize)
-        .exec(),
+      this.libraryItemModel.find(query).sort(sort).skip(skip).limit(pageSize).exec(),
       this.libraryItemModel.countDocuments(query)
     ]);
 
     return {
-      items: items.map(item => this.mapToDto(item)),
+      items: items.map((item) => this.mapToDto(item)),
       total,
       page,
       pageSize,
@@ -1183,7 +1083,7 @@ export class LibraryService {
 
   async delete(id: string, userId: string) {
     const item = await this.findById(id, userId);
-    
+
     // Delete file from storage (S3 or local filesystem)
     await this.deleteFile(item.fileUrl);
 
@@ -1192,17 +1092,11 @@ export class LibraryService {
   }
 
   async incrementPlayCount(id: string) {
-    await this.libraryItemModel.findByIdAndUpdate(
-      id,
-      { $inc: { playCount: 1 } }
-    );
+    await this.libraryItemModel.findByIdAndUpdate(id, { $inc: { playCount: 1 } });
   }
 
   async incrementDownloadCount(id: string) {
-    await this.libraryItemModel.findByIdAndUpdate(
-      id,
-      { $inc: { downloadCount: 1 } }
-    );
+    await this.libraryItemModel.findByIdAndUpdate(id, { $inc: { downloadCount: 1 } });
   }
 
   private mapToDto(item: LibraryItemDocument) {
@@ -1249,7 +1143,7 @@ const routes: Routes = [
   {
     path: '',
     component: LibraryPageComponent,
-    canActivate: [authGuard]  // Requires authentication
+    canActivate: [authGuard] // Requires authentication
   }
 ];
 
@@ -1257,7 +1151,7 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class LibraryRoutingModule { }
+export class LibraryRoutingModule {}
 ```
 
 ## Testing Strategy
@@ -1268,7 +1162,7 @@ export class LibraryRoutingModule { }
 describe('LibraryService', () => {
   it('should filter by type', async () => {
     const result = await service.findByUserId('user123', { type: 'song' }, 1);
-    expect(result.items.every(item => item.type === 'song')).toBe(true);
+    expect(result.items.every((item) => item.type === 'song')).toBe(true);
   });
 
   it('should search by title', async () => {
@@ -1277,8 +1171,7 @@ describe('LibraryService', () => {
   });
 
   it('should prevent unauthorized access', async () => {
-    await expect(service.findById('item123', 'wrong-user'))
-      .rejects.toThrow(ForbiddenException);
+    await expect(service.findById('item123', 'wrong-user')).rejects.toThrow(ForbiddenException);
   });
 });
 ```
@@ -1314,47 +1207,46 @@ test('library flow', async ({ page }) => {
 
 ### Waveform Visualization
 
-* Generate waveform images on upload
-* Display interactive waveform for seeking
-* Library: peaks.js or wavesurfer.js
+- Generate waveform images on upload
+- Display interactive waveform for seeking
+- Library: peaks.js or wavesurfer.js
 
 ### Playlists
 
-* Create custom playlists
-* Drag-and-drop reordering
-* Share playlists with others
+- Create custom playlists
+- Drag-and-drop reordering
+- Share playlists with others
 
 ### Favorites & Tags
 
-* Favorite button on items
-* Custom tags for organization
-* Filter by favorites/tags
+- Favorite button on items
+- Custom tags for organization
+- Filter by favorites/tags
 
 ### Bulk Operations
 
-* Select multiple items
-* Bulk download as ZIP
-* Bulk delete
+- Select multiple items
+- Bulk download as ZIP
+- Bulk delete
 
 ### Cloud Storage Integration
 
-* Upload to Google Drive
-* Sync with Dropbox
-* Export to SoundCloud
+- Upload to Google Drive
+- Sync with Dropbox
+- Export to SoundCloud
 
-***
+---
 
 **Document Version**: 1.0.0\
 **Last Updated**: December 2, 2025\
 **Status**: Design Complete - Implementation Ready\
 **Priority**: HIGH - Core Feature
 
-**LEGENDARY IS OUR STANDARD!** 🎵
-with Dropbox
+**LEGENDARY IS OUR STANDARD!** 🎵 with Dropbox
 
-* Export to SoundCloud
+- Export to SoundCloud
 
-***
+---
 
 **Document Version**: 1.0.0\
 **Last Updated**: December 2, 2025\

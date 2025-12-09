@@ -4,10 +4,10 @@
 
 ### Prerequisites
 
-* **Node.js 20+** (LTS)
-* **pnpm 10.23.0+**
-* **MongoDB 8.0.6** (running locally or via Docker)
-* **Git** for version control
+- **Node.js 20+** (LTS)
+- **pnpm 10.23.0+**
+- **MongoDB 8.0.6** (running locally or via Docker)
+- **Git** for version control
 
 ### Initial Setup
 
@@ -169,7 +169,7 @@ import { Component } from '@angular/core';
   selector: 'app-my-component',
   standalone: false, // REQUIRED
   templateUrl: './my-component.component.html',
-  styleUrl: './my-component.component.scss',
+  styleUrl: './my-component.component.scss'
 })
 export class MyComponent {}
 ```
@@ -205,7 +205,7 @@ import { MyComponent } from './components/my-component/my-component.component';
 @NgModule({
   declarations: [MyComponent],
   imports: [CommonModule],
-  exports: [MyComponent],
+  exports: [MyComponent]
 })
 export class SongGenerationModule {}
 ```
@@ -255,8 +255,8 @@ import { SongGenerationMaterialModule } from './song-generation-material.module'
     CommonModule,
     ReactiveFormsModule,
     SongGenerationRoutingModule,
-    SongGenerationMaterialModule, // Centralized Material imports
-  ],
+    SongGenerationMaterialModule // Centralized Material imports
+  ]
 })
 export class SongGenerationModule {}
 ```
@@ -265,7 +265,7 @@ export class SongGenerationModule {}
 
 Every feature module needs a dedicated Material module for tree-shaking optimization.
 
-See [MATERIAL\_MODULES.md](./MATERIAL_MODULES.md) for complete documentation.
+See [MATERIAL_MODULES.md](./MATERIAL_MODULES.md) for complete documentation.
 
 ```typescript
 // song-generation-material.module.ts
@@ -281,20 +281,8 @@ import { MatSelectModule } from '@angular/material/select';
  * Only imports what's needed for tree-shaking optimization
  */
 @NgModule({
-  imports: [
-    MatButtonModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-  ],
-  exports: [
-    MatButtonModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-  ],
+  imports: [MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule],
+  exports: [MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule]
 })
 export class SongGenerationMaterialModule {}
 ```
@@ -310,13 +298,13 @@ import { SongGenerationPageComponent } from './pages/song-generation-page/song-g
 const routes: Routes = [
   {
     path: '',
-    component: SongGenerationPageComponent,
-  },
+    component: SongGenerationPageComponent
+  }
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
+  exports: [RouterModule]
 })
 export class SongGenerationRoutingModule {}
 ```
@@ -330,11 +318,8 @@ import { Route } from '@angular/router';
 export const appRoutes: Route[] = [
   {
     path: 'generate/song',
-    loadChildren: () =>
-      import('./features/song-generation/song-generation.module').then(
-        (m) => m.SongGenerationModule
-      ),
-  },
+    loadChildren: () => import('./features/song-generation/song-generation.module').then((m) => m.SongGenerationModule)
+  }
   // ... other routes
 ];
 ```
@@ -354,7 +339,7 @@ import * as JobsActions from '../../../../store/jobs/jobs.actions';
   selector: 'app-song-generation-page',
   standalone: false,
   templateUrl: './song-generation-page.component.html',
-  styleUrl: './song-generation-page.component.scss',
+  styleUrl: './song-generation-page.component.scss'
 })
 export class SongGenerationPageComponent {
   constructor(private store: Store<AppState>) {}
@@ -363,7 +348,7 @@ export class SongGenerationPageComponent {
     this.store.dispatch(
       JobsActions.createJob({
         jobType: 'generate',
-        parameters: params,
+        parameters: params
       })
     );
   }
@@ -417,10 +402,7 @@ import { WebSocketService } from './services/websocket.service';
 import * as fromAuth from './store/auth/auth.selectors';
 
 export class App implements OnInit, OnDestroy {
-  constructor(
-    private store: Store<AppState>,
-    private websocketService: WebSocketService
-  ) {}
+  constructor(private store: Store<AppState>, private websocketService: WebSocketService) {}
 
   ngOnInit(): void {
     this.store
@@ -445,10 +427,7 @@ export class App implements OnInit, OnDestroy {
 export class JobDetailComponent implements OnInit, OnDestroy {
   jobId!: string;
 
-  constructor(
-    private route: ActivatedRoute,
-    private websocketService: WebSocketService
-  ) {}
+  constructor(private route: ActivatedRoute, private websocketService: WebSocketService) {}
 
   ngOnInit(): void {
     this.jobId = this.route.snapshot.params['id'];
@@ -563,12 +542,7 @@ export class SongsService {
 
 ```typescript
 // songs.gateway.ts
-import {
-  WebSocketGateway,
-  SubscribeMessage,
-  MessageBody,
-  WebSocketServer,
-} from '@nestjs/websockets';
+import { WebSocketGateway, SubscribeMessage, MessageBody, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 
 @WebSocketGateway()
@@ -604,7 +578,7 @@ describe('SongFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [SongFormComponent],
-      providers: [provideMockStore()],
+      providers: [provideMockStore()]
     }).compileComponents();
 
     fixture = TestBed.createComponent(SongFormComponent);
@@ -638,7 +612,7 @@ describe('SongsService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [SongsService],
+      providers: [SongsService]
     });
     service = TestBed.inject(SongsService);
   });
@@ -736,9 +710,9 @@ pnpm lint:frontend
 
 ## Resources
 
-* [Nx Documentation](https://nx.dev)
-* [Angular Documentation](https://angular.io)
-* [NestJS Documentation](https://docs.nestjs.com)
-* [NGRX Documentation](https://ngrx.io)
-* [Socket.IO Documentation](https://socket.io/docs/v4/)
-* [Angular Material](https://material.angular.io)
+- [Nx Documentation](https://nx.dev)
+- [Angular Documentation](https://angular.io)
+- [NestJS Documentation](https://docs.nestjs.com)
+- [NGRX Documentation](https://ngrx.io)
+- [Socket.IO Documentation](https://socket.io/docs/v4/)
+- [Angular Material](https://material.angular.io)

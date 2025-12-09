@@ -4,26 +4,27 @@
 **Project**: Harmonia Music Generation Platform\
 **Testing Framework**: Jest + Angular Testing Library
 
-***
+---
 
 ## Overview
 
-This document provides comprehensive guidelines for writing and maintaining unit tests in the Harmonia project. We use Jest as our testing framework with Angular-specific testing utilities.
+This document provides comprehensive guidelines for writing and maintaining unit tests in the Harmonia project. We use
+Jest as our testing framework with Angular-specific testing utilities.
 
-***
+---
 
 ## Table of Contents
 
-* [Test Status](#test-status)
-* [Running Tests](#running-tests)
-* [Backend Testing](#backend-testing)
-* [Frontend Testing](#frontend-testing)
-* [Known Issues](#known-issues)
-* [Best Practices](#best-practices)
-* [Writing New Tests](#writing-new-tests)
-* [Troubleshooting](#troubleshooting)
+- [Test Status](#test-status)
+- [Running Tests](#running-tests)
+- [Backend Testing](#backend-testing)
+- [Frontend Testing](#frontend-testing)
+- [Known Issues](#known-issues)
+- [Best Practices](#best-practices)
+- [Writing New Tests](#writing-new-tests)
+- [Troubleshooting](#troubleshooting)
 
-***
+---
 
 ## Test Status
 
@@ -47,10 +48,10 @@ Tests:       2 passed, 2 total
 
 **Issues**:
 
-* Tests cannot find `@angular/core/testing` module
-* Jasmine type definitions missing (SpyObj)
-* Guard tests using old Observable-based API (now returns boolean directly)
-* Component tests using deprecated testing patterns
+- Tests cannot find `@angular/core/testing` module
+- Jasmine type definitions missing (SpyObj)
+- Guard tests using old Observable-based API (now returns boolean directly)
+- Component tests using deprecated testing patterns
 
 **Affected Files**:
 
@@ -62,7 +63,7 @@ Tests:       2 passed, 2 total
 6. `apps/frontend/src/app/features/auth/header-user-menu/header-user-menu.component.spec.ts`
 7. `apps/frontend/src/app/services/auth-ui.service.spec.ts`
 
-***
+---
 
 ## Running Tests
 
@@ -115,7 +116,7 @@ pnpm nx reset
 pnpm nx test frontend --skip-nx-cache
 ```
 
-***
+---
 
 ## Backend Testing
 
@@ -134,7 +135,7 @@ describe('AppService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AppService],
+      providers: [AppService]
     }).compile();
 
     service = module.get<AppService>(AppService);
@@ -165,7 +166,7 @@ describe('AppController', () => {
   beforeEach(async () => {
     app = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService],
+      providers: [AppService]
     }).compile();
 
     controller = app.get<AppController>(AppController);
@@ -198,17 +199,17 @@ describe('AuthService', () => {
           useValue: {
             findOne: jest.fn(),
             create: jest.fn(),
-            save: jest.fn(),
-          },
+            save: jest.fn()
+          }
         },
         {
           provide: JwtService,
           useValue: {
             sign: jest.fn(() => 'mock-token'),
-            verify: jest.fn(),
-          },
-        },
-      ],
+            verify: jest.fn()
+          }
+        }
+      ]
     }).compile();
 
     service = module.get<AuthService>(AuthService);
@@ -220,11 +221,9 @@ describe('AuthService', () => {
     const dto = {
       email: 'test@example.com',
       username: 'test',
-      password: 'password123',
+      password: 'password123'
     };
-    jest
-      .spyOn(userModel, 'create')
-      .mockResolvedValue({ ...dto, _id: '123' } as any);
+    jest.spyOn(userModel, 'create').mockResolvedValue({ ...dto, _id: '123' } as any);
 
     const result = await service.register(dto);
     expect(result).toHaveProperty('_id');
@@ -232,13 +231,14 @@ describe('AuthService', () => {
 });
 ```
 
-***
+---
 
 ## Frontend Testing
 
 ### Current Status
 
-Frontend tests are written for Angular 20 testing patterns; keep tests aligned with Angular 20 unless a separate Angular 21 migration is planned.
+Frontend tests are written for Angular 20 testing patterns; keep tests aligned with Angular 20 unless a separate Angular
+21 migration is planned.
 
 ### Migration Required
 
@@ -277,9 +277,9 @@ describe('MyComponent', () => {
     await TestBed.configureTestingModule({
       imports: [MyComponent, NoopAnimationsModule],
       providers: [
-        provideStore({}),
+        provideStore({})
         // Add other providers
-      ],
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(MyComponent);
@@ -312,16 +312,16 @@ describe('authGuard', () => {
         {
           provide: Store,
           useValue: {
-            select: jest.fn(() => of(false)),
-          },
+            select: jest.fn(() => of(false))
+          }
         },
         {
           provide: Router,
           useValue: {
-            createUrlTree: jest.fn(() => ({} as any)),
-          },
-        },
-      ],
+            createUrlTree: jest.fn(() => ({} as any))
+          }
+        }
+      ]
     });
 
     store = TestBed.inject(Store);
@@ -342,10 +342,7 @@ describe('authGuard', () => {
 
 ```typescript
 import { TestBed } from '@angular/core/testing';
-import {
-  HttpClientTestingModule,
-  HttpTestingController,
-} from '@angular/common/http/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
@@ -355,7 +352,7 @@ describe('AuthService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [AuthService],
+      providers: [AuthService]
     });
 
     service = TestBed.inject(AuthService);
@@ -370,14 +367,12 @@ describe('AuthService', () => {
     const mockResponse = {
       user: { id: '1', email: 'test@example.com' },
       accessToken: 'token',
-      refreshToken: 'refresh',
+      refreshToken: 'refresh'
     };
 
-    service
-      .login({ emailOrUsername: 'test', password: 'pass' })
-      .subscribe((response) => {
-        expect(response).toEqual(mockResponse);
-      });
+    service.login({ emailOrUsername: 'test', password: 'pass' }).subscribe((response) => {
+      expect(response).toEqual(mockResponse);
+    });
 
     const req = httpMock.expectOne('http://localhost:3000/api/auth/login');
     expect(req.request.method).toBe('POST');
@@ -386,7 +381,7 @@ describe('AuthService', () => {
 });
 ```
 
-***
+---
 
 ## Known Issues
 
@@ -414,7 +409,7 @@ error TS2307: Cannot find module '@angular/core/testing' or its corresponding ty
 
 **Resolution**: Will be addressed in testing migration sprint
 
-***
+---
 
 ## Best Practices
 
@@ -448,7 +443,7 @@ it('should calculate total price', () => {
 ```typescript
 // Good - mocked
 const mockService = {
-  getData: jest.fn(() => of({ data: 'test' })),
+  getData: jest.fn(() => of({ data: 'test' }))
 };
 
 // Bad - real service
@@ -501,7 +496,7 @@ it('test 2', () => {
 });
 ```
 
-***
+---
 
 ## Writing New Tests
 
@@ -516,7 +511,7 @@ describe('MyNewService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [MyNewService],
+      providers: [MyNewService]
     }).compile();
 
     service = module.get<MyNewService>(MyNewService);
@@ -552,7 +547,7 @@ describe('MyNewComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MyNewComponent],
+      imports: [MyNewComponent]
     }).compileComponents();
 
     fixture = TestBed.createComponent(MyNewComponent);
@@ -583,7 +578,7 @@ describe('MyNewComponent', () => {
 });
 ```
 
-***
+---
 
 ## Troubleshooting
 
@@ -606,9 +601,9 @@ pnpm install
 
 **Solution**:
 
-* Check Node.js version matches CI
-* Ensure all dependencies in package.json
-* Clear cache: `pnpm nx reset`
+- Check Node.js version matches CI
+- Ensure all dependencies in package.json
+- Clear cache: `pnpm nx reset`
 
 ### Slow Tests
 
@@ -616,9 +611,9 @@ pnpm install
 
 **Solution**:
 
-* Use `--skip-nx-cache` to skip remote cache
-* Run specific test file instead of all tests
-* Check for unnecessary async operations
+- Use `--skip-nx-cache` to skip remote cache
+- Run specific test file instead of all tests
+- Check for unnecessary async operations
 
 ### Mock Not Working
 
@@ -639,20 +634,20 @@ pnpm install
 expect(mockService.method).toHaveBeenCalledWith(expectedArg);
 ```
 
-***
+---
 
 ## Coverage Goals
 
 ### Current Coverage
 
-* **Backend**: ~30% (basic tests only)
-* **Frontend**: 0% (tests need migration)
+- **Backend**: ~30% (basic tests only)
+- **Frontend**: 0% (tests need migration)
 
 ### Target Coverage
 
-* **Backend**: 80% line coverage
-* **Frontend**: 80% line coverage
-* **Critical Paths**: 100% coverage (authentication, payments, data loss prevention)
+- **Backend**: 80% line coverage
+- **Frontend**: 80% line coverage
+- **Critical Paths**: 100% coverage (authentication, payments, data loss prevention)
 
 ### Generate Coverage Report
 
@@ -668,7 +663,7 @@ open coverage/apps/backend/index.html
 open coverage/apps/frontend/index.html
 ```
 
-***
+---
 
 ## Next Steps
 
@@ -677,16 +672,16 @@ open coverage/apps/frontend/index.html
 3. **Mid-term**: Increase coverage to 80% for both frontend and backend
 4. **Long-term**: Add integration tests and E2E tests
 
-***
+---
 
 ## Related Documentation
 
-* [TESTING\_CHECKLIST.md](./TESTING_CHECKLIST.md) - E2E testing scenarios
-* [FRONTEND\_BACKEND\_INTEGRATION.md](./FRONTEND_BACKEND_INTEGRATION.md) - Integration details
-* [AUTHENTICATION\_SYSTEM.md](./AUTHENTICATION_SYSTEM.md) - Auth architecture
-* [NGRX\_PATTERNS.md](./NGRX_PATTERNS.md) - State management patterns
+- [TESTING_CHECKLIST.md](./TESTING_CHECKLIST.md) - E2E testing scenarios
+- [FRONTEND_BACKEND_INTEGRATION.md](./FRONTEND_BACKEND_INTEGRATION.md) - Integration details
+- [AUTHENTICATION_SYSTEM.md](./AUTHENTICATION_SYSTEM.md) - Auth architecture
+- [NGRX_PATTERNS.md](./NGRX_PATTERNS.md) - State management patterns
 
-***
+---
 
 **Maintained By**: Development Team\
 **Last Review**: December 2, 2025

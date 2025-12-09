@@ -2,34 +2,35 @@
 
 **Step-by-step guide to install, secure, and configure MongoDB on your i9 Windows machine for Harmonia development.**
 
-***
+---
 
 ## ⚠️ Current Architecture Note
 
-**This guide describes the original Docker-based MongoDB setup.** The production Harmonia environment now uses **native MongoDB** (Windows Service) for better performance and easier management.
+**This guide describes the original Docker-based MongoDB setup.** The production Harmonia environment now uses **native
+MongoDB** (Windows Service) for better performance and easier management.
 
 **For current setup, see:**
 
-* `docs/MONGODB_SECURITY.md` - Native MongoDB hardening
-* `docs/QUICKSTART_MONGODB.md` - Quick native MongoDB setup
-* `docs/DOCKER_SETUP.md` - Current Docker architecture (ML container only)
+- `docs/MONGODB_SECURITY.md` - Native MongoDB hardening
+- `docs/QUICKSTART_MONGODB.md` - Quick native MongoDB setup
+- `docs/DOCKER_SETUP.md` - Current Docker architecture (ML container only)
 
 **Use this guide if:**
 
-* You want to run MongoDB in Docker for testing
-* You're setting up a containerized development environment
-* You're migrating from native MongoDB to Docker
+- You want to run MongoDB in Docker for testing
+- You're setting up a containerized development environment
+- You're migrating from native MongoDB to Docker
 
-***
+---
 
 ## Prerequisites
 
-* Windows 11 with WSL2 enabled (or Windows 10 with WSL2)
-* Docker Desktop installed and running
-* At least 8GB RAM available for MongoDB
-* Administrative access
+- Windows 11 with WSL2 enabled (or Windows 10 with WSL2)
+- Docker Desktop installed and running
+- At least 8GB RAM available for MongoDB
+- Administrative access
 
-***
+---
 
 ## Installation Steps
 
@@ -61,7 +62,7 @@ services:
     container_name: harmonia-mongo-i9
     restart: unless-stopped
     ports:
-      - "127.0.0.1:27017:27017"  # Bind to localhost only
+      - '127.0.0.1:27017:27017' # Bind to localhost only
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
@@ -74,12 +75,9 @@ services:
     networks:
       - harmonia-net
     command: >
-      --auth
-      --wiredTigerCacheSizeGB 8
-      --maxConns 1000
-      --bind_ip_all
+      --auth --wiredTigerCacheSizeGB 8 --maxConns 1000 --bind_ip_all
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ['CMD', 'mongosh', '--eval', "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -89,7 +87,7 @@ services:
     container_name: harmonia-mongo-ui
     restart: unless-stopped
     ports:
-      - "127.0.0.1:8081:8081"  # Bind to localhost only
+      - '127.0.0.1:8081:8081' # Bind to localhost only
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: admin
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ROOT_PASSWORD}
@@ -196,7 +194,7 @@ db.model_artifacts.find()
 exit
 ```
 
-***
+---
 
 ## Security Configuration
 
@@ -215,16 +213,16 @@ New-NetFirewallRule -DisplayName "Allow MongoDB Localhost" -Direction Inbound -L
 
 **Docker Compose Security:**
 
-* Ports bound to `127.0.0.1` only (no external access)
-* Custom bridge network with subnet isolation
-* Read-only mount for init scripts
+- Ports bound to `127.0.0.1` only (no external access)
+- Custom bridge network with subnet isolation
+- Read-only mount for init scripts
 
 ### Authentication & Authorization
 
 **User Roles:**
 
-* `admin` (root): Full administrative access
-* `harmonia_app`: Read/write access to `harmonia` database only
+- `admin` (root): Full administrative access
+- `harmonia_app`: Read/write access to `harmonia` database only
 
 **Connection Strings:**
 
@@ -272,7 +270,7 @@ docker exec -it harmonia-mongo-i9 mongosh -u admin -p "${MONGO_ROOT_PASSWORD}" -
 sed -i "s/MONGO_HARMONIA_PASSWORD=.*/MONGO_HARMONIA_PASSWORD=${NEW_PASSWORD}/" .env
 ```
 
-***
+---
 
 ## Performance Tuning for i9
 
@@ -283,11 +281,8 @@ sed -i "s/MONGO_HARMONIA_PASSWORD=.*/MONGO_HARMONIA_PASSWORD=${NEW_PASSWORD}/" .
 ```yaml
 # In docker-compose.mongo.yml
 command: >
-  --auth
-  --wiredTigerCacheSizeGB 12      # ~40% of total RAM
-  --maxConns 2000                  # High connection limit for dev
-  --slowOpThresholdMs 100          # Log slow queries
-  --logLevel info
+  --auth --wiredTigerCacheSizeGB 12      # ~40% of total RAM --maxConns 2000                  # High connection limit
+  for dev --slowOpThresholdMs 100          # Log slow queries --logLevel info
 ```
 
 **If running other heavy services (inference), reduce to 8GB.**
@@ -303,15 +298,14 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: C:/mongo-data  # Place on fastest SSD
+      device: C:/mongo-data # Place on fastest SSD
 ```
 
 **Enable compression:**
 
 ```yaml
 command: >
-  --wiredTigerCollectionBlockCompressor snappy
-  --wiredTigerIndexPrefixCompression true
+  --wiredTigerCollectionBlockCompressor snappy --wiredTigerIndexPrefixCompression true
 ```
 
 ### Connection Pooling
@@ -327,7 +321,7 @@ mongoose.connect(process.env.MONGO_URI!, {
 });
 ```
 
-***
+---
 
 ## Backup Strategy
 
@@ -382,7 +376,7 @@ docker exec -i harmonia-mongo-i9 mongorestore \
   --drop
 ```
 
-***
+---
 
 ## Monitoring & Maintenance
 
@@ -423,7 +417,7 @@ docker exec harmonia-mongo-i9 mongosh \
   --eval "db.runCommand({compact: 'model_artifacts'})"
 ```
 
-***
+---
 
 ## Troubleshooting
 
@@ -473,7 +467,7 @@ docker exec harmonia-mongo-i9 mongosh \
 
 **If cache ratio < 90%, increase `wiredTigerCacheSizeGB`.**
 
-***
+---
 
 ## Next Steps
 
@@ -485,7 +479,7 @@ docker exec harmonia-mongo-i9 mongosh \
 6. ⏳ Set up automated backups
 7. ⏳ Update application `.env` with `MONGO_URI`
 
-***
+---
 
 ## Quick Reference
 
@@ -523,4 +517,5 @@ docker logs -f harmonia-mongo-i9
 ```
 
 ```
+
 ```

@@ -2,36 +2,40 @@
 
 ## Overview
 
-M-MSL (Micro Music Score Language) is a human-readable, machine-parseable DSL for encoding lyrics, performance directions, audio cues (SFX/instrument actions), and beat-level timing. It enables coordinated audio generation, DAW export, and video storyboarding from a single source.
+M-MSL (Micro Music Score Language) is a human-readable, machine-parseable DSL for encoding lyrics, performance
+directions, audio cues (SFX/instrument actions), and beat-level timing. It enables coordinated audio generation, DAW
+export, and video storyboarding from a single source.
 
 ## 1. Spec Document (M-MSL)
 
 ### Purpose
 
-M-MSL encodes lyrics, performance directions, audio cues, and beat-level timing in a human-friendly, machine-parseable way so that audio generation, DAW export, and video storyboarding can be coordinated deterministically.
+M-MSL encodes lyrics, performance directions, audio cues, and beat-level timing in a human-friendly, machine-parseable
+way so that audio generation, DAW export, and video storyboarding can be coordinated deterministically.
 
 ### Goals
 
-* Human-readable and writable
-* Deterministic parsing and canonical JSON output
-* Beat-first timing model (tempo-based)
-* Extensible SFX namespace and parameters
-* Support for DAW export, realtime engines, and offline renderers
+- Human-readable and writable
+- Deterministic parsing and canonical JSON output
+- Beat-first timing model (tempo-based)
+- Extensible SFX namespace and parameters
+- Support for DAW export, realtime engines, and offline renderers
 
 ### Syntax Summary
 
-* `[Section Label]` — section marker (alone on a line). Example: `[Verse 1]`
-* `(Instruction text)` — performance/stage direction. Can appear alone or inline before lyric text. Example: `(whisper)`
-* `<Cue ...>` — audio cue command. Example: `<SFX footsteps repeat=4 duration=4beats pan=left>`
-* `@MetaKey value` — top-level metadata (BPM, BeatsPerBar, Key, Title). Example: `@BPM 120`
+- `[Section Label]` — section marker (alone on a line). Example: `[Verse 1]`
+- `(Instruction text)` — performance/stage direction. Can appear alone or inline before lyric text. Example: `(whisper)`
+- `<Cue ...>` — audio cue command. Example: `<SFX footsteps repeat=4 duration=4beats pan=left>`
+- `@MetaKey value` — top-level metadata (BPM, BeatsPerBar, Key, Title). Example: `@BPM 120`
 
 Lines not matching markup are lyrics.
 
 ### Key Types & Semantics
 
-* **Section**: ordered container for items.
-* **Item**: one of performance, lyric, cue.
-* **Cue**: structured token with name and params. Common params: duration, repeat, volume/intensity, pan, start, start\_beat.
+- **Section**: ordered container for items.
+- **Item**: one of performance, lyric, cue.
+- **Cue**: structured token with name and params. Common params: duration, repeat, volume/intensity, pan, start,
+  start_beat.
 
 ### Beat Notation
 
@@ -39,11 +43,11 @@ Accept s (seconds), beats (or b), bars optionally. Example: `4beats`, `2s`, `1ba
 
 ### Conventions & Best Practices
 
-* Place `[Section]` on its own line.
-* Place `(Instruction)` on its own line or inline immediately above the lyric it modifies.
-* Place `<Cue ...>` on its own line where it occurs (or with start= param for off-line scheduling).
-* Use key=value parameters inside `< >`. Values may be unquoted or quoted for spaces.
-* Use `@BPM`, `@BeatsPerBar`, `@TimeSignature`, `@Title`, `@Key` as top-level lines at the top of the file.
+- Place `[Section]` on its own line.
+- Place `(Instruction)` on its own line or inline immediately above the lyric it modifies.
+- Place `<Cue ...>` on its own line where it occurs (or with start= param for off-line scheduling).
+- Use key=value parameters inside `< >`. Values may be unquoted or quoted for spaces.
+- Use `@BPM`, `@BeatsPerBar`, `@TimeSignature`, `@Title`, `@Key` as top-level lines at the top of the file.
 
 ### Versioning
 
@@ -81,8 +85,8 @@ Add `@MMSL_Version 1.0` header for future grammar changes.
 
 ### Notes
 
-* `beats`, `b`, and `bar(s)` are interpreted during parse into an absolute beat count or duration.
-* Strings inside keys should allow quotes for spaces.
+- `beats`, `b`, and `bar(s)` are interpreted during parse into an absolute beat count or duration.
+- Strings inside keys should allow quotes for spaces.
 
 ## 3. JSON Intermediate Representation (IR) — Canonical Schema
 
@@ -122,11 +126,11 @@ A compact JSON schema for downstream tools:
 
 ### IR Field Notes
 
-* `bpm`: integer (>0). If absent, default to 120.
-* `duration_beats`: convert duration strings (4beats, 2s) to beats using BPM. Store beats as primary time unit.
-* `params.start_beat`: optional, absolute start beat relative to section or song depending on flags.
-* `cue.category`: recommended categories: sfx, instrument, drum, fx.
-* `items` preserve original author order.
+- `bpm`: integer (>0). If absent, default to 120.
+- `duration_beats`: convert duration strings (4beats, 2s) to beats using BPM. Store beats as primary time unit.
+- `params.start_beat`: optional, absolute start beat relative to section or song depending on flags.
+- `cue.category`: recommended categories: sfx, instrument, drum, fx.
+- `items` preserve original author order.
 
 ### JSON Schema (Essential Fragment)
 
@@ -176,58 +180,59 @@ A compact JSON schema for downstream tools:
 
 ### Goals
 
-* Robust line-oriented parser
-* Generate canonical IR with durations normalized to beats
-* Provide precise diagnostics (line numbers)
-* Minimal memory footprint, streamable
+- Robust line-oriented parser
+- Generate canonical IR with durations normalized to beats
+- Provide precise diagnostics (line numbers)
+- Minimal memory footprint, streamable
 
 ### High-Level Steps
 
 1. **Pre-scan headers**: read top-of-file `@` directives (`@BPM`, `@BeatsPerBar`, etc.). Default BPM=120 if none.
 2. **Tokenize by line**: read file line-by-line to preserve ordering and line numbers.
 3. **State machine**:
-   * `state = OUTSIDE_SECTION` initially
-   * on section label → create `currentSection`, `state = IN_SECTION`
-   * inside section → for each non-empty line:
-     * If matches performance `( ... )` → emit performance item
-     * Else if matches cue `< ... >` → parse cue body into name + params, convert durations to beats, emit cue item
-     * Else if line is lyric → emit lyric item
-     * Else ignore blank or comment lines
+   - `state = OUTSIDE_SECTION` initially
+   - on section label → create `currentSection`, `state = IN_SECTION`
+   - inside section → for each non-empty line:
+     - If matches performance `( ... )` → emit performance item
+     - Else if matches cue `< ... >` → parse cue body into name + params, convert durations to beats, emit cue item
+     - Else if line is lyric → emit lyric item
+     - Else ignore blank or comment lines
 4. **Cue param parsing**:
-   * Tokenize cue body by whitespace, support quoted values
-   * First token is canonical `cue.name` unless first token is SFX then second token is name
-   * For key=value tokens, parse value types: integer, float, duration (s/ms/beats/bars), boolean, string
-   * Convert duration strings into beats using `toBeats(value, bpm, beatsPerBar)`
-   * Validate param ranges (volume 0..1, pan -1..1 or 'left'/'center'/'right', repeat >=1)
+   - Tokenize cue body by whitespace, support quoted values
+   - First token is canonical `cue.name` unless first token is SFX then second token is name
+   - For key=value tokens, parse value types: integer, float, duration (s/ms/beats/bars), boolean, string
+   - Convert duration strings into beats using `toBeats(value, bpm, beatsPerBar)`
+   - Validate param ranges (volume 0..1, pan -1..1 or 'left'/'center'/'right', repeat >=1)
 5. **Post-process**:
-   * Compute absolute `start_beat` for any cues using `params.start` if relative
-   * Resolve section-level beats if desired by computing section start beat offsets (optional)
-   * Return IR and warnings.
+   - Compute absolute `start_beat` for any cues using `params.start` if relative
+   - Resolve section-level beats if desired by computing section start beat offsets (optional)
+   - Return IR and warnings.
 
 ### Duration Parsing Utilities
 
-* `toBeats("4beats", bpm)` → 4
-* `toBeats("2s", bpm)` → (2 / 60) \* bpm
-* `toBeats("1bar", bpm, beatsPerBar)` → beatsPerBar
+- `toBeats("4beats", bpm)` → 4
+- `toBeats("2s", bpm)` → (2 / 60) \* bpm
+- `toBeats("1bar", bpm, beatsPerBar)` → beatsPerBar
 
 ### Complexity
 
-* **Time**: O(n) where n = number of lines (plus small tokenization cost per cue)
-* **Memory**: O(m) where m = number of items emitted; streaming mode possible.
+- **Time**: O(n) where n = number of lines (plus small tokenization cost per cue)
+- **Memory**: O(m) where m = number of items emitted; streaming mode possible.
 
 ### Diagnostics
 
-Collect parse warnings/errors with line numbers and severity. Suggest fixes for common mistakes (e.g., duration=4s when BPM missing).
+Collect parse warnings/errors with line numbers and severity. Suggest fixes for common mistakes (e.g., duration=4s when
+BPM missing).
 
 ## 5. Example Parsers
 
 All three parsers implement the same simple rule set:
 
-* parse headers
-* parse sections
-* parse `(performance)` lines
-* parse `<cue ...>` lines (tokenize params)
-* produce canonical JSON with durations normalized to `duration_beats` where possible
+- parse headers
+- parse sections
+- parse `(performance)` lines
+- parse `<cue ...>` lines (tokenize params)
+- produce canonical JSON with durations normalized to `duration_beats` where possible
 
 ### 5.1 TypeScript Parser
 
@@ -345,8 +350,7 @@ function parseMMSL(text: string): IR {
       const key = h[1].toLowerCase();
       const val = h[2].trim();
       if (key === 'bpm') bpm = parseInt(val) || bpm;
-      else if (key === 'beatsperbar')
-        beatsPerBar = parseInt(val) || beatsPerBar;
+      else if (key === 'beatsperbar') beatsPerBar = parseInt(val) || beatsPerBar;
       else if (key === 'title') title = val;
       continue;
     }
@@ -357,7 +361,7 @@ function parseMMSL(text: string): IR {
       curSection = {
         id: label.toLowerCase().replace(/\s+/g, '-'),
         label,
-        items: [],
+        items: []
       };
       continue;
     }
@@ -382,7 +386,7 @@ function parseMMSL(text: string): IR {
           type: 'cue',
           name: cue.name,
           category: cue.category,
-          params: cue.params,
+          params: cue.params
         } as Item);
       continue;
     }
@@ -693,25 +697,32 @@ if __name__ == '__main__':
 
 ### Objective
 
-Enable deterministic mapping from a M-MSL file to a video storyboard timeline so visuals can be time-aligned with musical beats, SFX, and lyrical events.
+Enable deterministic mapping from a M-MSL file to a video storyboard timeline so visuals can be time-aligned with
+musical beats, SFX, and lyrical events.
 
 ### Main Components
 
-* **Authoring Layer**: Editor showing `[Section]`, `(Performance)`, `<Cue>` markers with live BPM/Time preview and beat grid
-* **Parser & Normalizer**: Convert M-MSL → JSON IR (beats-normalized)
-* **Timing Engine**: Convert beat-based timestamps into absolute time (seconds) using BPM, tempo maps, and time signature
-* **Event Scheduler**: Emit event list for audio engine and storyboard engine. Each event: `{ type, time_seconds, time_beats, payload }`
-* **Audio Renderer**: Map cue names → sample file / synth patch / MIDI. Render stems or schedule real-time triggers
-* **Video Storyboarder**: Accept event list, place visual cues on timeline (edit points). Allow visual presets: camera\_cut, zoom\_in, overlay\_on, color\_grade, shot\_type, VFX
-* **DAW / NLE Bridge**: Export MIDI, automation, markers (Ableton Set, Logic Marker, Reaper project, or simple XML/CSV). Export visual markers as EDL/AAF/markers or generate sidecar JSON for NLE (Premiere, Resolve)
-* **Preview & Playback**: App previews audio+video in sync, with frame-accurate cue triggers
-* **Live Performance Mode** (optional): Real-time scheduler listens to tempo and triggers events live
+- **Authoring Layer**: Editor showing `[Section]`, `(Performance)`, `<Cue>` markers with live BPM/Time preview and beat
+  grid
+- **Parser & Normalizer**: Convert M-MSL → JSON IR (beats-normalized)
+- **Timing Engine**: Convert beat-based timestamps into absolute time (seconds) using BPM, tempo maps, and time
+  signature
+- **Event Scheduler**: Emit event list for audio engine and storyboard engine. Each event:
+  `{ type, time_seconds, time_beats, payload }`
+- **Audio Renderer**: Map cue names → sample file / synth patch / MIDI. Render stems or schedule real-time triggers
+- **Video Storyboarder**: Accept event list, place visual cues on timeline (edit points). Allow visual presets:
+  camera_cut, zoom_in, overlay_on, color_grade, shot_type, VFX
+- **DAW / NLE Bridge**: Export MIDI, automation, markers (Ableton Set, Logic Marker, Reaper project, or simple XML/CSV).
+  Export visual markers as EDL/AAF/markers or generate sidecar JSON for NLE (Premiere, Resolve)
+- **Preview & Playback**: App previews audio+video in sync, with frame-accurate cue triggers
+- **Live Performance Mode** (optional): Real-time scheduler listens to tempo and triggers events live
 
 ### Beat → Time Mapping
 
 For constant tempo: `seconds = (beat / BPM) * 60`
 
-For tempo maps (tempo changes): Maintain ordered tempo segments: `{start_beat, bpm}`. Compute cumulative seconds via integrating piecewise segments.
+For tempo maps (tempo changes): Maintain ordered tempo segments: `{start_beat, bpm}`. Compute cumulative seconds via
+integrating piecewise segments.
 
 ### Data Exchange Format
 
@@ -730,21 +741,24 @@ For tempo maps (tempo changes): Maintain ordered tempo segments: `{start_beat, b
 2. Parser produces IR (durations normalized to beats)
 3. Timing Engine converts each cue to `time_seconds`
 4. Event Scheduler outputs JSON event list
-5. Storyboard UI imports events and auto-creates timeline panels: `time_seconds=7.5` → place camera cut marker, `time_seconds=8.0` → place lyric subtitle
+5. Storyboard UI imports events and auto-creates timeline panels: `time_seconds=7.5` → place camera cut marker,
+   `time_seconds=8.0` → place lyric subtitle
 6. Audio Renderer produces stems and final mix
 7. Export combined timeline to NLE with audio stems and visual markers for polishing
 
 ### File Formats & Exports
 
-* **Primary**: JSON IR + event list (canonical exchange format)
-* **Audio**: WAV stems, MIDI files
-* **Video**: EDL/AAF/XML or NLE marker import format + sidecar JSON mapping
-* **DAW**: MIDI + markers or native session export via templates
-* **Live**: OSC / WebSocket events for live controllers
+- **Primary**: JSON IR + event list (canonical exchange format)
+- **Audio**: WAV stems, MIDI files
+- **Video**: EDL/AAF/XML or NLE marker import format + sidecar JSON mapping
+- **DAW**: MIDI + markers or native session export via templates
+- **Live**: OSC / WebSocket events for live controllers
 
 ### Drift & Sync Considerations
 
-Use sample-accurate scheduling for audio (DAW). Use frame-accurate scheduling for video (NLE). Align using common time base (seconds with 1/48000s or 1/1000s precision). For variable framerate (VFR) video, convert timeline to CFR for final render.
+Use sample-accurate scheduling for audio (DAW). Use frame-accurate scheduling for video (NLE). Align using common time
+base (seconds with 1/48000s or 1/1000s precision). For variable framerate (VFR) video, convert timeline to CFR for final
+render.
 
 ### Example: Beat-Driven Storyboard Snippet
 
@@ -763,15 +777,15 @@ We are the fire!
 
 **Pipeline Result**:
 
-* `guitar_solo` → start at section-chosen beat (compute absolute beat) → `time_seconds = (start_beat / 120) * 60`
-* **Storyboard entries**: At `time_seconds`: add `camera_pullback` and `lights_flicker` markers
+- `guitar_solo` → start at section-chosen beat (compute absolute beat) → `time_seconds = (start_beat / 120) * 60`
+- **Storyboard entries**: At `time_seconds`: add `camera_pullback` and `lights_flicker` markers
 
 ## 7. Validation, Testing & CI
 
-* **Schema Checks**: Use AJV/JSON Schema for IR validation
-* **Unit Tests**: Success cases, malformed cues, quoted values, edge durations
-* **E2E Tests**: DSL → IR → Event list → rendered audio stub → verify event times match expected seconds within epsilon
-* **Lint Rules**: Unknown SFX names warn; invalid durations error; missing BPM warn
+- **Schema Checks**: Use AJV/JSON Schema for IR validation
+- **Unit Tests**: Success cases, malformed cues, quoted values, edge durations
+- **E2E Tests**: DSL → IR → Event list → rendered audio stub → verify event times match expected seconds within epsilon
+- **Lint Rules**: Unknown SFX names warn; invalid durations error; missing BPM warn
 
 ## 8. Roadmap (Recommended Next Steps)
 
@@ -786,18 +800,18 @@ We are the fire!
 
 ### Markers
 
-* `[Section]` — new section (line alone)
-* `(Instruction)` — performance / delivery (line or inline)
-* `<Cue name key=val>` — audio/production trigger
-* `@BPM 120` — header, top of file
+- `[Section]` — new section (line alone)
+- `(Instruction)` — performance / delivery (line or inline)
+- `<Cue name key=val>` — audio/production trigger
+- `@BPM 120` — header, top of file
 
 ### Duration Units
 
-* `s`, `ms`, `beats`/`b`, `bar`/`bars`
+- `s`, `ms`, `beats`/`b`, `bar`/`bars`
 
 ### Conversion
 
-* `seconds = (beats / BPM) * 60`
+- `seconds = (beats / BPM) * 60`
 
 ### Storage
 

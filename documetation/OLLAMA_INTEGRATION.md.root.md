@@ -1,32 +1,32 @@
 # Ollama Integration Guide
 
-**Version**: 2.0
-**Last Updated**: December 4, 2025
-**Status**: Active
-**Models**: deepseek-coder:6.7b (current), minstral3 (upcoming)
+**Version**: 2.0 **Last Updated**: December 4, 2025 **Status**: Active **Models**: deepseek-coder:6.7b (current),
+minstral3 (upcoming)
 
 ## Overview
 
-Harmonia's Ollama integration provides comprehensive AI-powered music generation through local LLM deployment. This system supports the complete Narrative → Lyric → Music → Video pipeline with multi-model orchestration, robust error handling, and production-ready guardrails.
+Harmonia's Ollama integration provides comprehensive AI-powered music generation through local LLM deployment. This
+system supports the complete Narrative → Lyric → Music → Video pipeline with multi-model orchestration, robust error
+handling, and production-ready guardrails.
 
 ## Architecture
 
 ### Core Components
 
-* **OllamaService**: Central service handling all model communications via HTTP API
-* **MetadataGenerationService**: Song metadata creation (title, lyrics, genre, mood)
-* **GenreSuggestionService**: Narrative analysis for genre recommendations
-* **InstrumentSelectionService**: AI-driven instrument palette suggestions
-* **AnnotationDSLService**: Structured song annotation generation
-* **LyricsMelodyService**: Lyrics-to-melody coupling suggestions
+- **OllamaService**: Central service handling all model communications via HTTP API
+- **MetadataGenerationService**: Song metadata creation (title, lyrics, genre, mood)
+- **GenreSuggestionService**: Narrative analysis for genre recommendations
+- **InstrumentSelectionService**: AI-driven instrument palette suggestions
+- **AnnotationDSLService**: Structured song annotation generation
+- **LyricsMelodyService**: Lyrics-to-melody coupling suggestions
 
 ### Multi-Model Support
 
 Ollama enables side-by-side model execution with per-request switching:
 
-* **deepseek-coder:6.7b**: Current production model for structured JSON generation
-* **minstral3**: Upcoming model for enhanced quality and consistency
-* **Model Registry**: Response mappers normalize outputs across different models
+- **deepseek-coder:6.7b**: Current production model for structured JSON generation
+- **minstral3**: Upcoming model for enhanced quality and consistency
+- **Model Registry**: Response mappers normalize outputs across different models
 
 ## Models
 
@@ -34,40 +34,39 @@ Ollama enables side-by-side model execution with per-request switching:
 
 **Capabilities**:
 
-* Structured JSON output with reliable schema compliance
-* Creative writing with consistent formatting
-* Code-like structured generation patterns
+- Structured JSON output with reliable schema compliance
+- Creative writing with consistent formatting
+- Code-like structured generation patterns
 
 **Use Cases**:
 
-* Song metadata generation (title, lyrics, genre, mood)
-* Genre suggestion based on narrative analysis
-* Instrument palette recommendations
-* Song annotation DSL generation
-* Lyrics-to-melody coupling suggestions
+- Song metadata generation (title, lyrics, genre, mood)
+- Genre suggestion based on narrative analysis
+- Instrument palette recommendations
+- Song annotation DSL generation
+- Lyrics-to-melody coupling suggestions
 
-**Status**: Active in local Ollama instance
-**Behavioral Notes**:
+**Status**: Active in local Ollama instance **Behavioral Notes**:
 
-* May include free-text explanations outside JSON - requires extraction
-* Excellent structured prompt following
-* Good creative writing performance
+- May include free-text explanations outside JSON - requires extraction
+- Excellent structured prompt following
+- Good creative writing performance
 
 ### minstral3 (Upcoming)
 
 **Capabilities**:
 
-* High-quality instruction following
-* Consistent JSON outputs
-* Complex multi-step reasoning
-* Enhanced creative content generation
+- High-quality instruction following
+- Consistent JSON outputs
+- Complex multi-step reasoning
+- Enhanced creative content generation
 
 **Migration Path**:
 
-* Verify JSON contract compatibility
-* Test multi-stage pipeline performance
-* Validate lyrics quality and coherence
-* Implement responseMapper for format differences
+- Verify JSON contract compatibility
+- Test multi-stage pipeline performance
+- Validate lyrics quality and coherence
+- Implement responseMapper for format differences
 
 ## API Endpoints
 
@@ -230,46 +229,46 @@ services:
 
 ### Input Validation
 
-* **Narrative Length**: 10-1000 characters for suggestions, 50-2000 for metadata
-* **Duration Limits**: 15-120 seconds
-* **Rate Limiting**: Per IP/user with configurable thresholds
-* **Model Timeout**: 30-second limit per request
-* **Concurrent Requests**: Limited to prevent server overload
+- **Narrative Length**: 10-1000 characters for suggestions, 50-2000 for metadata
+- **Duration Limits**: 15-120 seconds
+- **Rate Limiting**: Per IP/user with configurable thresholds
+- **Model Timeout**: 30-second limit per request
+- **Concurrent Requests**: Limited to prevent server overload
 
 ### Feature-Specific Guardrails
 
 #### Metadata Generation
 
-* Syllable count validation (120-150 for 30s songs)
-* Genre validation against approved lists
-* Mood descriptor sanitization
-* Title length limits (3-50 characters)
+- Syllable count validation (120-150 for 30s songs)
+- Genre validation against approved lists
+- Mood descriptor sanitization
+- Title length limits (3-50 characters)
 
 #### Genre Suggestions
 
-* Maximum 5 suggestions per request
-* Confidence scoring for quality filtering
-* Fallback to general genres on failure
+- Maximum 5 suggestions per request
+- Confidence scoring for quality filtering
+- Fallback to general genres on failure
 
 #### Instrument Selection
 
-* Maximum 12 instruments per palette
-* Preset validation against libraries
-* Articulation parameter bounds checking
+- Maximum 12 instruments per palette
+- Preset validation against libraries
+- Articulation parameter bounds checking
 
 #### Annotation Generation
 
-* DSL syntax validation
-* Maximum annotation length limits
-* Section structure validation
+- DSL syntax validation
+- Maximum annotation length limits
+- Section structure validation
 
 ### Operational Controls
 
-* **`USE_OLLAMA` Flag**: Master toggle for AI features
-* **Model Fallback**: Graceful degradation to defaults
-* **Error Handling**: Comprehensive user-friendly responses
-* **Logging**: Structured logging without exposing prompts
-* **Caching**: Response caching for repeated requests
+- **`USE_OLLAMA` Flag**: Master toggle for AI features
+- **Model Fallback**: Graceful degradation to defaults
+- **Error Handling**: Comprehensive user-friendly responses
+- **Logging**: Structured logging without exposing prompts
+- **Caching**: Response caching for repeated requests
 
 ## Pipeline Integration
 
@@ -287,8 +286,8 @@ services:
 
 Recommended two-pass workflow:
 
-* **Draft**: Use deepseek-coder for initial generation
-* **Polish**: Use specialized model for refinement
+- **Draft**: Use deepseek-coder for initial generation
+- **Polish**: Use specialized model for refinement
 
 ## Response Mapping
 
@@ -308,7 +307,7 @@ function mapDeepSeekResponse(raw: any): SongMetadata {
     lyrics: Array.isArray(raw.lyrics) ? raw.lyrics.join('\n') : raw.lyrics,
     genre: raw.genre,
     mood: Array.isArray(raw.mood) ? raw.mood : [raw.mood],
-    syllableCount: raw.syllableCount || 0,
+    syllableCount: raw.syllableCount || 0
   };
 }
 ```
@@ -370,17 +369,17 @@ Add audio cues <SFX>, <instrument>, etc. where appropriate.
 
 ### Resource Optimization
 
-* **Model Selection**: Use quantized variants (q4/q8) for memory efficiency
-* **GPU Utilization**: Prefer GPU instances when available
-* **Memory Management**: Monitor usage and limit concurrency
-* **Caching Strategy**: Cache frequent requests to reduce load
+- **Model Selection**: Use quantized variants (q4/q8) for memory efficiency
+- **GPU Utilization**: Prefer GPU instances when available
+- **Memory Management**: Monitor usage and limit concurrency
+- **Caching Strategy**: Cache frequent requests to reduce load
 
 ### Monitoring & Maintenance
 
-* **Performance Tracking**: Response times and success rates
-* **Usage Monitoring**: Token consumption and cost tracking
-* **Model Updates**: Regular model version updates
-* **Backup Strategy**: Model and configuration backups
+- **Performance Tracking**: Response times and success rates
+- **Usage Monitoring**: Token consumption and cost tracking
+- **Model Updates**: Regular model version updates
+- **Backup Strategy**: Model and configuration backups
 
 ## Migration to minstral3
 
@@ -397,7 +396,7 @@ Add audio cues <SFX>, <instrument>, etc. where appropriate.
 // Add to model registry
 const modelMappers = {
   'deepseek-coder:6.7b': mapDeepSeekResponse,
-  minstral3: mapMinstralResponse,
+  minstral3: mapMinstralResponse
 };
 ```
 
@@ -407,26 +406,26 @@ const modelMappers = {
 
 **Connection Failed**:
 
-* Verify Ollama server is running: `ollama serve`
-* Check URL configuration: `OLLAMA_URL`
-* Test basic connectivity: `curl http://localhost:11434/api/models`
+- Verify Ollama server is running: `ollama serve`
+- Check URL configuration: `OLLAMA_URL`
+- Test basic connectivity: `curl http://localhost:11434/api/models`
 
 **Model Not Found**:
 
-* Pull model: `ollama pull deepseek-coder:6.7b`
-* Verify model name in requests
+- Pull model: `ollama pull deepseek-coder:6.7b`
+- Verify model name in requests
 
 **Poor Response Quality**:
 
-* Adjust temperature parameters in Modelfile
-* Try different models
-* Review prompt engineering
+- Adjust temperature parameters in Modelfile
+- Try different models
+- Review prompt engineering
 
 **Memory Issues**:
 
-* Use smaller quantized models
-* Reduce concurrent requests
-* Monitor system resources
+- Use smaller quantized models
+- Reduce concurrent requests
+- Monitor system resources
 
 ### Debug Commands
 
@@ -444,8 +443,8 @@ ollama show deepseek-coder:6.7b
 
 ## Future Enhancements
 
-* **Model Fine-tuning**: Custom training for music-specific tasks
-* **Multi-model Coordination**: Parallel processing with different models
-* **Advanced Prompting**: Few-shot learning and chain-of-thought
-* **Performance Optimization**: Model quantization and acceleration
-* **Monitoring Dashboard**: Real-time performance and usage metrics
+- **Model Fine-tuning**: Custom training for music-specific tasks
+- **Multi-model Coordination**: Parallel processing with different models
+- **Advanced Prompting**: Few-shot learning and chain-of-thought
+- **Performance Optimization**: Model quantization and acceleration
+- **Monitoring Dashboard**: Real-time performance and usage metrics

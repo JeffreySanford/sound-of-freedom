@@ -2,14 +2,17 @@
 
 ## Overview
 
-This document describes the complete workflow for generating music from narrative descriptions using a two-stage AI pipeline:
+This document describes the complete workflow for generating music from narrative descriptions using a two-stage AI
+pipeline:
 
-1. **Stage 1 - Song Metadata Generation**: User narrative → AI-generated title, lyrics, genre, mood (via Ollama/Deepseek)
+1. **Stage 1 - Song Metadata Generation**: User narrative → AI-generated title, lyrics, genre, mood (via
+   Ollama/Deepseek)
 2. **Stage 2 - Audio Generation**: Song metadata → Generated audio file (via MusicGen model)
 
 ## Architecture Philosophy
 
-**Two-Stage Process**: We separate metadata generation (LLM) from audio generation (specialized audio model) for better quality, flexibility, and user control.
+**Two-Stage Process**: We separate metadata generation (LLM) from audio generation (specialized audio model) for better
+quality, flexibility, and user control.
 
 ```text
 ┌─────────────┐    ┌──────────────┐    ┌─────────────┐    ┌──────────────┐
@@ -26,68 +29,68 @@ This document describes the complete workflow for generating music from narrativ
 
 1. **User enters narrative description**
 
-   * Free-form text (500-1000 characters)
-   * Example: "A melancholic story about lost love set in a rainy city, with reflective and introspective mood"
+   - Free-form text (500-1000 characters)
+   - Example: "A melancholic story about lost love set in a rainy city, with reflective and introspective mood"
 
 2. **AI suggests relevant genres** (optional)
 
-   * Click "💡 Suggest Genres" button
-   * LLM analyzes narrative and suggests 3+ genres
-   * Suggestions appear as clickable chips
-   * User can select/deselect suggestions
-   * Provides thumbs up/down feedback on suggestions
+   - Click "💡 Suggest Genres" button
+   - LLM analyzes narrative and suggests 3+ genres
+   - Suggestions appear as clickable chips
+   - User can select/deselect suggestions
+   - Provides thumbs up/down feedback on suggestions
 
 3. **User sets desired song duration**
 
-   * Duration slider: 15-120 seconds (default 30s)
-   * Affects lyrics length calculation
+   - Duration slider: 15-120 seconds (default 30s)
+   - Affects lyrics length calculation
 
 4. **Click "Generate Song Metadata"**
 
-   * UI shows loading state
-   * Backend calls Ollama API
+   - UI shows loading state
+   - Backend calls Ollama API
 
 5. **AI generates song metadata**
 
-   * Title (e.g., "Rain on Empty Streets")
-   * Lyrics (duration-aware, 120-150 words for 30s)
-   * Genre (from standard genre options)
-   * Mood/style descriptors
+   - Title (e.g., "Rain on Empty Streets")
+   - Lyrics (duration-aware, 120-150 words for 30s)
+   - Genre (from standard genre options)
+   - Mood/style descriptors
 
 6. **User reviews AI-generated metadata**
 
-   * All fields are editable
-   * Syllable count displayed with validation
-   * Can regenerate if unsatisfied
+   - All fields are editable
+   - Syllable count displayed with validation
+   - Can regenerate if unsatisfied
 
 7. **User approves metadata**
-   * Click "Approve & Continue to Music Generation"
-   * Metadata saved to database
-   * Navigate to Music Generation view
+   - Click "Approve & Continue to Music Generation"
+   - Metadata saved to database
+   - Navigate to Music Generation view
 
 ### Music Generation View
 
 1. **Import approved song data**
 
-   * Title, lyrics, genre, mood pre-filled
-   * Duration locked to song duration
-   * Read-only song fields (editable in Song view)
+   - Title, lyrics, genre, mood pre-filled
+   - Duration locked to song duration
+   - Read-only song fields (editable in Song view)
 
 2. **User adjusts music parameters**
 
-   * BPM slider (60-180, default from genre)
-   * Instrumentation multi-select
-   * Additional style parameters
+   - BPM slider (60-180, default from genre)
+   - Instrumentation multi-select
+   - Additional style parameters
 
 3. **Click "Generate Music"**
 
-   * Backend creates async job
-   * Frontend subscribes via WebSocket
+   - Backend creates async job
+   - Frontend subscribes via WebSocket
 
 4. **Audio generation completes**
-   * Progress bar updates in real-time (0-100%)
-   * Download button appears on completion
-   * Audio player embedded for preview
+   - Progress bar updates in real-time (0-100%)
+   - Download button appears on completion
+   - Audio player embedded for preview
 
 ## Genre Suggestion System
 
@@ -95,10 +98,10 @@ This document describes the complete workflow for generating music from narrativ
 
 **GenreSuggestionComponent**:
 
-* Button: "💡 Suggest Genres" (disabled when narrative < 50 chars)
-* Loading state during API call
-* Results: Array of genre chips with selection state
-* Feedback: Thumbs up/down buttons per suggestion
+- Button: "💡 Suggest Genres" (disabled when narrative < 50 chars)
+- Loading state during API call
+- Results: Array of genre chips with selection state
+- Feedback: Thumbs up/down buttons per suggestion
 
 **API Integration**:
 
@@ -116,37 +119,40 @@ interface SuggestGenresResponse {
 
 **UI States**:
 
-* **Empty**: Show suggestion button
-* **Loading**: Spinner + "Analyzing your story..."
-* **Results**: Genre chips with selection toggles
-* **Error**: Retry button + error message
+- **Empty**: Show suggestion button
+- **Loading**: Spinner + "Analyzing your story..."
+- **Results**: Genre chips with selection toggles
+- **Error**: Retry button + error message
 
 **User Feedback**:
 
-* Thumbs up/down on each suggestion
-* Tracks user preferences for future improvements
-* Optional: "Not helpful" feedback for poor suggestions
+- Thumbs up/down on each suggestion
+- Tracks user preferences for future improvements
+- Optional: "Not helpful" feedback for poor suggestions
 
 ### Backend Implementation
 
 **Endpoint**: `POST /api/songs/suggest-genres`
 
-* Input validation: narrative length 10-1000 chars
-* LLM prompt includes all 17 available genres
-* Fallback: Returns 3 general genres if LLM fails
-* Response: JSON array of genre strings
+- Input validation: narrative length 10-1000 chars
+- LLM prompt includes all 17 available genres
+- Fallback: Returns 3 general genres if LLM fails
+- Response: JSON array of genre strings
 
 ## Narrative Input Guidance System
 
 ### Overview
 
-To improve user success rates and reduce failed generations, we implement intelligent guidance for narrative input based on song duration and genre. This addresses the challenge that different song lengths require different levels of narrative detail.
+To improve user success rates and reduce failed generations, we implement intelligent guidance for narrative input based
+on song duration and genre. This addresses the challenge that different song lengths require different levels of
+narrative detail.
 
 ### Core Components
 
 #### 1. Narrative Length Indicator
 
-**Visual Progress Bar**: Real-time feedback showing if the current narrative provides sufficient content for the selected duration.
+**Visual Progress Bar**: Real-time feedback showing if the current narrative provides sufficient content for the
+selected duration.
 
 ```typescript
 // Example implementation
@@ -161,16 +167,16 @@ interface NarrativeGuidance {
 
 **Color-Coded States**:
 
-* 🔴 **Red (Insufficient)**: Narrative too short for duration
-* 🟡 **Yellow (Borderline)**: May work but could be improved
-* 🟢 **Green (Optimal)**: Good balance of detail and conciseness
+- 🔴 **Red (Insufficient)**: Narrative too short for duration
+- 🟡 **Yellow (Borderline)**: May work but could be improved
+- 🟢 **Green (Optimal)**: Good balance of detail and conciseness
 
 **Word Count Guidelines** (approximate):
 
-* **15s jingle**: 30-50 words
-* **30s song**: 60-100 words
-* **60s song**: 120-200 words
-* **120s song**: 250-400 words
+- **15s jingle**: 30-50 words
+- **30s song**: 60-100 words
+- **60s song**: 120-200 words
+- **120s song**: 250-400 words
 
 #### 2. Advice Button
 
@@ -196,15 +202,16 @@ interface NarrativeGuidance {
 
 #### Challenge 1: Variable Song Structures
 
-**Problem**: Songs aren't linear text - they have verses, choruses, bridges, intros, outros. A 3-minute song might need less narrative detail if it has repetitive choruses.
+**Problem**: Songs aren't linear text - they have verses, choruses, bridges, intros, outros. A 3-minute song might need
+less narrative detail if it has repetitive choruses.
 
 **Solutions**:
 
 1. **Genre-Based Multipliers**: Adjust word count expectations by genre
 
-   * Pop/Rock: 1.0x (standard)
-   * Hip-Hop: 1.2x (more lyrical content)
-   * Jazz/Blues: 0.8x (more instrumental, less lyrics)
+   - Pop/Rock: 1.0x (standard)
+   - Hip-Hop: 1.2x (more lyrical content)
+   - Jazz/Blues: 0.8x (more instrumental, less lyrics)
 
 2. **LLM-Assisted Estimation**: Optional backend endpoint that analyzes narrative complexity
 
@@ -222,15 +229,16 @@ interface NarrativeGuidance {
 
 #### Challenge 2: Narrative Quality vs Quantity
 
-**Problem**: Word count alone doesn't guarantee good lyrics. A verbose, unfocused narrative might generate worse results than a concise, vivid one.
+**Problem**: Word count alone doesn't guarantee good lyrics. A verbose, unfocused narrative might generate worse results
+than a concise, vivid one.
 
 **Solutions**:
 
 1. **Quality Indicators**: Beyond word count, analyze narrative density
 
-   * **Emotional words**: love, pain, joy, anger
-   * **Sensory details**: colors, sounds, textures
-   * **Action verbs**: running, falling, dreaming
+   - **Emotional words**: love, pain, joy, anger
+   - **Sensory details**: colors, sounds, textures
+   - **Action verbs**: running, falling, dreaming
 
 2. **LLM Pre-Analysis**: Quick LLM call to score narrative quality
 
@@ -239,7 +247,7 @@ interface NarrativeGuidance {
    const quality = await ollama.generate({
      model: 'tiny-llm',
      prompt: `Rate this narrative for song lyrics (1-10): ${narrative}`,
-     max_tokens: 10,
+     max_tokens: 10
    });
    ```
 
@@ -253,53 +261,53 @@ interface NarrativeGuidance {
 
 1. **Progressive UI**: Start simple, reveal advanced features
 
-   * Basic: Word count progress bar
-   * Advanced: Quality indicators, advice button
+   - Basic: Word count progress bar
+   - Advanced: Quality indicators, advice button
 
 2. **Non-Blocking Design**: Guidance is helpful but not required
 
-   * Users can always proceed with insufficient narrative
-   * Warnings, not errors
+   - Users can always proceed with insufficient narrative
+   - Warnings, not errors
 
 3. **Personalization**: Learn from user patterns
-   * Track successful generations
-   * Adjust recommendations based on user history
+   - Track successful generations
+   - Adjust recommendations based on user history
 
 ### Implementation Plan
 
 #### Phase 1: Basic Word Count Indicator
 
-* \[ ] Add progress bar component to narrative textarea
-* \[ ] Implement duration-based word count targets
-* \[ ] Color-coded feedback (red/yellow/green)
+- \[ ] Add progress bar component to narrative textarea
+- \[ ] Implement duration-based word count targets
+- \[ ] Color-coded feedback (red/yellow/green)
 
 #### Phase 2: Advice System
 
-* \[ ] Add "💡 Get Advice" button
-* \[ ] Create genre + duration specific templates
-* \[ ] Backend endpoint for dynamic advice
+- \[ ] Add "💡 Get Advice" button
+- \[ ] Create genre + duration specific templates
+- \[ ] Backend endpoint for dynamic advice
 
 #### Phase 3: Quality Analysis
 
-* \[ ] Implement narrative quality scoring
-* \[ ] Add LLM-assisted estimation (optional)
-* \[ ] User preference learning
+- \[ ] Implement narrative quality scoring
+- \[ ] Add LLM-assisted estimation (optional)
+- \[ ] User preference learning
 
 #### Phase 4: Genre Suggestions
 
-* \[x] Create backend endpoint for genre suggestions (`POST /api/songs/suggest-genres`)
-* \[x] Implement LLM prompt to analyze narrative and suggest 3+ relevant genres
-* \[x] Add genre suggestion UI component with chips/buttons
-* \[x] Integrate suggestions into song generation workflow
-* \[ ] Add user feedback on suggested genres (thumbs up/down)
-* \[ ] Learn from user selections to improve future suggestions
+- \[x] Create backend endpoint for genre suggestions (`POST /api/songs/suggest-genres`)
+- \[x] Implement LLM prompt to analyze narrative and suggest 3+ relevant genres
+- \[x] Add genre suggestion UI component with chips/buttons
+- \[x] Integrate suggestions into song generation workflow
+- \[ ] Add user feedback on suggested genres (thumbs up/down)
+- \[ ] Learn from user selections to improve future suggestions
 
 ### Success Metrics
 
-* **User Completion Rate**: % of users who generate successful songs
-* **Average Narrative Length**: Optimal length by duration/genre
-* **Advice Usage**: % of users who click advice button
-* **Generation Quality**: User ratings of generated songs
+- **User Completion Rate**: % of users who generate successful songs
+- **Average Narrative Length**: Optimal length by duration/genre
+- **Advice Usage**: % of users who click advice button
+- **Generation Quality**: User ratings of generated songs
 
 ## Lyrics Duration Calculation
 
@@ -343,9 +351,9 @@ function countSyllables(text: string): number {
 
 ### Validation Rules
 
-* **Green (Valid)**: Syllables within ±10% of target
-* **Yellow (Warning)**: Syllables within ±20% of target
-* **Red (Error)**: Syllables outside ±20% of target
+- **Green (Valid)**: Syllables within ±10% of target
+- **Yellow (Warning)**: Syllables within ±20% of target
+- **Red (Error)**: Syllables outside ±20% of target
 
 ```typescript
 const target = duration * 4.5;
@@ -384,22 +392,22 @@ Songs can have distinct intro and outro sections that differ from the main body:
 
 **Intro Options**:
 
-* **With Music**: Instrumental introduction (e.g., orchestral buildup, guitar riff)
-* **Sung**: Vocal introduction (e.g., acapella verse, spoken word)
-* **No Music**: Silence or ambient sounds only
+- **With Music**: Instrumental introduction (e.g., orchestral buildup, guitar riff)
+- **Sung**: Vocal introduction (e.g., acapella verse, spoken word)
+- **No Music**: Silence or ambient sounds only
 
 **Outro Options**:
 
-* **With Music**: Instrumental fade-out or extended coda
-* **Sung**: Vocal outro (e.g., repeated chorus, final verse)
-* **No Music**: Fade to silence or ambient ending
+- **With Music**: Instrumental fade-out or extended coda
+- **Sung**: Vocal outro (e.g., repeated chorus, final verse)
+- **No Music**: Fade to silence or ambient ending
 
 **Implementation**:
 
-* Separate generation prompts for intro/outro sections
-* Duration allocation: Intro (10-20% of total), Outro (10-15% of total)
-* Style inheritance: Can match main song or be distinctly different
-* User control: Toggle on/off, choose style per section
+- Separate generation prompts for intro/outro sections
+- Duration allocation: Intro (10-20% of total), Outro (10-15% of total)
+- Style inheritance: Can match main song or be distinctly different
+- User control: Toggle on/off, choose style per section
 
 ### Style Parameters Structure
 
@@ -544,8 +552,8 @@ exportToMusicGeneration({ songId });
 }
 ```
 
-**Ollama Prompt Design** (Future Implementation):
-**Note:** If `model` is supplied in the request body it will override `OLLAMA_MODEL` set on the backend; the service will call the mapped per-model mapper for consistent schema output.
+**Ollama Prompt Design** (Future Implementation): **Note:** If `model` is supplied in the request body it will override
+`OLLAMA_MODEL` set on the backend; the service will call the mapped per-model mapper for consistent schema output.
 
 ```typescript
 const prompt = `
@@ -614,7 +622,7 @@ const SongSchema = new Schema({
   approved: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   approvedAt: { type: Date },
-  userId: { type: Schema.Types.ObjectId, ref: 'User' },
+  userId: { type: Schema.Types.ObjectId, ref: 'User' }
 });
 ```
 
@@ -657,7 +665,7 @@ export class MusicGenService {
     const job = await this.jobsService.create({
       type: 'music-generation',
       parameters: params,
-      status: 'queued',
+      status: 'queued'
     });
 
     // 2. Start background process
@@ -666,7 +674,7 @@ export class MusicGenService {
       lyrics: params.lyrics,
       genre: params.genre,
       bpm: params.bpm,
-      duration: params.duration,
+      duration: params.duration
     });
 
     // 3. Return job for WebSocket tracking
@@ -679,7 +687,7 @@ export class MusicGenService {
       lyrics: job.parameters.lyrics,
       genre: job.parameters.genre,
       duration: job.parameters.duration,
-      bpm: job.parameters.bpm,
+      bpm: job.parameters.bpm
     });
 
     // Emit progress via WebSocket
@@ -695,15 +703,15 @@ export class MusicGenService {
 
 #### Narrative Input
 
-* **Min length**: 50 characters
-* **Max length**: 1000 characters
-* **Error**: "Narrative must be between 50-1000 characters"
+- **Min length**: 50 characters
+- **Max length**: 1000 characters
+- **Error**: "Narrative must be between 50-1000 characters"
 
 #### Duration
 
-* **Min**: 15 seconds
-* **Max**: 120 seconds
-* **Default**: 30 seconds
+- **Min**: 15 seconds
+- **Max**: 120 seconds
+- **Default**: 30 seconds
 
 #### Lyrics Validation
 
@@ -717,18 +725,18 @@ function validateLyrics(lyrics: string, duration: number): ValidationResult {
   if (syllableCount < minSyllables) {
     return {
       status: 'error',
-      message: `Lyrics too short: ${syllableCount} syllables (need ${Math.floor(
-        minSyllables
-      )}-${Math.ceil(maxSyllables)})`,
+      message: `Lyrics too short: ${syllableCount} syllables (need ${Math.floor(minSyllables)}-${Math.ceil(
+        maxSyllables
+      )})`
     };
   }
 
   if (syllableCount > maxSyllables) {
     return {
       status: 'error',
-      message: `Lyrics too long: ${syllableCount} syllables (need ${Math.floor(
-        minSyllables
-      )}-${Math.ceil(maxSyllables)})`,
+      message: `Lyrics too long: ${syllableCount} syllables (need ${Math.floor(minSyllables)}-${Math.ceil(
+        maxSyllables
+      )})`
     };
   }
 
@@ -766,7 +774,7 @@ const STANDARD_GENRES = [
   'folk',
   'classical',
   'indie',
-  'alternative',
+  'alternative'
 ];
 
 function validateGenre(genre: string): boolean {
@@ -850,12 +858,12 @@ export class JobsGateway {
 
 #### Visual Feedback
 
-* **Loading state**: Spinner + "Generating metadata..."
-* **Syllable count color**:
-  * Green: Within ±10% of target
-  * Yellow: Within ±20% of target
-  * Red: Outside ±20% of target
-* **Duration indicator**: "Target: 135-150 syllables for 30s song"
+- **Loading state**: Spinner + "Generating metadata..."
+- **Syllable count color**:
+  - Green: Within ±10% of target
+  - Yellow: Within ±20% of target
+  - Red: Outside ±20% of target
+- **Duration indicator**: "Target: 135-150 syllables for 30s song"
 
 #### Music Generation Layout with Song Import
 
@@ -950,7 +958,7 @@ describe('Song Generation Flow', () => {
       title: 'Test Song',
       lyrics: 'Test lyrics',
       genre: 'rock',
-      mood: 'energetic',
+      mood: 'energetic'
     });
 
     expect(response.status).toBe(201);
@@ -1003,18 +1011,12 @@ When ready to implement Ollama:
    ```typescript
    @Injectable()
    export class OllamaService {
-     async generate(
-       prompt: string,
-       model: string = 'deepseek'
-     ): Promise<string> {
-       const response = await axios.post(
-         'http://localhost:11434/api/generate',
-         {
-           model,
-           prompt,
-           stream: false,
-         }
-       );
+     async generate(prompt: string, model: string = 'deepseek'): Promise<string> {
+       const response = await axios.post('http://localhost:11434/api/generate', {
+         model,
+         prompt,
+         stream: false
+       });
        return response.data.response;
      }
    }
@@ -1022,46 +1024,46 @@ When ready to implement Ollama:
 
 2. **Prompt Engineering**
 
-   * Test different prompts for quality
-   * Add few-shot examples
-   * Implement temperature control
-   * Add retry logic for malformed JSON
+   - Test different prompts for quality
+   - Add few-shot examples
+   - Implement temperature control
+   - Add retry logic for malformed JSON
 
 3. **Quality Improvements**
-   * Add rhyme scheme detection
-   * Implement verse/chorus structure
-   * Add melody contour suggestions
-   * Generate multiple options for user selection
+   - Add rhyme scheme detection
+   - Implement verse/chorus structure
+   - Add melody contour suggestions
+   - Generate multiple options for user selection
 
 ### Advanced Features
 
-* **Collaborative Editing**: Multiple users edit same song
-* **Version History**: Track changes to lyrics/metadata
-* **Style Transfer**: Apply style of existing song to new lyrics
-* **Multi-Language**: Generate lyrics in different languages
-* **Voice Selection**: Choose AI voice for vocals preview
-* **Remix Mode**: Generate variations of existing songs
+- **Collaborative Editing**: Multiple users edit same song
+- **Version History**: Track changes to lyrics/metadata
+- **Style Transfer**: Apply style of existing song to new lyrics
+- **Multi-Language**: Generate lyrics in different languages
+- **Voice Selection**: Choose AI voice for vocals preview
+- **Remix Mode**: Generate variations of existing songs
 
 ## Glossary
 
-* **Narrative**: User's story/description input for AI song generation
-* **Metadata**: Song information (title, lyrics, genre, mood) before audio generation
-* **Syllable Count**: Number of syllables in lyrics, used for duration validation
-* **Ollama**: Local LLM server for running AI models (Deepseek)
-* **MusicGen**: Meta's audio generation model for creating music
-* **BPM**: Beats Per Minute, tempo of the music
-* **Instrumentation**: Musical instruments used in the composition
-* **Vocals Style**: Singing style (clean, raspy, smooth, aggressive)
+- **Narrative**: User's story/description input for AI song generation
+- **Metadata**: Song information (title, lyrics, genre, mood) before audio generation
+- **Syllable Count**: Number of syllables in lyrics, used for duration validation
+- **Ollama**: Local LLM server for running AI models (Deepseek)
+- **MusicGen**: Meta's audio generation model for creating music
+- **BPM**: Beats Per Minute, tempo of the music
+- **Instrumentation**: Musical instruments used in the composition
+- **Vocals Style**: Singing style (clean, raspy, smooth, aggressive)
 
 ## References
 
-* [MusicGen Documentation](https://github.com/facebookresearch/audiocraft)
-* [Ollama API Reference](https://github.com/ollama/ollama/blob/main/docs/api.md)
-* [Deepseek Model](https://github.com/deepseek-ai/DeepSeek-Coder)
-* [NGRX Best Practices](https://ngrx.io/guide/store/best-practices)
-* [WebSocket.IO Documentation](https://socket.io/docs/v4/)
+- [MusicGen Documentation](https://github.com/facebookresearch/audiocraft)
+- [Ollama API Reference](https://github.com/ollama/ollama/blob/main/docs/api.md)
+- [Deepseek Model](https://github.com/deepseek-ai/DeepSeek-Coder)
+- [NGRX Best Practices](https://ngrx.io/guide/store/best-practices)
+- [WebSocket.IO Documentation](https://socket.io/docs/v4/)
 
-***
+---
 
 **Document Version**: 1.0.0\
 **Last Updated**: December 2, 2025\

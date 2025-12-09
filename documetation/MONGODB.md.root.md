@@ -2,7 +2,8 @@
 
 ## Overview
 
-This guide covers MongoDB setup, security hardening, and schema design for Harmonia. The system uses a native MongoDB installation on Windows for optimal performance.
+This guide covers MongoDB setup, security hardening, and schema design for Harmonia. The system uses a native MongoDB
+installation on Windows for optimal performance.
 
 ## When to Use Different MongoDB Configurations
 
@@ -10,44 +11,44 @@ This guide covers MongoDB setup, security hardening, and schema design for Harmo
 
 **Best for:**
 
-* Unit tests
-* CI/CD pipelines
-* Quick prototyping
-* Testing schema changes
-* Ephemeral data scenarios
+- Unit tests
+- CI/CD pipelines
+- Quick prototyping
+- Testing schema changes
+- Ephemeral data scenarios
 
 **Advantages:**
 
-* No installation required
-* Fast startup/teardown
-* Isolated test environment
-* No port conflicts
-* Perfect for CI
+- No installation required
+- Fast startup/teardown
+- Isolated test environment
+- No port conflicts
+- Perfect for CI
 
 **Limitations:**
 
-* Data doesn't persist
-* Single-instance only (no replication)
-* Limited to test scenarios
+- Data doesn't persist
+- Single-instance only (no replication)
+- Limited to test scenarios
 
 ### Real MongoDB Instance
 
 **Best for:**
 
-* Local development
-* Staging environments
-* Persistent data needs
-* Testing replica sets
-* Performance testing
-* Integration with other services
+- Local development
+- Staging environments
+- Persistent data needs
+- Testing replica sets
+- Performance testing
+- Integration with other services
 
 **Advantages:**
 
-* Full MongoDB features
-* Persistent storage
-* Replica set support
-* Production-like environment
-* Better performance profiling
+- Full MongoDB features
+- Persistent storage
+- Replica set support
+- Production-like environment
+- Better performance profiling
 
 ## Security Hardening Guide
 
@@ -66,9 +67,9 @@ net:
 
 **What it does:**
 
-* ✅ Binds MongoDB to localhost only
-* ✅ Prevents external network access
-* ✅ No internet exposure possible
+- ✅ Binds MongoDB to localhost only
+- ✅ Prevents external network access
+- ✅ No internet exposure possible
 
 **Verification:**
 
@@ -89,9 +90,9 @@ security:
 
 **What it does:**
 
-* ✅ Requires username/password for all connections
-* ✅ Enables role-based access control
-* ✅ Prevents anonymous access
+- ✅ Requires username/password for all connections
+- ✅ Enables role-based access control
+- ✅ Prevents anonymous access
 
 **Verification:**
 
@@ -112,7 +113,7 @@ db.auth('admin', 'your_secure_password');
 db.createUser({
   user: 'admin',
   pwd: 'secure_admin_password',
-  roles: ['userAdminAnyDatabase', 'dbAdminAnyDatabase', 'readWriteAnyDatabase'],
+  roles: ['userAdminAnyDatabase', 'dbAdminAnyDatabase', 'readWriteAnyDatabase']
 });
 
 // Application user (limited access)
@@ -121,16 +122,16 @@ db.createUser({
   pwd: 'secure_app_password',
   roles: [
     { role: 'readWrite', db: 'harmonia' },
-    { role: 'dbAdmin', db: 'harmonia' },
-  ],
+    { role: 'dbAdmin', db: 'harmonia' }
+  ]
 });
 ```
 
 **What it does:**
 
-* ✅ Separate admin and application users
-* ✅ Principle of least privilege
-* ✅ Application user can't modify system or other databases
+- ✅ Separate admin and application users
+- ✅ Principle of least privilege
+- ✅ Application user can't modify system or other databases
 
 #### Layer 4: Encryption at Rest (Optional)
 
@@ -145,9 +146,9 @@ security:
 
 **What it does:**
 
-* 🔒 Encrypts data files on disk
-* 🔒 Protects against physical theft
-* 🔒 Required for HIPAA/FIPS compliance
+- 🔒 Encrypts data files on disk
+- 🔒 Protects against physical theft
+- 🔒 Required for HIPAA/FIPS compliance
 
 #### Layer 5: Audit Logging (Enterprise)
 
@@ -163,46 +164,48 @@ auditLog:
 
 **What it does:**
 
-* 📊 Logs all database operations
-* 📊 Tracks user actions for compliance
-* 📊 Helps with security investigations
+- 📊 Logs all database operations
+- 📊 Tracks user actions for compliance
+- 📊 Helps with security investigations
 
 ### Security Checklist
 
 #### ✅ Implemented
 
-* \[x] Network binding to localhost only
-* \[x] Authentication enabled
-* \[x] Role-based access control
-* \[x] Strong passwords (32-char)
-* \[x] Passwords stored in .env (not committed)
-* \[x] Separate admin and application users
-* \[x] Least privilege principle applied
-* \[x] Config file backed up before changes
-* \[x] Service restart after hardening
+- \[x] Network binding to localhost only
+- \[x] Authentication enabled
+- \[x] Role-based access control
+- \[x] Strong passwords (32-char)
+- \[x] Passwords stored in .env (not committed)
+- \[x] Separate admin and application users
+- \[x] Least privilege principle applied
+- \[x] Config file backed up before changes
+- \[x] Service restart after hardening
 
 #### 🟡 Recommended for Production
 
-* \[ ] TLS/SSL encryption (required for external access)
-* \[ ] Audit logging enabled (Enterprise feature)
-* \[ ] IP whitelisting (if exposing to network)
-* \[ ] VPN access only
-* \[ ] Regular security audits
-* \[ ] Automated backup verification
-* \[ ] Intrusion detection system
-* \[ ] Rate limiting on connections
+- \[ ] TLS/SSL encryption (required for external access)
+- \[ ] Audit logging enabled (Enterprise feature)
+- \[ ] IP whitelisting (if exposing to network)
+- \[ ] VPN access only
+- \[ ] Regular security audits
+- \[ ] Automated backup verification
+- \[ ] Intrusion detection system
+- \[ ] Rate limiting on connections
 
 ## Schema Design Guide
 
 ### Schema Principles
 
-* **Aggregate roots**: Model collections around aggregate roots (e.g., `model_artifacts`, `inventory_versions`, `jobs`) — keep each aggregate's invariants in a single place.
-* **Normalized references**: Use `ObjectId` references for shared resources, avoid duplicating large binary payloads.
-* **Small embedded documents**: Embed small immutable snapshots inside parent documents when it improves read performance and the embedded data is immutable.
+- **Aggregate roots**: Model collections around aggregate roots (e.g., `model_artifacts`, `inventory_versions`, `jobs`)
+  — keep each aggregate's invariants in a single place.
+- **Normalized references**: Use `ObjectId` references for shared resources, avoid duplicating large binary payloads.
+- **Small embedded documents**: Embed small immutable snapshots inside parent documents when it improves read
+  performance and the embedded data is immutable.
 
 ### Core Collections
 
-#### model\_artifacts
+#### model_artifacts
 
 ```typescript
 interface ModelArtifact {
@@ -229,7 +232,7 @@ interface License {
 }
 ```
 
-#### inventory\_versions
+#### inventory_versions
 
 ```typescript
 interface InventoryVersion {
@@ -281,12 +284,12 @@ const ModelArtifactSchema = new Schema<IModelArtifact>({
   path: { type: String, required: true },
   size_bytes: { type: Number, required: true },
   hashes: {
-    sha256: { type: String, required: true },
+    sha256: { type: String, required: true }
   },
   license_id: { type: Schema.Types.ObjectId, ref: 'License', required: true },
   tags: [{ type: String }],
   created_at: { type: Date, default: Date.now },
-  created_by: { type: String, required: true },
+  created_by: { type: String, required: true }
 });
 
 // Indexes for performance
@@ -423,15 +426,15 @@ mongorestore --db harmonia /backups/harmonia_20241204_120000/harmonia
 
 ### Key Metrics to Monitor
 
-* Connection count
-* Memory usage
-* Disk I/O
-* Query performance
-* Replication lag (if using replica sets)
+- Connection count
+- Memory usage
+- Disk I/O
+- Query performance
+- Replication lag (if using replica sets)
 
 ### Maintenance Tasks
 
-* Regular index optimization
-* Collection compaction
-* Log rotation
-* Security updates
+- Regular index optimization
+- Collection compaction
+- Log rotation
+- Security updates
