@@ -162,7 +162,7 @@ Check if Angular app bootstraps correctly:
 
 ```typescript
 // In browser console, type:
-ng.probe(document.querySelector("harmonia-root"));
+ng.probe(document.querySelector('harmonia-root'));
 
 // If undefined, Angular didn't bootstrap
 // Check main.ts and app-module.ts

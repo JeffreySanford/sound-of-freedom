@@ -2,7 +2,9 @@
 
 ## Overview
 
-Harmonia uses **Socket.IO 4.8.1** for real-time bidirectional communication between frontend and backend during the song generation pipeline. This guide covers the sophisticated WebSocket implementation for multi-stage AI generation progress tracking, real-time status updates, and collaborative features.
+Harmonia uses **Socket.IO 4.8.1** for real-time bidirectional communication between frontend and backend during the song
+generation pipeline. This guide covers the sophisticated WebSocket implementation for multi-stage AI generation progress
+tracking, real-time status updates, and collaborative features.
 
 ## Architecture
 
@@ -103,7 +105,7 @@ interface MetadataGenerationProgressEvent {
   generationId: string;
   progress: number; // 0-100
   status: string; // 'Analyzing narrative...', 'Generating title...', 'Creating lyrics...'
-  currentStep: "analysis" | "title" | "lyrics" | "genre" | "mood";
+  currentStep: 'analysis' | 'title' | 'lyrics' | 'genre' | 'mood';
   tokensGenerated?: number;
 }
 
@@ -167,20 +169,20 @@ interface GenerationErrorEvent {
     details?: any;
     recoverable: boolean; // Can user retry?
   };
-  stage: "metadata" | "audio";
+  stage: 'metadata' | 'audio';
 }
 
 // Event: 'generation-cancelled'
 interface GenerationCancelledEvent {
   generationId: string;
-  reason: "user_cancelled" | "timeout" | "system_error";
+  reason: 'user_cancelled' | 'timeout' | 'system_error';
   cancelledAt: Date;
 }
 
 // Event: 'generation-timeout'
 interface GenerationTimeoutEvent {
   generationId: string;
-  stage: "metadata" | "audio";
+  stage: 'metadata' | 'audio';
   timeoutAfter: number; // Timeout duration in seconds
 }
 ```
@@ -190,7 +192,7 @@ interface GenerationTimeoutEvent {
 ### WebSocket Service
 
 ```typescript
-@Injectable({ providedIn: "root" })
+@Injectable({ providedIn: 'root' })
 export class WebSocketService {
   private socket: Socket | null = null;
   private connection$ = new BehaviorSubject<boolean>(false);
@@ -199,12 +201,12 @@ export class WebSocketService {
   connect(token: string): void {
     if (this.socket?.connected) return;
 
-    this.socket = io("http://localhost:3333", {
+    this.socket = io('http://localhost:3333', {
       auth: { token },
-      transports: ["websocket"],
+      transports: ['websocket'],
       reconnection: true,
       reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
+      reconnectionDelay: 1000
     });
 
     this.setupConnectionEvents();
@@ -214,7 +216,7 @@ export class WebSocketService {
   // Join generation-specific room
   joinGenerationRoom(generationId: string): void {
     if (this.socket && !this.generationRooms.has(generationId)) {
-      this.socket.emit("join-generation", generationId);
+      this.socket.emit('join-generation', generationId);
       this.generationRooms.add(generationId);
     }
   }
@@ -222,7 +224,7 @@ export class WebSocketService {
   // Leave generation room
   leaveGenerationRoom(generationId: string): void {
     if (this.socket && this.generationRooms.has(generationId)) {
-      this.socket.emit("leave-generation", generationId);
+      this.socket.emit('leave-generation', generationId);
       this.generationRooms.delete(generationId);
     }
   }
@@ -230,120 +232,75 @@ export class WebSocketService {
   // Cancel generation
   cancelGeneration(generationId: string): void {
     if (this.socket) {
-      this.socket.emit("cancel-generation", { generationId });
+      this.socket.emit('cancel-generation', { generationId });
     }
   }
 
   private setupConnectionEvents(): void {
-    this.socket.on("connect", () => {
+    this.socket.on('connect', () => {
       this.connection$.next(true);
-      console.log("WebSocket connected for song generation");
+      console.log('WebSocket connected for song generation');
     });
 
-    this.socket.on("disconnect", (reason) => {
+    this.socket.on('disconnect', (reason) => {
       this.connection$.next(false);
-      console.log("WebSocket disconnected:", reason);
+      console.log('WebSocket disconnected:', reason);
       this.generationRooms.clear();
     });
 
-    this.socket.on("connect_error", (error) => {
-      console.error("WebSocket connection error:", error);
+    this.socket.on('connect_error', (error) => {
+      console.error('WebSocket connection error:', error);
       this.connection$.next(false);
     });
   }
 
   private setupGenerationEvents(): void {
     // Metadata generation events
-    this.socket.on(
-      "metadata-generation-started",
-      (event: MetadataGenerationStartedEvent) => {
-        this.store.dispatch(
-          SongGenerationActions.metadataGenerationStarted({ event })
-        );
-      }
-    );
+    this.socket.on('metadata-generation-started', (event: MetadataGenerationStartedEvent) => {
+      this.store.dispatch(SongGenerationActions.metadataGenerationStarted({ event }));
+    });
 
-    this.socket.on(
-      "metadata-generation-progress",
-      (event: MetadataGenerationProgressEvent) => {
-        this.store.dispatch(
-          SongGenerationActions.metadataGenerationProgress({ event })
-        );
-      }
-    );
+    this.socket.on('metadata-generation-progress', (event: MetadataGenerationProgressEvent) => {
+      this.store.dispatch(SongGenerationActions.metadataGenerationProgress({ event }));
+    });
 
-    this.socket.on(
-      "metadata-generation-complete",
-      (event: MetadataGenerationCompleteEvent) => {
-        this.store.dispatch(
-          SongGenerationActions.metadataGenerationComplete({ event })
-        );
-      }
-    );
+    this.socket.on('metadata-generation-complete', (event: MetadataGenerationCompleteEvent) => {
+      this.store.dispatch(SongGenerationActions.metadataGenerationComplete({ event }));
+    });
 
     // Audio generation events
-    this.socket.on(
-      "audio-generation-started",
-      (event: AudioGenerationStartedEvent) => {
-        this.store.dispatch(
-          SongGenerationActions.audioGenerationStarted({ event })
-        );
-      }
-    );
+    this.socket.on('audio-generation-started', (event: AudioGenerationStartedEvent) => {
+      this.store.dispatch(SongGenerationActions.audioGenerationStarted({ event }));
+    });
 
-    this.socket.on(
-      "audio-generation-progress",
-      (event: AudioGenerationProgressEvent) => {
-        this.store.dispatch(
-          SongGenerationActions.audioGenerationProgress({ event })
-        );
-      }
-    );
+    this.socket.on('audio-generation-progress', (event: AudioGenerationProgressEvent) => {
+      this.store.dispatch(SongGenerationActions.audioGenerationProgress({ event }));
+    });
 
-    this.socket.on(
-      "audio-generation-complete",
-      (event: AudioGenerationCompleteEvent) => {
-        this.store.dispatch(
-          SongGenerationActions.audioGenerationComplete({ event })
-        );
-      }
-    );
+    this.socket.on('audio-generation-complete', (event: AudioGenerationCompleteEvent) => {
+      this.store.dispatch(SongGenerationActions.audioGenerationComplete({ event }));
+    });
 
     // Error and control events
-    this.socket.on("generation-error", (event: GenerationErrorEvent) => {
+    this.socket.on('generation-error', (event: GenerationErrorEvent) => {
       this.store.dispatch(SongGenerationActions.generationError({ event }));
     });
 
-    this.socket.on(
-      "generation-cancelled",
-      (event: GenerationCancelledEvent) => {
-        this.store.dispatch(
-          SongGenerationActions.generationCancelled({ event })
-        );
-      }
-    );
+    this.socket.on('generation-cancelled', (event: GenerationCancelledEvent) => {
+      this.store.dispatch(SongGenerationActions.generationCancelled({ event }));
+    });
   }
 
   // Observable streams for components
-  getMetadataProgress(
-    generationId: string
-  ): Observable<MetadataGenerationProgressEvent> {
-    return fromEvent(this.socket, "metadata-generation-progress").pipe(
-      filter(
-        (event: MetadataGenerationProgressEvent) =>
-          event.generationId === generationId
-      )
+  getMetadataProgress(generationId: string): Observable<MetadataGenerationProgressEvent> {
+    return fromEvent(this.socket, 'metadata-generation-progress').pipe(
+      filter((event: MetadataGenerationProgressEvent) => event.generationId === generationId)
     );
   }
 
-  getAudioProgress(
-    generationId: string
-  ): Observable<AudioGenerationProgressEvent> {
-    return fromEvent(this.socket, "audio-generation-progress").pipe(
-      filter(
-        (event: AudioGenerationProgressEvent) =>
-          event.generationId === generationId
-      )
+  getAudioProgress(generationId: string): Observable<AudioGenerationProgressEvent> {
+    return fromEvent(this.socket, 'audio-generation-progress').pipe(
+      filter((event: AudioGenerationProgressEvent) => event.generationId === generationId)
     );
   }
 
@@ -362,13 +319,10 @@ export class WebSocketService {
 ```typescript
 // generation-progress.component.ts
 @Component({
-  selector: "app-generation-progress",
+  selector: 'app-generation-progress',
   template: `
     <div class="progress-container">
-      <mat-progress-bar
-        [value]="progress"
-        [mode]="progress < 100 ? 'indeterminate' : 'determinate'"
-      >
+      <mat-progress-bar [value]="progress" [mode]="progress < 100 ? 'indeterminate' : 'determinate'">
       </mat-progress-bar>
 
       <div class="progress-info">
@@ -378,37 +332,25 @@ export class WebSocketService {
 
       <div class="stage-info" *ngIf="currentStage">
         <span class="stage">Stage: {{ currentStage }}</span>
-        <span class="instrument" *ngIf="currentInstrument">
-          Instrument: {{ currentInstrument }}
-        </span>
+        <span class="instrument" *ngIf="currentInstrument"> Instrument: {{ currentInstrument }} </span>
       </div>
 
-      <button
-        mat-raised-button
-        color="warn"
-        (click)="cancelGeneration()"
-        *ngIf="canCancel"
-      >
-        Cancel Generation
-      </button>
+      <button mat-raised-button color="warn" (click)="cancelGeneration()" *ngIf="canCancel">Cancel Generation</button>
     </div>
-  `,
+  `
 })
 export class GenerationProgressComponent implements OnInit, OnDestroy {
   @Input() generationId!: string;
 
   progress = 0;
-  status = "Initializing...";
+  status = 'Initializing...';
   currentStage?: string;
   currentInstrument?: string;
   canCancel = true;
 
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private websocketService: WebSocketService,
-    private store: Store<AppState>
-  ) {}
+  constructor(private websocketService: WebSocketService, private store: Store<AppState>) {}
 
   ngOnInit(): void {
     // Join generation room
@@ -431,7 +373,7 @@ export class GenerationProgressComponent implements OnInit, OnDestroy {
         this.progress = event.progress;
         this.status = event.status;
         this.currentInstrument = event.currentInstrument;
-        this.currentStage = "audio";
+        this.currentStage = 'audio';
       });
   }
 
@@ -454,18 +396,13 @@ export class GenerationProgressComponent implements OnInit, OnDestroy {
 ```typescript
 // song-generation.gateway.ts
 @Injectable()
-export class SongGenerationGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
-{
+export class SongGenerationGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
   private readonly logger = new Logger(SongGenerationGateway.name);
 
-  constructor(
-    private readonly jwtService: JwtService,
-    private readonly songGenerationService: SongGenerationService
-  ) {}
+  constructor(private readonly jwtService: JwtService, private readonly songGenerationService: SongGenerationService) {}
 
   async handleConnection(client: Socket): Promise<void> {
     try {
@@ -485,27 +422,21 @@ export class SongGenerationGateway
     // Clean up any active generation subscriptions
   }
 
-  @SubscribeMessage("join-generation")
-  handleJoinGeneration(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: { generationId: string }
-  ): void {
+  @SubscribeMessage('join-generation')
+  handleJoinGeneration(@ConnectedSocket() client: Socket, @MessageBody() data: { generationId: string }): void {
     const roomName = `generation-${data.generationId}`;
     client.join(roomName);
     this.logger.log(`Client ${client.id} joined generation room: ${roomName}`);
   }
 
-  @SubscribeMessage("leave-generation")
-  handleLeaveGeneration(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: { generationId: string }
-  ): void {
+  @SubscribeMessage('leave-generation')
+  handleLeaveGeneration(@ConnectedSocket() client: Socket, @MessageBody() data: { generationId: string }): void {
     const roomName = `generation-${data.generationId}`;
     client.leave(roomName);
     this.logger.log(`Client ${client.id} left generation room: ${roomName}`);
   }
 
-  @SubscribeMessage("cancel-generation")
+  @SubscribeMessage('cancel-generation')
   async handleCancelGeneration(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { generationId: string }
@@ -513,26 +444,23 @@ export class SongGenerationGateway
     const userId = client.data.userId;
 
     try {
-      await this.songGenerationService.cancelGeneration(
-        data.generationId,
-        userId
-      );
+      await this.songGenerationService.cancelGeneration(data.generationId, userId);
 
       const roomName = `generation-${data.generationId}`;
-      this.server.to(roomName).emit("generation-cancelled", {
+      this.server.to(roomName).emit('generation-cancelled', {
         generationId: data.generationId,
-        reason: "user_cancelled",
-        cancelledAt: new Date(),
+        reason: 'user_cancelled',
+        cancelledAt: new Date()
       } as GenerationCancelledEvent);
     } catch (error) {
-      client.emit("generation-error", {
+      client.emit('generation-error', {
         generationId: data.generationId,
         error: {
-          code: "CANCEL_FAILED",
+          code: 'CANCEL_FAILED',
           message: error.message,
-          recoverable: false,
+          recoverable: false
         },
-        stage: "unknown",
+        stage: 'unknown'
       } as GenerationErrorEvent);
     }
   }
@@ -549,23 +477,16 @@ export class ProgressBroadcastingService {
     private readonly webSocketServer: Server // Injected from gateway
   ) {}
 
-  broadcastMetadataProgress(
-    generationId: string,
-    progress: number,
-    status: string,
-    currentStep: string
-  ): void {
+  broadcastMetadataProgress(generationId: string, progress: number, status: string, currentStep: string): void {
     const roomName = `generation-${generationId}`;
     const event: MetadataGenerationProgressEvent = {
       generationId,
       progress,
       status,
-      currentStep: currentStep as any,
+      currentStep: currentStep as any
     };
 
-    this.webSocketServer
-      .to(roomName)
-      .emit("metadata-generation-progress", event);
+    this.webSocketServer.to(roomName).emit('metadata-generation-progress', event);
   }
 
   broadcastAudioProgress(
@@ -583,10 +504,10 @@ export class ProgressBroadcastingService {
       status,
       currentInstrument,
       instrumentsCompleted: instrumentsCompleted || 0,
-      totalInstruments: totalInstruments || 0,
+      totalInstruments: totalInstruments || 0
     };
 
-    this.webSocketServer.to(roomName).emit("audio-generation-progress", event);
+    this.webSocketServer.to(roomName).emit('audio-generation-progress', event);
   }
 
   broadcastGenerationComplete(
@@ -604,10 +525,10 @@ export class ProgressBroadcastingService {
       audioUrl,
       duration,
       fileSize,
-      checksum,
+      checksum
     };
 
-    this.webSocketServer.to(roomName).emit("audio-generation-complete", event);
+    this.webSocketServer.to(roomName).emit('audio-generation-complete', event);
   }
 
   broadcastError(
@@ -618,16 +539,16 @@ export class ProgressBroadcastingService {
       details?: any;
       recoverable: boolean;
     },
-    stage: "metadata" | "audio"
+    stage: 'metadata' | 'audio'
   ): void {
     const roomName = `generation-${generationId}`;
     const event: GenerationErrorEvent = {
       generationId,
       error,
-      stage,
+      stage
     };
 
-    this.webSocketServer.to(roomName).emit("generation-error", event);
+    this.webSocketServer.to(roomName).emit('generation-error', event);
   }
 }
 ```
@@ -639,42 +560,42 @@ export class ProgressBroadcastingService {
 ```typescript
 // song-generation.actions.ts
 export const metadataGenerationStarted = createAction(
-  "[Song Generation] Metadata Generation Started",
+  '[Song Generation] Metadata Generation Started',
   props<{ event: MetadataGenerationStartedEvent }>()
 );
 
 export const metadataGenerationProgress = createAction(
-  "[Song Generation] Metadata Generation Progress",
+  '[Song Generation] Metadata Generation Progress',
   props<{ event: MetadataGenerationProgressEvent }>()
 );
 
 export const metadataGenerationComplete = createAction(
-  "[Song Generation] Metadata Generation Complete",
+  '[Song Generation] Metadata Generation Complete',
   props<{ event: MetadataGenerationCompleteEvent }>()
 );
 
 export const audioGenerationStarted = createAction(
-  "[Song Generation] Audio Generation Started",
+  '[Song Generation] Audio Generation Started',
   props<{ event: AudioGenerationStartedEvent }>()
 );
 
 export const audioGenerationProgress = createAction(
-  "[Song Generation] Audio Generation Progress",
+  '[Song Generation] Audio Generation Progress',
   props<{ event: AudioGenerationProgressEvent }>()
 );
 
 export const audioGenerationComplete = createAction(
-  "[Song Generation] Audio Generation Complete",
+  '[Song Generation] Audio Generation Complete',
   props<{ event: AudioGenerationCompleteEvent }>()
 );
 
 export const generationError = createAction(
-  "[Song Generation] Generation Error",
+  '[Song Generation] Generation Error',
   props<{ event: GenerationErrorEvent }>()
 );
 
 export const generationCancelled = createAction(
-  "[Song Generation] Generation Cancelled",
+  '[Song Generation] Generation Cancelled',
   props<{ event: GenerationCancelledEvent }>()
 );
 ```
@@ -692,7 +613,7 @@ export interface SongGenerationState {
 const initialState: SongGenerationState = {
   activeGenerations: {},
   completedGenerations: {},
-  errors: {},
+  errors: {}
 };
 
 export const songGenerationReducer = createReducer(
@@ -704,12 +625,12 @@ export const songGenerationReducer = createReducer(
       ...state.activeGenerations,
       [event.generationId]: {
         id: event.generationId,
-        stage: "metadata",
+        stage: 'metadata',
         progress: 0,
-        status: "Starting metadata generation...",
-        startedAt: new Date(),
-      },
-    },
+        status: 'Starting metadata generation...',
+        startedAt: new Date()
+      }
+    }
   })),
 
   on(metadataGenerationProgress, (state, { event }) => ({
@@ -720,9 +641,9 @@ export const songGenerationReducer = createReducer(
         ...state.activeGenerations[event.generationId],
         progress: event.progress,
         status: event.status,
-        currentStep: event.currentStep,
-      },
-    },
+        currentStep: event.currentStep
+      }
+    }
   })),
 
   on(metadataGenerationComplete, (state, { event }) => ({
@@ -731,12 +652,12 @@ export const songGenerationReducer = createReducer(
       ...state.activeGenerations,
       [event.generationId]: {
         ...state.activeGenerations[event.generationId],
-        stage: "metadata-complete",
+        stage: 'metadata-complete',
         progress: 100,
-        status: "Metadata generation complete",
-        metadata: event.metadata,
-      },
-    },
+        status: 'Metadata generation complete',
+        metadata: event.metadata
+      }
+    }
   })),
 
   on(audioGenerationStarted, (state, { event }) => ({
@@ -745,12 +666,12 @@ export const songGenerationReducer = createReducer(
       ...state.activeGenerations,
       [event.generationId]: {
         ...state.activeGenerations[event.generationId],
-        stage: "audio",
+        stage: 'audio',
         progress: 0,
-        status: "Starting audio generation...",
-        instruments: event.instruments,
-      },
-    },
+        status: 'Starting audio generation...',
+        instruments: event.instruments
+      }
+    }
   })),
 
   on(audioGenerationProgress, (state, { event }) => ({
@@ -763,14 +684,13 @@ export const songGenerationReducer = createReducer(
         status: event.status,
         currentInstrument: event.currentInstrument,
         instrumentsCompleted: event.instrumentsCompleted,
-        totalInstruments: event.totalInstruments,
-      },
-    },
+        totalInstruments: event.totalInstruments
+      }
+    }
   })),
 
   on(audioGenerationComplete, (state, { event }) => {
-    const { [event.generationId]: completed, ...remainingActive } =
-      state.activeGenerations;
+    const { [event.generationId]: completed, ...remainingActive } = state.activeGenerations;
     return {
       ...state,
       activeGenerations: remainingActive,
@@ -783,9 +703,9 @@ export const songGenerationReducer = createReducer(
           duration: event.duration,
           fileSize: event.fileSize,
           checksum: event.checksum,
-          completedAt: new Date(),
-        },
-      },
+          completedAt: new Date()
+        }
+      }
     };
   }),
 
@@ -797,14 +717,13 @@ export const songGenerationReducer = createReducer(
         id: event.generationId,
         error: event.error,
         stage: event.stage,
-        occurredAt: new Date(),
-      },
-    },
+        occurredAt: new Date()
+      }
+    }
   })),
 
   on(generationCancelled, (state, { event }) => {
-    const { [event.generationId]: cancelled, ...remainingActive } =
-      state.activeGenerations;
+    const { [event.generationId]: cancelled, ...remainingActive } = state.activeGenerations;
     return {
       ...state,
       activeGenerations: remainingActive,
@@ -812,11 +731,11 @@ export const songGenerationReducer = createReducer(
         ...state.errors,
         [event.generationId]: {
           id: event.generationId,
-          error: { code: "CANCELLED", message: "Generation cancelled by user" },
-          stage: cancelled?.stage || "unknown",
-          occurredAt: new Date(),
-        },
-      },
+          error: { code: 'CANCELLED', message: 'Generation cancelled by user' },
+          stage: cancelled?.stage || 'unknown',
+          occurredAt: new Date()
+        }
+      }
     };
   })
 );
@@ -918,14 +837,12 @@ export class WebSocketMonitoringService {
     activeGenerations: 0,
     messagesSent: 0,
     errors: 0,
-    averageLatency: 0,
+    averageLatency: 0
   };
 
   trackConnection(clientId: string, userId: string): void {
     this.metrics.connections++;
-    console.log(
-      `WebSocket connection established: ${clientId} (User: ${userId})`
-    );
+    console.log(`WebSocket connection established: ${clientId} (User: ${userId})`);
   }
 
   trackGenerationStart(generationId: string): void {
@@ -970,44 +887,39 @@ export class WebSocketMonitoringService {
 
 ```typescript
 // websocket.service.spec.ts
-describe("WebSocketService", () => {
+describe('WebSocketService', () => {
   let service: WebSocketService;
   let mockSocket: jasmine.SpyObj<Socket>;
 
   beforeEach(() => {
-    mockSocket = jasmine.createSpyObj("Socket", [
-      "on",
-      "emit",
-      "disconnect",
-      "connect",
-    ]);
+    mockSocket = jasmine.createSpyObj('Socket', ['on', 'emit', 'disconnect', 'connect']);
     TestBed.configureTestingModule({
-      providers: [WebSocketService],
+      providers: [WebSocketService]
     });
     service = TestBed.inject(WebSocketService);
   });
 
-  it("should join generation room", () => {
-    service.joinGenerationRoom("gen-123");
-    expect(mockSocket.emit).toHaveBeenCalledWith("join-generation", "gen-123");
+  it('should join generation room', () => {
+    service.joinGenerationRoom('gen-123');
+    expect(mockSocket.emit).toHaveBeenCalledWith('join-generation', 'gen-123');
   });
 
-  it("should handle metadata generation progress", (done) => {
+  it('should handle metadata generation progress', (done) => {
     const progressEvent = {
-      generationId: "gen-123",
+      generationId: 'gen-123',
       progress: 50,
-      status: "Generating lyrics...",
-      currentStep: "lyrics",
+      status: 'Generating lyrics...',
+      currentStep: 'lyrics'
     };
 
-    service.getMetadataProgress("gen-123").subscribe((event) => {
+    service.getMetadataProgress('gen-123').subscribe((event) => {
       expect(event).toEqual(progressEvent);
       done();
     });
 
     // Simulate WebSocket event
     mockSocket.on.and.callFake((event, callback) => {
-      if (event === "metadata-generation-progress") {
+      if (event === 'metadata-generation-progress') {
         callback(progressEvent);
       }
     });
@@ -1019,62 +931,62 @@ describe("WebSocketService", () => {
 
 ```typescript
 // song-generation.integration.spec.ts
-describe("Song Generation WebSocket Integration", () => {
+describe('Song Generation WebSocket Integration', () => {
   let clientSocket: Socket;
   let server: Server;
 
   beforeEach((done) => {
     // Setup test server and client
     server = new Server();
-    clientSocket = io("http://localhost:3333");
+    clientSocket = io('http://localhost:3333');
 
-    clientSocket.on("connect", () => {
+    clientSocket.on('connect', () => {
       done();
     });
   });
 
-  it("should complete full song generation workflow", (done) => {
-    const generationId = "test-gen-123";
+  it('should complete full song generation workflow', (done) => {
+    const generationId = 'test-gen-123';
 
     // Join generation room
-    clientSocket.emit("join-generation", generationId);
+    clientSocket.emit('join-generation', generationId);
 
     // Listen for all generation events
     let eventsReceived = [];
 
-    clientSocket.on("metadata-generation-started", (event) => {
-      eventsReceived.push("metadata-started");
+    clientSocket.on('metadata-generation-started', (event) => {
+      eventsReceived.push('metadata-started');
       expect(event.generationId).toBe(generationId);
     });
 
-    clientSocket.on("metadata-generation-progress", (event) => {
-      eventsReceived.push("metadata-progress");
+    clientSocket.on('metadata-generation-progress', (event) => {
+      eventsReceived.push('metadata-progress');
       expect(event.progress).toBeGreaterThanOrEqual(0);
       expect(event.progress).toBeLessThanOrEqual(100);
     });
 
-    clientSocket.on("metadata-generation-complete", (event) => {
-      eventsReceived.push("metadata-complete");
+    clientSocket.on('metadata-generation-complete', (event) => {
+      eventsReceived.push('metadata-complete');
       expect(event.metadata).toBeDefined();
     });
 
-    clientSocket.on("audio-generation-started", (event) => {
-      eventsReceived.push("audio-started");
+    clientSocket.on('audio-generation-started', (event) => {
+      eventsReceived.push('audio-started');
     });
 
-    clientSocket.on("audio-generation-progress", (event) => {
-      eventsReceived.push("audio-progress");
+    clientSocket.on('audio-generation-progress', (event) => {
+      eventsReceived.push('audio-progress');
     });
 
-    clientSocket.on("audio-generation-complete", (event) => {
-      eventsReceived.push("audio-complete");
+    clientSocket.on('audio-generation-complete', (event) => {
+      eventsReceived.push('audio-complete');
       expect(event.audioUrl).toBeDefined();
 
       // Verify all expected events were received
-      expect(eventsReceived).toContain("metadata-started");
-      expect(eventsReceived).toContain("metadata-complete");
-      expect(eventsReceived).toContain("audio-started");
-      expect(eventsReceived).toContain("audio-complete");
+      expect(eventsReceived).toContain('metadata-started');
+      expect(eventsReceived).toContain('metadata-complete');
+      expect(eventsReceived).toContain('audio-started');
+      expect(eventsReceived).toContain('audio-complete');
 
       done();
     });
@@ -1094,13 +1006,13 @@ describe("Song Generation WebSocket Integration", () => {
 export const websocketConfig = {
   cors: {
     origin: process.env.FRONTEND_URL,
-    credentials: true,
+    credentials: true
   },
-  transports: ["websocket", "polling"], // Fallback for corporate firewalls
+  transports: ['websocket', 'polling'], // Fallback for corporate firewalls
   pingTimeout: 60000, // 60 seconds
   pingInterval: 25000, // 25 seconds
   maxHttpBufferSize: 1e8, // 100MB for large audio metadata
-  connectTimeout: 20000, // 20 seconds
+  connectTimeout: 20000 // 20 seconds
 };
 ```
 
@@ -1122,7 +1034,8 @@ export const websocketConfig = {
 
 ## Summary
 
-The WebSocket integration provides real-time, bidirectional communication for Harmonia's sophisticated song generation pipeline. Key features include:
+The WebSocket integration provides real-time, bidirectional communication for Harmonia's sophisticated song generation
+pipeline. Key features include:
 
 - **Multi-stage progress tracking**: Detailed progress updates for both metadata and audio generation phases
 - **Room-based subscriptions**: Efficient event routing for multiple concurrent generations
@@ -1133,7 +1046,8 @@ The WebSocket integration provides real-time, bidirectional communication for Ha
 - **Testing**: Comprehensive unit and integration tests for reliability
 - **Monitoring**: Production-ready observability and alerting
 
-This WebSocket system enables the rich, interactive user experience required for AI-powered music generation while maintaining the performance and reliability needed for production deployment.
+This WebSocket system enables the rich, interactive user experience required for AI-powered music generation while
+maintaining the performance and reliability needed for production deployment.
 
 ```typescript
 @Injectable({ providedIn: 'root' })
@@ -1274,22 +1188,19 @@ export class WebSocketService {
 ### Connecting on Authentication
 
 ```typescript
-import { Component, OnInit, OnDestroy } from "@angular/core";
-import { Store } from "@ngrx/store";
-import { filter } from "rxjs/operators";
-import { AppState } from "./store/app.state";
-import { WebSocketService } from "./services/websocket.service";
-import * as fromAuth from "./store/auth/auth.selectors";
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { filter } from 'rxjs/operators';
+import { AppState } from './store/app.state';
+import { WebSocketService } from './services/websocket.service';
+import * as fromAuth from './store/auth/auth.selectors';
 
 @Component({
-  selector: "app-root",
-  templateUrl: "./app.component.html",
+  selector: 'app-root',
+  templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit, OnDestroy {
-  constructor(
-    private store: Store<AppState>,
-    private websocketService: WebSocketService
-  ) {}
+  constructor(private store: Store<AppState>, private websocketService: WebSocketService) {}
 
   ngOnInit(): void {
     // Connect WebSocket when user logs in
@@ -1328,17 +1239,17 @@ import {
   ConnectedSocket,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  WebSocketServer,
-} from "@nestjs/websockets";
-import { Server, Socket } from "socket.io";
-import { Logger } from "@nestjs/common";
+  WebSocketServer
+} from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
+import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({
   cors: {
-    origin: "*",
-    credentials: true,
+    origin: '*',
+    credentials: true
   },
-  namespace: "/",
+  namespace: '/'
 })
 export class JobsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
@@ -1379,27 +1290,21 @@ export class JobsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage("job:subscribe")
-  handleSubscribeToJob(
-    @MessageBody() data: { jobId: string },
-    @ConnectedSocket() client: Socket
-  ): void {
+  @SubscribeMessage('job:subscribe')
+  handleSubscribeToJob(@MessageBody() data: { jobId: string }, @ConnectedSocket() client: Socket): void {
     const room = `job:${data.jobId}`;
     client.join(room);
     this.logger.log(`Client ${client.id} subscribed to job ${data.jobId}`);
   }
 
-  @SubscribeMessage("job:unsubscribe")
-  handleUnsubscribeFromJob(
-    @MessageBody() data: { jobId: string },
-    @ConnectedSocket() client: Socket
-  ): void {
+  @SubscribeMessage('job:unsubscribe')
+  handleUnsubscribeFromJob(@MessageBody() data: { jobId: string }, @ConnectedSocket() client: Socket): void {
     const room = `job:${data.jobId}`;
     client.leave(room);
     this.logger.log(`Client ${client.id} unsubscribed from job ${data.jobId}`);
   }
 
-  @SubscribeMessage("jobs:subscribe:user")
+  @SubscribeMessage('jobs:subscribe:user')
   handleSubscribeToUserJobs(@ConnectedSocket() client: Socket): void {
     const token = client.handshake.auth.token;
     const userId = this.extractUserIdFromToken(token);
@@ -1411,7 +1316,7 @@ export class JobsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage("jobs:unsubscribe:user")
+  @SubscribeMessage('jobs:unsubscribe:user')
   handleUnsubscribeFromUserJobs(@ConnectedSocket() client: Socket): void {
     const token = client.handshake.auth.token;
     const userId = this.extractUserIdFromToken(token);
@@ -1426,7 +1331,7 @@ export class JobsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // Server-side broadcast methods
   emitJobStatus(jobId: string, status: string): void {
     const room = `job:${jobId}`;
-    this.server.to(room).emit("job:status", { id: jobId, status });
+    this.server.to(room).emit('job:status', { id: jobId, status });
     this.logger.debug(`Emitted status update for job ${jobId}: ${status}`);
   }
 
@@ -1440,19 +1345,17 @@ export class JobsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   ): void {
     const room = `job:${jobId}`;
-    this.server.to(room).emit("job:progress", { id: jobId, progress });
-    this.logger.debug(
-      `Emitted progress update for job ${jobId}: ${progress.percentage}%`
-    );
+    this.server.to(room).emit('job:progress', { id: jobId, progress });
+    this.logger.debug(`Emitted progress update for job ${jobId}: ${progress.percentage}%`);
   }
 
   emitJobCompleted(job: Record<string, unknown>): void {
-    const jobId = job["id"] as string;
-    const userId = job["userId"] as string;
+    const jobId = job['id'] as string;
+    const userId = job['userId'] as string;
     const jobRoom = `job:${jobId}`;
     const userRoom = `user:${userId}:jobs`;
 
-    this.server.to(jobRoom).to(userRoom).emit("job:completed", { job });
+    this.server.to(jobRoom).to(userRoom).emit('job:completed', { job });
     this.logger.log(`Emitted completion for job ${jobId}`);
   }
 
@@ -1460,16 +1363,13 @@ export class JobsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const jobRoom = `job:${jobId}`;
     const userRoom = `user:${userId}:jobs`;
 
-    this.server
-      .to(jobRoom)
-      .to(userRoom)
-      .emit("job:failed", { id: jobId, error });
+    this.server.to(jobRoom).to(userRoom).emit('job:failed', { id: jobId, error });
     this.logger.log(`Emitted failure for job ${jobId}`);
   }
 
   private extractUserIdFromToken(token: string): string | null {
     // TODO: Implement JWT validation with @nestjs/jwt
-    return "mock-user-id";
+    return 'mock-user-id';
   }
 }
 ```
@@ -1477,11 +1377,11 @@ export class JobsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 ### Register Gateway in Module
 
 ```typescript
-import { Module } from "@nestjs/common";
-import { JobsGateway } from "./gateways/jobs.gateway";
+import { Module } from '@nestjs/common';
+import { JobsGateway } from './gateways/jobs.gateway';
 
 @Module({
-  providers: [JobsGateway],
+  providers: [JobsGateway]
 })
 export class AppModule {}
 ```
@@ -1528,20 +1428,13 @@ const adminRoom = `admin:jobs`;
 
 ```typescript
 // Broadcast to specific job subscribers
-this.server
-  .to(`job:${jobId}`)
-  .emit("job:status", { id: jobId, status: "processing" });
+this.server.to(`job:${jobId}`).emit('job:status', { id: jobId, status: 'processing' });
 
 // Broadcast to user's jobs
-this.server
-  .to(`user:${userId}:jobs`)
-  .emit("job:status", { id: jobId, status: "completed" });
+this.server.to(`user:${userId}:jobs`).emit('job:status', { id: jobId, status: 'completed' });
 
 // Broadcast to multiple rooms
-this.server
-  .to(`job:${jobId}`)
-  .to(`user:${userId}:jobs`)
-  .emit("job:completed", { job });
+this.server.to(`job:${jobId}`).to(`user:${userId}:jobs`).emit('job:completed', { job });
 ```
 
 ## NGRX State Management Integration
@@ -1550,35 +1443,21 @@ this.server
 
 ```typescript
 // WebSocket connection status
-export const realTimeConnectionEstablished = createAction(
-  "[Jobs] Real-Time Connection Established"
-);
+export const realTimeConnectionEstablished = createAction('[Jobs] Real-Time Connection Established');
 
-export const realTimeConnectionLost = createAction(
-  "[Jobs] Real-Time Connection Lost",
-  props<{ error: string }>()
-);
+export const realTimeConnectionLost = createAction('[Jobs] Real-Time Connection Lost', props<{ error: string }>());
 
 // Job status updates (from WebSocket)
-export const jobStatusUpdated = createAction(
-  "[Jobs] Job Status Updated",
-  props<{ id: string; status: JobStatus }>()
-);
+export const jobStatusUpdated = createAction('[Jobs] Job Status Updated', props<{ id: string; status: JobStatus }>());
 
 export const jobProgressUpdated = createAction(
-  "[Jobs] Job Progress Updated",
+  '[Jobs] Job Progress Updated',
   props<{ id: string; progress: JobProgress }>()
 );
 
-export const jobCompleted = createAction(
-  "[Jobs] Job Completed",
-  props<{ job: Job }>()
-);
+export const jobCompleted = createAction('[Jobs] Job Completed', props<{ job: Job }>());
 
-export const jobFailed = createAction(
-  "[Jobs] Job Failed",
-  props<{ id: string; error: string }>()
-);
+export const jobFailed = createAction('[Jobs] Job Failed', props<{ id: string; error: string }>());
 ```
 
 ### Reducer Handling
@@ -1598,9 +1477,7 @@ export const jobsReducer = createReducer(
   ),
 
   // Job completed (full update)
-  on(JobsActions.jobCompleted, (state, { job }) =>
-    jobsAdapter.updateOne({ id: job.id, changes: job }, state)
-  ),
+  on(JobsActions.jobCompleted, (state, { job }) => jobsAdapter.updateOne({ id: job.id, changes: job }, state)),
 
   // Job failed
   on(JobsActions.jobFailed, (state, { id, error }) =>
@@ -1608,9 +1485,9 @@ export const jobsReducer = createReducer(
       {
         id,
         changes: {
-          status: "failed",
-          result: { error },
-        },
+          status: 'failed',
+          result: { error }
+        }
       },
       state
     )
@@ -1623,8 +1500,8 @@ export const jobsReducer = createReducer(
 ### JWT Token Validation (Backend)
 
 ```typescript
-import { JwtService } from "@nestjs/jwt";
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { JwtService } from '@nestjs/jwt';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 @Injectable()
 export class JobsGateway {
@@ -1635,7 +1512,7 @@ export class JobsGateway {
       const payload = this.jwtService.verify(token);
       return payload.sub; // User ID from JWT
     } catch (error) {
-      this.logger.error("JWT validation failed", error);
+      this.logger.error('JWT validation failed', error);
       return null;
     }
   }
@@ -1645,9 +1522,9 @@ export class JobsGateway {
 ### Sending Token from Frontend
 
 ```typescript
-this.socket = io("http://localhost:3333", {
+this.socket = io('http://localhost:3333', {
   auth: { token: this.authToken },
-  transports: ["websocket"],
+  transports: ['websocket']
 });
 ```
 
@@ -1656,26 +1533,24 @@ this.socket = io("http://localhost:3333", {
 ### Connection Errors
 
 ```typescript
-this.socket.on("connect_error", (error) => {
-  console.error("WebSocket connection error:", error);
-  this.store.dispatch(
-    JobsActions.realTimeConnectionLost({ error: error.message })
-  );
+this.socket.on('connect_error', (error) => {
+  console.error('WebSocket connection error:', error);
+  this.store.dispatch(JobsActions.realTimeConnectionLost({ error: error.message }));
 });
 ```
 
 ### Reconnection Strategy
 
 ```typescript
-this.socket = io("http://localhost:3333", {
+this.socket = io('http://localhost:3333', {
   reconnection: true,
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
   reconnectionDelayMax: 5000,
-  randomizationFactor: 0.5,
+  randomizationFactor: 0.5
 });
 
-this.socket.on("reconnect", (attemptNumber) => {
+this.socket.on('reconnect', (attemptNumber) => {
   console.log(`Reconnected after ${attemptNumber} attempts`);
   this.store.dispatch(JobsActions.realTimeConnectionEstablished());
 });
@@ -1684,9 +1559,9 @@ this.socket.on("reconnect", (attemptNumber) => {
 ### Timeout Handling
 
 ```typescript
-this.socket.timeout(5000).emit("job:subscribe", { jobId }, (err, response) => {
+this.socket.timeout(5000).emit('job:subscribe', { jobId }, (err, response) => {
   if (err) {
-    console.error("Subscription timeout:", err);
+    console.error('Subscription timeout:', err);
   }
 });
 ```
@@ -1696,17 +1571,17 @@ this.socket.timeout(5000).emit("job:subscribe", { jobId }, (err, response) => {
 ### Subscribe to Job Updates
 
 ```typescript
-import { Component, OnInit, OnDestroy } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { Store } from "@ngrx/store";
-import { Observable } from "rxjs";
-import { AppState } from "../../store/app.state";
-import { WebSocketService } from "../../services/websocket.service";
-import * as fromJobs from "../../store/jobs/jobs.selectors";
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { AppState } from '../../store/app.state';
+import { WebSocketService } from '../../services/websocket.service';
+import * as fromJobs from '../../store/jobs/jobs.selectors';
 
 @Component({
-  selector: "app-job-detail",
-  templateUrl: "./job-detail.component.html",
+  selector: 'app-job-detail',
+  templateUrl: './job-detail.component.html'
 })
 export class JobDetailComponent implements OnInit, OnDestroy {
   job$!: Observable<Job | null>;
@@ -1719,7 +1594,7 @@ export class JobDetailComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.jobId = this.route.snapshot.params["id"];
+    this.jobId = this.route.snapshot.params['id'];
     this.job$ = this.store.select(fromJobs.selectJobById(this.jobId));
 
     // Subscribe to real-time updates for this job
@@ -1741,8 +1616,7 @@ export class JobDetailComponent implements OnInit, OnDestroy {
   <p>Status: {{ job.status }}</p>
 
   <div *ngIf="job.progress">
-    <mat-progress-bar mode="determinate" [value]="job.progress.percentage">
-    </mat-progress-bar>
+    <mat-progress-bar mode="determinate" [value]="job.progress.percentage"> </mat-progress-bar>
     <p>{{ job.progress.message }}</p>
     <p>{{ job.progress.current }} / {{ job.progress.total }}</p>
   </div>
@@ -1763,29 +1637,29 @@ export class JobDetailComponent implements OnInit, OnDestroy {
 ### Frontend Service Testing
 
 ```typescript
-import { TestBed } from "@angular/core/testing";
-import { provideMockStore } from "@ngrx/store/testing";
-import { WebSocketService } from "./websocket.service";
+import { TestBed } from '@angular/core/testing';
+import { provideMockStore } from '@ngrx/store/testing';
+import { WebSocketService } from './websocket.service';
 
-describe("WebSocketService", () => {
+describe('WebSocketService', () => {
   let service: WebSocketService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [WebSocketService, provideMockStore()],
+      providers: [WebSocketService, provideMockStore()]
     });
     service = TestBed.inject(WebSocketService);
   });
 
-  it("should connect with token", () => {
-    service.connect("test-token");
-    expect(service["socket"]).toBeTruthy();
+  it('should connect with token', () => {
+    service.connect('test-token');
+    expect(service['socket']).toBeTruthy();
   });
 
-  it("should disconnect socket", () => {
-    service.connect("test-token");
+  it('should disconnect socket', () => {
+    service.connect('test-token');
     service.disconnect();
-    expect(service["socket"]).toBeNull();
+    expect(service['socket']).toBeNull();
   });
 });
 ```
@@ -1793,25 +1667,25 @@ describe("WebSocketService", () => {
 ### Backend Gateway Testing
 
 ```typescript
-import { Test } from "@nestjs/testing";
-import { JobsGateway } from "./jobs.gateway";
-import { INestApplication } from "@nestjs/common";
-import { io, Socket } from "socket.io-client";
+import { Test } from '@nestjs/testing';
+import { JobsGateway } from './jobs.gateway';
+import { INestApplication } from '@nestjs/common';
+import { io, Socket } from 'socket.io-client';
 
-describe("JobsGateway", () => {
+describe('JobsGateway', () => {
   let app: INestApplication;
   let client: Socket;
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
-      providers: [JobsGateway],
+      providers: [JobsGateway]
     }).compile();
 
     app = module.createNestApplication();
     await app.listen(3333);
 
-    client = io("http://localhost:3333", {
-      auth: { token: "test-token" },
+    client = io('http://localhost:3333', {
+      auth: { token: 'test-token' }
     });
   });
 
@@ -1820,15 +1694,15 @@ describe("JobsGateway", () => {
     await app.close();
   });
 
-  it("should connect client", (done) => {
-    client.on("connect", () => {
+  it('should connect client', (done) => {
+    client.on('connect', () => {
       expect(client.connected).toBe(true);
       done();
     });
   });
 
-  it("should subscribe to job", (done) => {
-    client.emit("job:subscribe", { jobId: "job-123" });
+  it('should subscribe to job', (done) => {
+    client.emit('job:subscribe', { jobId: 'job-123' });
     // Verify room subscription
     done();
   });
@@ -1840,7 +1714,7 @@ describe("JobsGateway", () => {
 ### Debounce Frequent Updates
 
 ```typescript
-import { debounceTime } from "rxjs/operators";
+import { debounceTime } from 'rxjs/operators';
 
 this.getJobProgressUpdates()
   .pipe(

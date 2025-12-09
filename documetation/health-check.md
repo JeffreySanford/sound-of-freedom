@@ -1,8 +1,10 @@
 # Developer Health Check (Dev-Only)
 
-This guide documents the development-only health check endpoint used to verify backend reachability from the frontend UI.
+This guide documents the development-only health check endpoint used to verify backend reachability from the frontend
+UI.
 
-> ⚠️ **Dev-only**: Only enabled for local development (localhost/127.0.0.1) and not intended for production or public environments.
+> ⚠️ **Dev-only**: Only enabled for local development (localhost/127.0.0.1) and not intended for production or public
+> environments.
 
 ## Purpose
 

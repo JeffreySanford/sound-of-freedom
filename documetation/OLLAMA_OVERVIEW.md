@@ -4,7 +4,8 @@ This document provides a practical overview for deploying local LLM runtimes (li
 
 Summary
 
-- Ollama is a local LLM platform that enables running LLM models in local environments. For large models, prefer GPU-based Ubuntu 22.04 hosts or modern cloud GPU instances.
+- Ollama is a local LLM platform that enables running LLM models in local environments. For large models, prefer
+  GPU-based Ubuntu 22.04 hosts or modern cloud GPU instances.
 
 Preferred OS & runtime
 
@@ -13,13 +14,15 @@ Preferred OS & runtime
 
 Large LLM model considerations
 
-- Large models may require significant GPU memory (e.g., 24–512 GB+ depending on the model). Use hardware with enough vRAM and consider mixed precision or quantized models.
+- Large models may require significant GPU memory (e.g., 24–512 GB+ depending on the model). Use hardware with enough
+  vRAM and consider mixed precision or quantized models.
 - Model distribution: models may be hosted on Hugging Face or via private buckets.
 
 Installation & packaging
 
 - Some LLM vendors provide binaries or an image; follow vendor instructions for legal usage and licensing.
-- If packaging in a Docker image, avoid bundling large model artifacts in the image; fetch them at runtime or mount a shared storage volume.
+- If packaging in a Docker image, avoid bundling large model artifacts in the image; fetch them at runtime or mount a
+  shared storage volume.
 
 API & integration patterns
 

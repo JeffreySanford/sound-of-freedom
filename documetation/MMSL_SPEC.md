@@ -2,13 +2,16 @@
 
 ## Overview
 
-M-MSL (Micro Music Score Language) is a human-readable, machine-parseable DSL for encoding lyrics, performance directions, audio cues (SFX/instrument actions), and beat-level timing. It enables coordinated audio generation, DAW export, and video storyboarding from a single source.
+M-MSL (Micro Music Score Language) is a human-readable, machine-parseable DSL for encoding lyrics, performance
+directions, audio cues (SFX/instrument actions), and beat-level timing. It enables coordinated audio generation, DAW
+export, and video storyboarding from a single source.
 
 ## 1. Spec Document (M-MSL)
 
 ### Purpose
 
-M-MSL encodes lyrics, performance directions, audio cues, and beat-level timing in a human-friendly, machine-parseable way so that audio generation, DAW export, and video storyboarding can be coordinated deterministically.
+M-MSL encodes lyrics, performance directions, audio cues, and beat-level timing in a human-friendly, machine-parseable
+way so that audio generation, DAW export, and video storyboarding can be coordinated deterministically.
 
 ### Goals
 
@@ -31,7 +34,8 @@ Lines not matching markup are lyrics.
 
 - **Section**: ordered container for items.
 - **Item**: one of performance, lyric, cue.
-- **Cue**: structured token with name and params. Common params: duration, repeat, volume/intensity, pan, start, start_beat.
+- **Cue**: structured token with name and params. Common params: duration, repeat, volume/intensity, pan, start,
+  start_beat.
 
 ### Beat Notation
 
@@ -217,7 +221,8 @@ A compact JSON schema for downstream tools:
 
 ### Diagnostics
 
-Collect parse warnings/errors with line numbers and severity. Suggest fixes for common mistakes (e.g., duration=4s when BPM missing).
+Collect parse warnings/errors with line numbers and severity. Suggest fixes for common mistakes (e.g., duration=4s when
+BPM missing).
 
 ## 5. Example Parsers
 
@@ -235,10 +240,10 @@ All three parsers implement the same simple rule set:
 // File: mmsl-parser.ts
 // Usage: node mmsl-parser.js <inputfile>
 
-import * as fs from "fs";
+import * as fs from 'fs';
 
 type Item = {
-  type: "performance" | "lyric" | "cue";
+  type: 'performance' | 'lyric' | 'cue';
   text?: string;
   name?: string;
   category?: string;
@@ -254,23 +259,23 @@ type IR = {
 };
 
 function toBeats(val: string, bpm: number, beatsPerBar: number): number {
-  if (typeof val === "number") return val;
+  if (typeof val === 'number') return val;
   val = val.trim();
   const m = val.match(/^([\d.]+)(ms|s|beats|b|bar|bars)?$/i);
   if (!m) return NaN;
   const n = parseFloat(m[1]);
-  const unit = (m[2] || "").toLowerCase();
-  if (unit === "ms") return ((n / 1000) * bpm) / 60;
-  if (unit === "s" || unit === "") return (n * bpm) / 60;
-  if (unit === "beats" || unit === "b") return n;
-  if (unit === "bar" || unit === "bars") return n * beatsPerBar;
+  const unit = (m[2] || '').toLowerCase();
+  if (unit === 'ms') return ((n / 1000) * bpm) / 60;
+  if (unit === 's' || unit === '') return (n * bpm) / 60;
+  if (unit === 'beats' || unit === 'b') return n;
+  if (unit === 'bar' || unit === 'bars') return n * beatsPerBar;
   return NaN;
 }
 
 function parseCueBody(body: string, bpm: number, beatsPerBar: number) {
   // naive tokenizer: handle quoted strings
   const tokens: string[] = [];
-  let cur = "",
+  let cur = '',
     inQuote = false;
   for (let i = 0; i < body.length; i++) {
     const ch = body[i];
@@ -281,7 +286,7 @@ function parseCueBody(body: string, bpm: number, beatsPerBar: number) {
     if (!inQuote && /\s/.test(ch)) {
       if (cur) {
         tokens.push(cur);
-        cur = "";
+        cur = '';
       }
       continue;
     }
@@ -293,7 +298,7 @@ function parseCueBody(body: string, bpm: number, beatsPerBar: number) {
   const params: any = {};
   for (let i = 1; i < tokens.length; i++) {
     const t = tokens[i];
-    const kv = t.split("=");
+    const kv = t.split('=');
     if (kv.length === 2) {
       const k = kv[0].toLowerCase();
       let v: any = kv[1];
@@ -304,7 +309,7 @@ function parseCueBody(body: string, bpm: number, beatsPerBar: number) {
       } else if (/^\d+$/.test(v)) {
         params[k] = parseInt(v, 10);
       } else if (/^(true|false)$/i.test(v)) {
-        params[k] = v.toLowerCase() === "true";
+        params[k] = v.toLowerCase() === 'true';
       } else if (/^\d+\.\d+$/.test(v)) {
         params[k] = parseFloat(v);
       } else {
@@ -313,14 +318,14 @@ function parseCueBody(body: string, bpm: number, beatsPerBar: number) {
     } else {
       // positional token: maybe "SFX" or category
       // if it's SFX, skip
-      if (t.toLowerCase() === "sfx") {
+      if (t.toLowerCase() === 'sfx') {
         continue;
       }
-      if (!params["_pos"]) params["_pos"] = [];
-      params["_pos"].push(t);
+      if (!params['_pos']) params['_pos'] = [];
+      params['_pos'].push(t);
     }
   }
-  return { name, params, category: "sfx" };
+  return { name, params, category: 'sfx' };
 }
 
 function parseMMSL(text: string): IR {
@@ -344,10 +349,9 @@ function parseMMSL(text: string): IR {
     if (h) {
       const key = h[1].toLowerCase();
       const val = h[2].trim();
-      if (key === "bpm") bpm = parseInt(val) || bpm;
-      else if (key === "beatsperbar")
-        beatsPerBar = parseInt(val) || beatsPerBar;
-      else if (key === "title") title = val;
+      if (key === 'bpm') bpm = parseInt(val) || bpm;
+      else if (key === 'beatsperbar') beatsPerBar = parseInt(val) || beatsPerBar;
+      else if (key === 'title') title = val;
       continue;
     }
     const s = line.match(sectionRe);
@@ -355,9 +359,9 @@ function parseMMSL(text: string): IR {
       if (curSection) sections.push(curSection);
       const label = s[1].trim();
       curSection = {
-        id: label.toLowerCase().replace(/\s+/g, "-"),
+        id: label.toLowerCase().replace(/\s+/g, '-'),
         label,
-        items: [],
+        items: []
       };
       continue;
     }
@@ -367,30 +371,30 @@ function parseMMSL(text: string): IR {
     }
     let m;
     if ((m = line.match(perfInlineRe))) {
-      curSection.items.push({ type: "performance", text: m[1].trim() } as Item);
-      curSection.items.push({ type: "lyric", text: m[2].trim() } as Item);
+      curSection.items.push({ type: 'performance', text: m[1].trim() } as Item);
+      curSection.items.push({ type: 'lyric', text: m[2].trim() } as Item);
       continue;
     }
     if ((m = line.match(perfRe))) {
-      curSection.items.push({ type: "performance", text: m[1].trim() } as Item);
+      curSection.items.push({ type: 'performance', text: m[1].trim() } as Item);
       continue;
     }
     if ((m = line.match(cueRe))) {
       const cue = parseCueBody(m[1].trim(), bpm, beatsPerBar);
       if (cue)
         curSection.items.push({
-          type: "cue",
+          type: 'cue',
           name: cue.name,
           category: cue.category,
-          params: cue.params,
+          params: cue.params
         } as Item);
       continue;
     }
     // else lyric
-    curSection.items.push({ type: "lyric", text: line } as Item);
+    curSection.items.push({ type: 'lyric', text: line } as Item);
   }
   if (curSection) sections.push(curSection);
-  return { mmsl_version: "1.0", title, bpm, beatsPerBar, sections };
+  return { mmsl_version: '1.0', title, bpm, beatsPerBar, sections };
 }
 
 // CLI runner
@@ -398,10 +402,10 @@ if (require.main === module) {
   const argv = process.argv;
   const f = argv[2];
   if (!f) {
-    console.error("Usage: node mmsl-parser.js file.mmsl");
+    console.error('Usage: node mmsl-parser.js file.mmsl');
     process.exit(2);
   }
-  const txt = fs.readFileSync(f, "utf8");
+  const txt = fs.readFileSync(f, 'utf8');
   const ir = parseMMSL(txt);
   console.log(JSON.stringify(ir, null, 2));
 }
@@ -693,17 +697,23 @@ if __name__ == '__main__':
 
 ### Objective
 
-Enable deterministic mapping from a M-MSL file to a video storyboard timeline so visuals can be time-aligned with musical beats, SFX, and lyrical events.
+Enable deterministic mapping from a M-MSL file to a video storyboard timeline so visuals can be time-aligned with
+musical beats, SFX, and lyrical events.
 
 ### Main Components
 
-- **Authoring Layer**: Editor showing `[Section]`, `(Performance)`, `<Cue>` markers with live BPM/Time preview and beat grid
+- **Authoring Layer**: Editor showing `[Section]`, `(Performance)`, `<Cue>` markers with live BPM/Time preview and beat
+  grid
 - **Parser & Normalizer**: Convert M-MSL → JSON IR (beats-normalized)
-- **Timing Engine**: Convert beat-based timestamps into absolute time (seconds) using BPM, tempo maps, and time signature
-- **Event Scheduler**: Emit event list for audio engine and storyboard engine. Each event: `{ type, time_seconds, time_beats, payload }`
+- **Timing Engine**: Convert beat-based timestamps into absolute time (seconds) using BPM, tempo maps, and time
+  signature
+- **Event Scheduler**: Emit event list for audio engine and storyboard engine. Each event:
+  `{ type, time_seconds, time_beats, payload }`
 - **Audio Renderer**: Map cue names → sample file / synth patch / MIDI. Render stems or schedule real-time triggers
-- **Video Storyboarder**: Accept event list, place visual cues on timeline (edit points). Allow visual presets: camera_cut, zoom_in, overlay_on, color_grade, shot_type, VFX
-- **DAW / NLE Bridge**: Export MIDI, automation, markers (Ableton Set, Logic Marker, Reaper project, or simple XML/CSV). Export visual markers as EDL/AAF/markers or generate sidecar JSON for NLE (Premiere, Resolve)
+- **Video Storyboarder**: Accept event list, place visual cues on timeline (edit points). Allow visual presets:
+  camera_cut, zoom_in, overlay_on, color_grade, shot_type, VFX
+- **DAW / NLE Bridge**: Export MIDI, automation, markers (Ableton Set, Logic Marker, Reaper project, or simple XML/CSV).
+  Export visual markers as EDL/AAF/markers or generate sidecar JSON for NLE (Premiere, Resolve)
 - **Preview & Playback**: App previews audio+video in sync, with frame-accurate cue triggers
 - **Live Performance Mode** (optional): Real-time scheduler listens to tempo and triggers events live
 
@@ -711,7 +721,8 @@ Enable deterministic mapping from a M-MSL file to a video storyboard timeline so
 
 For constant tempo: `seconds = (beat / BPM) * 60`
 
-For tempo maps (tempo changes): Maintain ordered tempo segments: `{start_beat, bpm}`. Compute cumulative seconds via integrating piecewise segments.
+For tempo maps (tempo changes): Maintain ordered tempo segments: `{start_beat, bpm}`. Compute cumulative seconds via
+integrating piecewise segments.
 
 ### Data Exchange Format
 
@@ -730,7 +741,8 @@ For tempo maps (tempo changes): Maintain ordered tempo segments: `{start_beat, b
 2. Parser produces IR (durations normalized to beats)
 3. Timing Engine converts each cue to `time_seconds`
 4. Event Scheduler outputs JSON event list
-5. Storyboard UI imports events and auto-creates timeline panels: `time_seconds=7.5` → place camera cut marker, `time_seconds=8.0` → place lyric subtitle
+5. Storyboard UI imports events and auto-creates timeline panels: `time_seconds=7.5` → place camera cut marker,
+   `time_seconds=8.0` → place lyric subtitle
 6. Audio Renderer produces stems and final mix
 7. Export combined timeline to NLE with audio stems and visual markers for polishing
 
@@ -744,7 +756,9 @@ For tempo maps (tempo changes): Maintain ordered tempo segments: `{start_beat, b
 
 ### Drift & Sync Considerations
 
-Use sample-accurate scheduling for audio (DAW). Use frame-accurate scheduling for video (NLE). Align using common time base (seconds with 1/48000s or 1/1000s precision). For variable framerate (VFR) video, convert timeline to CFR for final render.
+Use sample-accurate scheduling for audio (DAW). Use frame-accurate scheduling for video (NLE). Align using common time
+base (seconds with 1/48000s or 1/1000s precision). For variable framerate (VFR) video, convert timeline to CFR for final
+render.
 
 ### Example: Beat-Driven Storyboard Snippet
 

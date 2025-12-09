@@ -2,7 +2,8 @@
 
 ## Overview
 
-This guide covers MongoDB setup, security hardening, and schema design for Harmonia. The system uses a native MongoDB installation on Windows for optimal performance.
+This guide covers MongoDB setup, security hardening, and schema design for Harmonia. The system uses a native MongoDB
+installation on Windows for optimal performance.
 
 ## When to Use Different MongoDB Configurations
 
@@ -100,7 +101,7 @@ security:
 db.runCommand({ connectionStatus: 1 });
 
 // This should succeed with admin credentials
-db.auth("admin", "your_secure_password");
+db.auth('admin', 'your_secure_password');
 ```
 
 #### Layer 3: User Management
@@ -110,19 +111,19 @@ db.auth("admin", "your_secure_password");
 ```javascript
 // Admin user (full access)
 db.createUser({
-  user: "admin",
-  pwd: "secure_admin_password",
-  roles: ["userAdminAnyDatabase", "dbAdminAnyDatabase", "readWriteAnyDatabase"],
+  user: 'admin',
+  pwd: 'secure_admin_password',
+  roles: ['userAdminAnyDatabase', 'dbAdminAnyDatabase', 'readWriteAnyDatabase']
 });
 
 // Application user (limited access)
 db.createUser({
-  user: "harmonia_app",
-  pwd: "secure_app_password",
+  user: 'harmonia_app',
+  pwd: 'secure_app_password',
   roles: [
-    { role: "readWrite", db: "harmonia" },
-    { role: "dbAdmin", db: "harmonia" },
-  ],
+    { role: 'readWrite', db: 'harmonia' },
+    { role: 'dbAdmin', db: 'harmonia' }
+  ]
 });
 ```
 
@@ -196,9 +197,11 @@ auditLog:
 
 ### Schema Principles
 
-- **Aggregate roots**: Model collections around aggregate roots (e.g., `model_artifacts`, `inventory_versions`, `jobs`) — keep each aggregate's invariants in a single place.
+- **Aggregate roots**: Model collections around aggregate roots (e.g., `model_artifacts`, `inventory_versions`, `jobs`)
+  — keep each aggregate's invariants in a single place.
 - **Normalized references**: Use `ObjectId` references for shared resources, avoid duplicating large binary payloads.
-- **Small embedded documents**: Embed small immutable snapshots inside parent documents when it improves read performance and the embedded data is immutable.
+- **Small embedded documents**: Embed small immutable snapshots inside parent documents when it improves read
+  performance and the embedded data is immutable.
 
 ### Core Collections
 
@@ -245,8 +248,8 @@ interface InventoryVersion {
 
 ```typescript
 interface Job {
-  type: "download" | "validate" | "inference";
-  status: "pending" | "running" | "success" | "failed";
+  type: 'download' | 'validate' | 'inference';
+  status: 'pending' | 'running' | 'success' | 'failed';
   worker_id: string;
   params: any; // stored as JSON
   logs: string[]; // embedded tail log
@@ -261,7 +264,7 @@ Use `type` + `interface` to keep TypeScript types in sync with Mongoose schemas.
 
 ```typescript
 // src/models/modelArtifact.ts
-import { Schema, Document } from "mongoose";
+import { Schema, Document } from 'mongoose';
 
 export interface IModelArtifact extends Document {
   name: string;
@@ -281,12 +284,12 @@ const ModelArtifactSchema = new Schema<IModelArtifact>({
   path: { type: String, required: true },
   size_bytes: { type: Number, required: true },
   hashes: {
-    sha256: { type: String, required: true },
+    sha256: { type: String, required: true }
   },
-  license_id: { type: Schema.Types.ObjectId, ref: "License", required: true },
+  license_id: { type: Schema.Types.ObjectId, ref: 'License', required: true },
   tags: [{ type: String }],
   created_at: { type: Date, default: Date.now },
-  created_by: { type: String, required: true },
+  created_by: { type: String, required: true }
 });
 
 // Indexes for performance
@@ -386,11 +389,11 @@ export default ModelArtifactSchema;
 4. **Create Collections**
 
    ```javascript
-   db.createCollection("model_artifacts");
-   db.createCollection("licenses");
-   db.createCollection("inventory_versions");
-   db.createCollection("jobs");
-   db.createCollection("events");
+   db.createCollection('model_artifacts');
+   db.createCollection('licenses');
+   db.createCollection('inventory_versions');
+   db.createCollection('jobs');
+   db.createCollection('events');
    ```
 
 ### Environment Configuration

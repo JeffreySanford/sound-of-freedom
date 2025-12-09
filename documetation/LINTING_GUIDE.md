@@ -8,7 +8,8 @@
 
 ## Overview
 
-This document provides guidelines for code linting in the Harmonia project. We use ESLint for TypeScript code and markdownlint for documentation.
+This document provides guidelines for code linting in the Harmonia project. We use ESLint for TypeScript code and
+markdownlint for documentation.
 
 ---
 
@@ -43,7 +44,8 @@ All warnings are non-blocking and acceptable for development:
 
 **Status**: Configuration issue
 
-Lint target fails due to Windows path length limitation. This is a known Nx issue on Windows and doesn't indicate code problems.
+Lint target fails due to Windows path length limitation. This is a known Nx issue on Windows and doesn't indicate code
+problems.
 
 **Workaround**: Backend code follows same ESLint rules as frontend. Can be verified via IDE linting.
 
@@ -176,7 +178,8 @@ ELIFECYCLE  Command failed with exit code 255.
 
 ### Rules Enforced
 
-We follow the [markdownlint rules](https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md) with custom configuration:
+We follow the [markdownlint rules](https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md) with custom
+configuration:
 
 **Key Rules**:
 
@@ -198,8 +201,7 @@ We follow the [markdownlint rules](https://github.com/DavidAnson/markdownlint/bl
 Some text
 
 - List item 1
-- List item 2
-  More text
+- List item 2 More text
 
 <!-- Good -->
 
@@ -348,7 +350,7 @@ const value = state.data?.value ?? defaultValue;
 
 // Or
 if (!state.data) {
-  throw new Error("State data is required");
+  throw new Error('State data is required');
 }
 const value = state.data.value;
 ```
@@ -370,10 +372,7 @@ Located in: `.eslintrc.json` (root) and project-specific configs
     "no-console": "warn",
     "@typescript-eslint/no-non-null-assertion": "warn",
     "max-lines-per-function": ["warn", { "max": 100 }],
-    "@typescript-eslint/no-unused-vars": [
-      "error",
-      { "argsIgnorePattern": "^_" }
-    ]
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
   }
 }
 ```
@@ -401,10 +400,7 @@ Install extensions:
 
 ```json
 {
-  "recommendations": [
-    "dbaeumer.vscode-eslint",
-    "DavidAnson.vscode-markdownlint"
-  ]
+  "recommendations": ["dbaeumer.vscode-eslint", "DavidAnson.vscode-markdownlint"]
 }
 ```
 
@@ -461,11 +457,11 @@ function getData<T>(param: T): T {
 
 ```typescript
 // Bad
-console.log("Debug info:", data);
+console.log('Debug info:', data);
 
 // Good - Remove or replace with proper logging
 // Remove for production, or use logging service
-this.logger.debug("Debug info", data);
+this.logger.debug('Debug info', data);
 ```
 
 ### 3. `@typescript-eslint/no-non-null-assertion`
@@ -479,11 +475,11 @@ this.logger.debug("Debug info", data);
 const value = data!.property;
 
 // Good - Optional chaining with default
-const value = data?.property ?? "default";
+const value = data?.property ?? 'default';
 
 // Or guard clause
 if (!data) {
-  throw new Error("Data is required");
+  throw new Error('Data is required');
 }
 const value = data.property;
 ```
@@ -581,8 +577,8 @@ jobs:
       - uses: pnpm/action-setup@v2
       - uses: actions/setup-node@v3
         with:
-          node-version: "20"
-          cache: "pnpm"
+          node-version: '20'
+          cache: 'pnpm'
 
       - run: pnpm install
       - run: pnpm nx run-many --target=lint --all

@@ -2,7 +2,8 @@
 
 ## Overview
 
-Redis is integrated as a high-performance in-memory data store for session management and request/response caching. This significantly improves application performance by reducing database queries and speeding up authentication checks.
+Redis is integrated as a high-performance in-memory data store for session management and request/response caching. This
+significantly improves application performance by reducing database queries and speeding up authentication checks.
 
 **Key Use Cases**:
 
@@ -82,7 +83,7 @@ Redis is integrated as a high-performance in-memory data store for session manag
 
 ```yaml
 # docker-compose.yml
-version: "3.8"
+version: '3.8'
 
 services:
   # Redis Service
@@ -91,7 +92,7 @@ services:
     container_name: harmonia-redis
     restart: unless-stopped
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - '${REDIS_PORT:-6379}:6379'
     volumes:
       - redis-data:/data
       - ./redis.conf:/usr/local/etc/redis/redis.conf # Optional: custom config
@@ -99,7 +100,7 @@ services:
     networks:
       - harmonia-network
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
       interval: 10s
       timeout: 3s
       retries: 3
@@ -115,7 +116,7 @@ services:
     container_name: harmonia-backend
     restart: unless-stopped
     ports:
-      - "${BACKEND_PORT:-3333}:3333"
+      - '${BACKEND_PORT:-3333}:3333'
     environment:
       - NODE_ENV=production
       - MONGODB_URI=${MONGODB_URI}
@@ -141,7 +142,7 @@ services:
     container_name: harmonia-mongodb
     restart: unless-stopped
     ports:
-      - "${MONGODB_PORT:-27017}:27017"
+      - '${MONGODB_PORT:-27017}:27017'
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
@@ -152,7 +153,7 @@ services:
     networks:
       - harmonia-network
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ['CMD', 'mongosh', '--eval', "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -241,15 +242,15 @@ REDIS_TTL_DEFAULT=3600  # 1 hour in seconds
 
 ```typescript
 // redis.module.ts
-import { Module, Global } from "@nestjs/common";
-import { RedisService } from "./redis.service";
-import { ConfigModule } from "@nestjs/config";
+import { Module, Global } from '@nestjs/common';
+import { RedisService } from './redis.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Global() // Make available across entire app
 @Module({
   imports: [ConfigModule],
   providers: [RedisService],
-  exports: [RedisService],
+  exports: [RedisService]
 })
 export class RedisModule {}
 ```
@@ -258,14 +259,9 @@ export class RedisModule {}
 
 ```typescript
 // redis.service.ts
-import {
-  Injectable,
-  OnModuleInit,
-  OnModuleDestroy,
-  Logger,
-} from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { createClient, RedisClientType } from "redis";
+import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { createClient, RedisClientType } from 'redis';
 
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
@@ -275,24 +271,24 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   constructor(private configService: ConfigService) {
     this.client = createClient({
       socket: {
-        host: this.configService.get("REDIS_HOST", "localhost"),
-        port: this.configService.get("REDIS_PORT", 6379),
+        host: this.configService.get('REDIS_HOST', 'localhost'),
+        port: this.configService.get('REDIS_PORT', 6379)
       },
-      password: this.configService.get("REDIS_PASSWORD"),
-      database: this.configService.get("REDIS_DB", 0),
+      password: this.configService.get('REDIS_PASSWORD'),
+      database: this.configService.get('REDIS_DB', 0)
     });
 
     // Error handling
-    this.client.on("error", (err) => {
-      this.logger.error("Redis Client Error", err);
+    this.client.on('error', (err) => {
+      this.logger.error('Redis Client Error', err);
     });
 
-    this.client.on("connect", () => {
-      this.logger.log("Redis Client Connected");
+    this.client.on('connect', () => {
+      this.logger.log('Redis Client Connected');
     });
 
-    this.client.on("ready", () => {
-      this.logger.log("Redis Client Ready");
+    this.client.on('ready', () => {
+      this.logger.log('Redis Client Ready');
     });
   }
 
@@ -518,10 +514,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   /**
    * Subscribe to channel
    */
-  async subscribe(
-    channel: string,
-    callback: (message: string) => void
-  ): Promise<void> {
+  async subscribe(channel: string, callback: (message: string) => void): Promise<void> {
     const subscriber = this.client.duplicate();
     await subscriber.connect();
     await subscriber.subscribe(channel, callback);
@@ -532,11 +525,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   /**
    * Cache-aside pattern: get from cache or execute function and cache result
    */
-  async getOrSet<T>(
-    key: string,
-    fetcher: () => Promise<T>,
-    ttl?: number
-  ): Promise<T> {
+  async getOrSet<T>(key: string, fetcher: () => Promise<T>, ttl?: number): Promise<T> {
     // Try to get from cache
     const cached = await this.getJson<T>(key);
     if (cached !== null) {
@@ -587,28 +576,21 @@ export class AuthService {
     @InjectModel(User.name) private userModel: Model<UserDocument>
   ) {}
 
-  async storeSession(
-    userId: string,
-    accessToken: string,
-    refreshToken: string
-  ): Promise<void> {
+  async storeSession(userId: string, accessToken: string, refreshToken: string): Promise<void> {
     const sessionKey = `session:${userId}`;
     const sessionData = {
       userId,
       accessToken: accessToken.substring(0, 30), // Store token prefix for validation
       refreshToken,
       createdAt: Date.now(),
-      lastActivity: Date.now(),
+      lastActivity: Date.now()
     };
 
     // Store session with 7-day TTL (matches refresh token expiry)
     await this.redisService.setJson(sessionKey, sessionData, 7 * 24 * 60 * 60);
   }
 
-  async validateSession(
-    userId: string,
-    accessTokenPrefix: string
-  ): Promise<boolean> {
+  async validateSession(userId: string, accessTokenPrefix: string): Promise<boolean> {
     const sessionKey = `session:${userId}`;
     const session = await this.redisService.getJson<any>(sessionKey);
 
@@ -642,10 +624,7 @@ export class AuthService {
 ```typescript
 // users.service.ts (excerpt)
 export class UsersService {
-  constructor(
-    private redisService: RedisService,
-    @InjectModel(User.name) private userModel: Model<UserDocument>
-  ) {}
+  constructor(private redisService: RedisService, @InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async getUserById(userId: string): Promise<User> {
     const cacheKey = `cache:user:${userId}`;
@@ -656,7 +635,7 @@ export class UsersService {
       async () => {
         const user = await this.userModel.findById(userId);
         if (!user) {
-          throw new NotFoundException("User not found");
+          throw new NotFoundException('User not found');
         }
         return this.mapToDto(user);
       },
@@ -667,7 +646,7 @@ export class UsersService {
   async updateUser(userId: string, updates: any): Promise<User> {
     // Update database
     const user = await this.userModel.findByIdAndUpdate(userId, updates, {
-      new: true,
+      new: true
     });
 
     // Invalidate cache
@@ -691,9 +670,7 @@ export class LibraryService {
 
   async findByUserId(userId: string, filters: any, page: number) {
     // Generate cache key based on filters and pagination
-    const cacheKey = `cache:library:${userId}:${JSON.stringify(
-      filters
-    )}:${page}`;
+    const cacheKey = `cache:library:${userId}:${JSON.stringify(filters)}:${page}`;
     const ttl = 30 * 60; // 30 minutes
 
     return this.redisService.getOrSet(
@@ -704,25 +681,21 @@ export class LibraryService {
 
         // Build query...
         const query: any = { userId };
-        if (filters.type && filters.type !== "all") {
+        if (filters.type && filters.type !== 'all') {
           query.type = filters.type;
         }
 
         // Execute query...
         const [items, total] = await Promise.all([
-          this.libraryItemModel
-            .find(query)
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(pageSize),
-          this.libraryItemModel.countDocuments(query),
+          this.libraryItemModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(pageSize),
+          this.libraryItemModel.countDocuments(query)
         ]);
 
         return {
           items: items.map((item) => this.mapToDto(item)),
           total,
           page,
-          pageSize,
+          pageSize
         };
       },
       ttl
@@ -742,10 +715,7 @@ export class LibraryService {
     await this.libraryItemModel.findByIdAndDelete(id);
 
     // Invalidate cache
-    await this.redisService.invalidateMultiple([
-      `cache:library:${userId}:*`,
-      `cache:songs:${id}`,
-    ]);
+    await this.redisService.invalidateMultiple([`cache:library:${userId}:*`, `cache:songs:${id}`]);
   }
 }
 ```
@@ -754,22 +724,13 @@ export class LibraryService {
 
 ```typescript
 // rate-limit.guard.ts
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  HttpException,
-  HttpStatus,
-} from "@nestjs/common";
-import { Reflector } from "@nestjs/core";
-import { RedisService } from "../redis/redis.service";
+import { Injectable, CanActivate, ExecutionContext, HttpException, HttpStatus } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class RateLimitGuard implements CanActivate {
-  constructor(
-    private reflector: Reflector,
-    private redisService: RedisService
-  ) {}
+  constructor(private reflector: Reflector, private redisService: RedisService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -795,10 +756,7 @@ export class RateLimitGuard implements CanActivate {
     }
 
     if (current > limit) {
-      throw new HttpException(
-        "Too many requests. Please try again later.",
-        HttpStatus.TOO_MANY_REQUESTS
-      );
+      throw new HttpException('Too many requests. Please try again later.', HttpStatus.TOO_MANY_REQUESTS);
     }
 
     return true;
@@ -827,10 +785,10 @@ export class JobsService {
       userId,
       type,
       params,
-      status: "pending",
+      status: 'pending',
       progress: 0,
       createdAt: Date.now(),
-      updatedAt: Date.now(),
+      updatedAt: Date.now()
     };
 
     // Store job with 24-hour TTL
@@ -839,11 +797,7 @@ export class JobsService {
     return jobId;
   }
 
-  async updateJobProgress(
-    jobId: string,
-    progress: number,
-    status: string
-  ): Promise<void> {
+  async updateJobProgress(jobId: string, progress: number, status: string): Promise<void> {
     const jobKey = `job:${jobId}`;
     const job = await this.redisService.getJson<any>(jobKey);
 
@@ -854,10 +808,7 @@ export class JobsService {
       await this.redisService.setJson(jobKey, job, 24 * 60 * 60);
 
       // Publish progress update for WebSocket
-      await this.redisService.publish(
-        `job:${jobId}:progress`,
-        JSON.stringify({ progress, status })
-      );
+      await this.redisService.publish(`job:${jobId}:progress`, JSON.stringify({ progress, status }));
     }
   }
 
@@ -871,17 +822,14 @@ export class JobsService {
     const job = await this.redisService.getJson<any>(jobKey);
 
     if (job) {
-      job.status = "completed";
+      job.status = 'completed';
       job.progress = 100;
       job.result = result;
       job.completedAt = Date.now();
       await this.redisService.setJson(jobKey, job, 24 * 60 * 60);
 
       // Publish completion event
-      await this.redisService.publish(
-        `job:${jobId}:completed`,
-        JSON.stringify(result)
-      );
+      await this.redisService.publish(`job:${jobId}:completed`, JSON.stringify(result));
     }
   }
 }
@@ -980,8 +928,8 @@ FLUSHDB
 
 ```typescript
 // redis-metrics.service.ts
-import { Injectable } from "@nestjs/common";
-import { RedisService } from "./redis.service";
+import { Injectable } from '@nestjs/common';
+import { RedisService } from './redis.service';
 
 @Injectable()
 export class RedisMetricsService {
@@ -989,16 +937,16 @@ export class RedisMetricsService {
 
   async getCacheMetrics() {
     // Get all cache keys
-    const cacheKeys = await this.redisService.keys("cache:*");
-    const sessionKeys = await this.redisService.keys("session:*");
-    const jobKeys = await this.redisService.keys("job:*");
+    const cacheKeys = await this.redisService.keys('cache:*');
+    const sessionKeys = await this.redisService.keys('session:*');
+    const jobKeys = await this.redisService.keys('job:*');
 
     // Calculate total memory usage (approximate)
     let totalSize = 0;
     for (const key of cacheKeys) {
       const value = await this.redisService.get(key);
       if (value) {
-        totalSize += Buffer.byteLength(value, "utf8");
+        totalSize += Buffer.byteLength(value, 'utf8');
       }
     }
 
@@ -1008,14 +956,14 @@ export class RedisMetricsService {
       sessionKeys: sessionKeys.length,
       jobKeys: jobKeys.length,
       totalMemoryUsage: totalSize,
-      memoryUsageFormatted: this.formatBytes(totalSize),
+      memoryUsageFormatted: this.formatBytes(totalSize)
     };
   }
 
   async getCacheHitRate() {
     // Implement cache hit/miss tracking
-    const hits = await this.redisService.get("metrics:cache:hits");
-    const misses = await this.redisService.get("metrics:cache:misses");
+    const hits = await this.redisService.get('metrics:cache:hits');
+    const misses = await this.redisService.get('metrics:cache:misses');
 
     const hitsNum = hits ? parseInt(hits) : 0;
     const missesNum = misses ? parseInt(misses) : 0;
@@ -1025,14 +973,14 @@ export class RedisMetricsService {
       hits: hitsNum,
       misses: missesNum,
       total,
-      hitRate: total > 0 ? ((hitsNum / total) * 100).toFixed(2) + "%" : "0%",
+      hitRate: total > 0 ? ((hitsNum / total) * 100).toFixed(2) + '%' : '0%'
     };
   }
 
   private formatBytes(bytes: number): string {
-    if (bytes < 1024) return bytes + " B";
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + " KB";
-    return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
   }
 }
 ```
@@ -1071,7 +1019,7 @@ await this.redisService.setJson(libraryKey, libraryData, 30 * 60);
 await this.redisService.setJson(jobKey, jobData, 24 * 60 * 60);
 
 // Rate limiting: 1 minute (sliding window)
-await this.redisService.setEx(rateKey, 60, "0");
+await this.redisService.setEx(rateKey, 60, '0');
 
 // Temporary data: Custom (e.g., 5 minutes for email verification codes)
 await this.redisService.setJson(tempKey, tempData, 5 * 60);
@@ -1128,21 +1076,18 @@ async getWithLock<T>(key: string, fetcher: () => Promise<T>, ttl: number): Promi
 
 ### 5. Connection Pooling
 
-Redis client already handles connection pooling internally. No additional configuration needed for single-instance Redis.
+Redis client already handles connection pooling internally. No additional configuration needed for single-instance
+Redis.
 
 For Redis Cluster, use:
 
 ```typescript
 // redis.service.ts (cluster mode)
 this.client = createCluster({
-  rootNodes: [
-    { url: "redis://redis-1:6379" },
-    { url: "redis://redis-2:6379" },
-    { url: "redis://redis-3:6379" },
-  ],
+  rootNodes: [{ url: 'redis://redis-1:6379' }, { url: 'redis://redis-2:6379' }, { url: 'redis://redis-3:6379' }],
   defaults: {
-    password: this.configService.get("REDIS_PASSWORD"),
-  },
+    password: this.configService.get('REDIS_PASSWORD')
+  }
 });
 ```
 
@@ -1151,7 +1096,7 @@ this.client = createCluster({
 ### Unit Tests
 
 ```typescript
-describe("RedisService", () => {
+describe('RedisService', () => {
   let service: RedisService;
   let mockRedisClient: any;
 
@@ -1160,24 +1105,24 @@ describe("RedisService", () => {
       get: jest.fn(),
       set: jest.fn(),
       del: jest.fn(),
-      setEx: jest.fn(),
+      setEx: jest.fn()
     };
 
     service = new RedisService(mockRedisClient);
   });
 
-  it("should get and parse JSON", async () => {
-    const data = { id: "123", name: "Test" };
+  it('should get and parse JSON', async () => {
+    const data = { id: '123', name: 'Test' };
     mockRedisClient.get.mockResolvedValue(JSON.stringify(data));
 
-    const result = await service.getJson("test-key");
+    const result = await service.getJson('test-key');
     expect(result).toEqual(data);
   });
 
-  it("should handle cache miss gracefully", async () => {
+  it('should handle cache miss gracefully', async () => {
     mockRedisClient.get.mockResolvedValue(null);
 
-    const result = await service.getJson("nonexistent-key");
+    const result = await service.getJson('nonexistent-key');
     expect(result).toBeNull();
   });
 });
@@ -1186,22 +1131,22 @@ describe("RedisService", () => {
 ### Integration Tests
 
 ```typescript
-describe("Auth Service with Redis", () => {
-  it("should store and retrieve session", async () => {
-    const userId = "test-user-123";
-    const accessToken = "test-token";
-    const refreshToken = "test-refresh";
+describe('Auth Service with Redis', () => {
+  it('should store and retrieve session', async () => {
+    const userId = 'test-user-123';
+    const accessToken = 'test-token';
+    const refreshToken = 'test-refresh';
 
     await authService.storeSession(userId, accessToken, refreshToken);
 
     const session = await redisService.getJson(`session:${userId}`);
-    expect(session).toHaveProperty("userId", userId);
-    expect(session).toHaveProperty("accessToken");
+    expect(session).toHaveProperty('userId', userId);
+    expect(session).toHaveProperty('accessToken');
   });
 
-  it("should invalidate session on logout", async () => {
-    const userId = "test-user-123";
-    await authService.storeSession(userId, "token", "refresh");
+  it('should invalidate session on logout', async () => {
+    const userId = 'test-user-123';
+    await authService.storeSession(userId, 'token', 'refresh');
 
     await authService.destroySession(userId);
 

@@ -1,12 +1,15 @@
 # Legal & License Audit (Models and Datasets)
 
-Purpose
-This document provides a step-by-step checklist and templates to audit licenses and legal constraints for models, datasets, and derived artifacts used by Harmonia. Before packaging or distributing any model/dataset or building a product that uses them, complete this audit and attach results to the PR.
+Purpose This document provides a step-by-step checklist and templates to audit licenses and legal constraints for
+models, datasets, and derived artifacts used by Harmonia. Before packaging or distributing any model/dataset or building
+a product that uses them, complete this audit and attach results to the PR.
 
 High-level principles
 
-- Do not assume permissive rights. Each repository or dataset must be checked for an explicit license file and terms of service.
-- Pay special attention to: commercial use restrictions, redistribution (rehosting), derivative work definitions, attribution, and export controls.
+- Do not assume permissive rights. Each repository or dataset must be checked for an explicit license file and terms of
+  service.
+- Pay special attention to: commercial use restrictions, redistribution (rehosting), derivative work definitions,
+  attribution, and export controls.
 - If a license is ambiguous, treat as restricted until legal advice or explicit permission is obtained.
 
 Checklist (per model / dataset)
@@ -37,7 +40,8 @@ Checklist (per model / dataset)
 
 5. Model card / README review
 
-   - Read the model card for usage notes. Note any content restrictions (e.g., disallows generating certain content, ethical disclaimers).
+   - Read the model card for usage notes. Note any content restrictions (e.g., disallows generating certain content,
+     ethical disclaimers).
 
 6. Rights for production use
 
@@ -51,8 +55,10 @@ Checklist (per model / dataset)
 
 8. If restrictions exist
 
-   - If license forbids commercial use, either do not use the model for commercial products or obtain explicit written permission from the copyright holder.
-   - If redistribution is limited, do not include the model in any public image or release. Instead reference the source and provide a downloader script.
+   - If license forbids commercial use, either do not use the model for commercial products or obtain explicit written
+     permission from the copyright holder.
+   - If redistribution is limited, do not include the model in any public image or release. Instead reference the source
+     and provide a downloader script.
 
 9. GDPR / Data Privacy
 
@@ -60,7 +66,8 @@ Checklist (per model / dataset)
 
 10. Export controls and sanctions
 
-- Verify that the model creators or hosting locations are not restricted by sanctions that would prevent distribution or use in target markets.
+- Verify that the model creators or hosting locations are not restricted by sanctions that would prevent distribution or
+  use in target markets.
 
 Sample PR checklist (add to PR description)
 
@@ -74,7 +81,8 @@ Sample PR checklist (add to PR description)
 
 Automated aids
 
-- Add `scripts/license_audit_stub.py` to pull `model` entries from `inventory/combined_inventory.json` and create a checklist file for manual completion. This is NOT a substitute for legal review.
+- Add `scripts/license_audit_stub.py` to pull `model` entries from `inventory/combined_inventory.json` and create a
+  checklist file for manual completion. This is NOT a substitute for legal review.
 
 When to escalate to legal
 
@@ -92,5 +100,8 @@ End of Legal & License Audit guidance.
 
 ## Critical notes & recommendations (direct)
 
-- **Licensing caution:** Many Hugging Face–hosted models and other community checkpoints restrict redistribution or commercial use. Do not bundle such models into public images or releases. Always store the license text (snapshot) in `legal/licenses/` and require legal sign-off before using a model in any commercial product.
-- **Distribution practice:** If redistribution is restricted, provide a downloader script (that references the original source URL) rather than including the model binary in any image or release.
+- **Licensing caution:** Many Hugging Face–hosted models and other community checkpoints restrict redistribution or
+  commercial use. Do not bundle such models into public images or releases. Always store the license text (snapshot) in
+  `legal/licenses/` and require legal sign-off before using a model in any commercial product.
+- **Distribution practice:** If redistribution is restricted, provide a downloader script (that references the original
+  source URL) rather than including the model binary in any image or release.

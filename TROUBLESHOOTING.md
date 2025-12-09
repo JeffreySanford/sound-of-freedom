@@ -710,3 +710,4 @@ pnpm --version
 
 **Last Updated:** December 2, 2025\
 **Covers:** Phase 0 infrastructure setup
+tup

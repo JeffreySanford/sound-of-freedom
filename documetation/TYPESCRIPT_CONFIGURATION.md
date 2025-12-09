@@ -2,7 +2,8 @@
 
 ## Overview
 
-Harmonia uses a comprehensive TypeScript configuration strategy that enforces maximum type safety while optimizing for both Angular and NestJS platforms. This guide explains the configuration hierarchy and settings.
+Harmonia uses a comprehensive TypeScript configuration strategy that enforces maximum type safety while optimizing for
+both Angular and NestJS platforms. This guide explains the configuration hierarchy and settings.
 
 ---
 
@@ -168,7 +169,7 @@ tsconfig.json (root)
 **Before (`noUncheckedIndexedAccess: false`):**
 
 ```typescript
-const users = ["Alice", "Bob"];
+const users = ['Alice', 'Bob'];
 const user = users[5]; // string (runtime error)
 console.log(user.toUpperCase()); // Crashes!
 ```
@@ -176,7 +177,7 @@ console.log(user.toUpperCase()); // Crashes!
 **After (`noUncheckedIndexedAccess: true`):**
 
 ```typescript
-const users = ["Alice", "Bob"];
+const users = ['Alice', 'Bob'];
 const user = users[5]; // string | undefined
 console.log(user?.toUpperCase()); // Safe!
 ```
@@ -207,7 +208,7 @@ function process(data: { value: string }) {
 ```typescript
 function getStatus(id: number): string {
   if (id > 0) {
-    return "active";
+    return 'active';
   }
   // Missing return - runtime undefined!
 }
@@ -218,9 +219,9 @@ function getStatus(id: number): string {
 ```typescript
 function getStatus(id: number): string {
   if (id > 0) {
-    return "active";
+    return 'active';
   }
-  return "inactive"; // Compiler enforces all paths return
+  return 'inactive'; // Compiler enforces all paths return
 }
 ```
 
@@ -252,28 +253,28 @@ function greet(name: string | null) {
 
 ```typescript
 // ❌ Bad: Relative imports
-import { AuthService } from "../../../services/auth.service";
-import { User } from "../../../models/user.model";
-import { API_URL } from "../../../environments/environment";
+import { AuthService } from '../../../services/auth.service';
+import { User } from '../../../models/user.model';
+import { API_URL } from '../../../environments/environment';
 
 // ✅ Good: Path mapped imports
-import { AuthService } from "@app/services/auth.service";
-import { User } from "@app/models/user.model";
-import { API_URL } from "@environments/environment";
+import { AuthService } from '@app/services/auth.service';
+import { User } from '@app/models/user.model';
+import { API_URL } from '@environments/environment';
 ```
 
 ### Backend (NestJS)
 
 ```typescript
 // ❌ Bad: Relative imports
-import { UsersService } from "../../../users/users.service";
-import { DatabaseConfig } from "../../../config/database.config";
-import { LoggerMiddleware } from "../../../common/middleware/logger.middleware";
+import { UsersService } from '../../../users/users.service';
+import { DatabaseConfig } from '../../../config/database.config';
+import { LoggerMiddleware } from '../../../common/middleware/logger.middleware';
 
 // ✅ Good: Path mapped imports
-import { UsersService } from "@app/users/users.service";
-import { DatabaseConfig } from "@config/database.config";
-import { LoggerMiddleware } from "@common/middleware/logger.middleware";
+import { UsersService } from '@app/users/users.service';
+import { DatabaseConfig } from '@config/database.config';
+import { LoggerMiddleware } from '@common/middleware/logger.middleware';
 ```
 
 ---
@@ -388,7 +389,7 @@ Without `emitDecoratorMetadata: true`, dependency injection fails at runtime.
 class Example {
   name: string;
   constructor() {
-    this.name = "default";
+    this.name = 'default';
   }
 }
 
@@ -432,11 +433,11 @@ item?.property;
 ```typescript
 function getStatus(id: number): string {
   if (id > 0) {
-    return "active";
+    return 'active';
   } else if (id === 0) {
-    return "pending";
+    return 'pending';
   }
-  return "unknown"; // Must cover all paths
+  return 'unknown'; // Must cover all paths
 }
 ```
 

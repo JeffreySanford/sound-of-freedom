@@ -93,8 +93,7 @@ Use a line-oriented tokenizer. For most languages, these regexes will work.
 
 Tokenize by spaces — tokens that contain `=` are key/val; others can be positional.
 
-Example cue parse:
-Input: `&lt;SFX synth_solo duration=6s repeat=1 pan=right intensity=0.8&gt;`
+Example cue parse: Input: `&lt;SFX synth_solo duration=6s repeat=1 pan=right intensity=0.8&gt;`
 
 - `cue.type = sfx` or `synth_solo` (normalize)
 - `params.duration = 6s` → convert to ms or seconds as app requires
@@ -196,7 +195,7 @@ Make this namespace an enumerated list in the schema so renderers and AI prompts
 // Simple parser that converts text to JSON structure
 type CueParams = { [k: string]: string | number | boolean };
 type Item = {
-  type: "performance" | "lyric" | "cue";
+  type: 'performance' | 'lyric' | 'cue';
   text?: string;
   cue_type?: string;
   name?: string;
@@ -206,7 +205,7 @@ type Item = {
 function parseSong(text: string) {
   const lines = text.split(/\r?\n/);
   const sections: any[] = [];
-  let currentSection: any = { id: "intro", label: "Intro", items: [] };
+  let currentSection: any = { id: 'intro', label: 'Intro', items: [] };
 
   const sectionRE = /^\s*\[([^\]]+)\]\s*$/i;
   const perfRE = /^\s*\(([^)]+)\)\s*$/i;
@@ -222,19 +221,19 @@ function parseSong(text: string) {
       if (currentSection.items.length) sections.push(currentSection);
       const label = m[1].trim();
       currentSection = {
-        id: label.toLowerCase().replace(/\s+/g, "-"),
+        id: label.toLowerCase().replace(/\s+/g, '-'),
         label,
-        items: [],
+        items: []
       };
       continue;
     }
     if ((m = line.match(perfInlineRE))) {
-      currentSection.items.push({ type: "performance", text: m[1].trim() });
-      currentSection.items.push({ type: "lyric", text: m[2].trim() });
+      currentSection.items.push({ type: 'performance', text: m[1].trim() });
+      currentSection.items.push({ type: 'lyric', text: m[2].trim() });
       continue;
     }
     if ((m = line.match(perfRE))) {
-      currentSection.items.push({ type: "performance", text: m[1].trim() });
+      currentSection.items.push({ type: 'performance', text: m[1].trim() });
       continue;
     }
     if ((m = line.match(cueRE))) {
@@ -247,12 +246,12 @@ function parseSong(text: string) {
       // parse key=val tokens
       for (let i = 1; i < tokens.length; i++) {
         const t = tokens[i];
-        const kv = t.split("=");
+        const kv = t.split('=');
         if (kv.length === 2) {
           const k = kv[0].toLowerCase();
           let v: string | number = kv[1];
           if (/^\d+(\.\d+)?s$/.test(v)) {
-            v = parseFloat(v.replace("s", ""));
+            v = parseFloat(v.replace('s', ''));
           } else if (/^\d+$/.test(v)) {
             v = parseInt(v);
           } else if (/^\d+\.\d+$/.test(v)) {
@@ -268,15 +267,15 @@ function parseSong(text: string) {
       // derive name
       const name = tokens[0];
       currentSection.items.push({
-        type: "cue",
+        type: 'cue',
         cue_type: cue_type,
         name,
-        params,
+        params
       });
       continue;
     }
     // fallback: lyric
-    currentSection.items.push({ type: "lyric", text: line });
+    currentSection.items.push({ type: 'lyric', text: line });
   }
   if (currentSection.items.length) sections.push(currentSection);
   return { sections };
@@ -301,7 +300,8 @@ To ensure robust outputs, validate parsed structure:
   - `intensity` must be between 0 and 1.
   - `pan` must be left, right, center or numeric between -1 and 1.
 - **Performance instruction length**: limit to 256 chars default.
-- **No overlapping cues**: if a cue is declared with `start_time` and `duration`, check that same track/layer doesn't exceed concurrency constraints unless layering allowed.
+- **No overlapping cues**: if a cue is declared with `start_time` and `duration`, check that same track/layer doesn't
+  exceed concurrency constraints unless layering allowed.
 - **Tempo / Key checks** (if declared): valid numeric bpm, valid key tokens (C, Gm, D#min).
 - **Reserved word checks**: warn if unknown SFX name (not in namespace); either auto-fallback or reject.
 - **Security**: sanitize all text (avoid command injection if cues can call external scripts).
@@ -428,7 +428,8 @@ When you pass the DSL to an LLM to expand or fill parts, use explicit instructio
 
 **Example:**
 
-System: You are a music generation assistant. Parse the DSL below and replace any `&lt;SFX ...&gt;` placeholders with recommended sample filenames or synth patch parameters. Output JSON with fields: sections[], cues[], suggestedAssets[].
+System: You are a music generation assistant. Parse the DSL below and replace any `&lt;SFX ...&gt;` placeholders with
+recommended sample filenames or synth patch parameters. Output JSON with fields: sections[], cues[], suggestedAssets[].
 
 User:
 
@@ -439,13 +440,15 @@ I walk alone...
 \<SFX footsteps repeat=4\>
 ```
 
-Task: For each cue, suggest asset: either a sample id or synth preset. If unknown, return "generate_synth_patch" with suggested oscillator types, filter settings, and envelope.
+Task: For each cue, suggest asset: either a sample id or synth preset. If unknown, return "generate_synth_patch" with
+suggested oscillator types, filter settings, and envelope.
 
 Use examples in the prompt to teach mapping of DSL cue names → sample assets.
 
 ## Extending the DSL (advanced capabilities)
 
-- **Time-based control**: allow `start=` and `beat=` attributes, e.g. `\<SFX pad start=1.5s duration=4s\>` or `\<SFX kick start=1.2 beat=3.1\>` mapped to BPM.
+- **Time-based control**: allow `start=` and `beat=` attributes, e.g. `\<SFX pad start=1.5s duration=4s\>` or
+  `\<SFX kick start=1.2 beat=3.1\>` mapped to BPM.
 - **Conditional cues**: `\<SFX crowd if=chorus\>` for adaptive generation.
 - **Macros / Snippets**: allow `[CHORUS_01]` referencing external snippet files.
 - **Parameter interpolation**: `&lt;SFX synth_solo duration=6s intensity=0-&gt;1&gt;` for fades/rises.
@@ -498,7 +501,8 @@ Goodnight...
 \<SFX wind fade_out=3s\>
 ```
 
-Parsed JSON of this is passed to your renderer, which maps `strings_swell` → orchestral patch, `footsteps` → sample set, and `(whisper)` → TTS voice config.
+Parsed JSON of this is passed to your renderer, which maps `strings_swell` → orchestral patch, `footsteps` → sample set,
+and `(whisper)` → TTS voice config.
 
 ## Roadmap & Next Steps (implementation plan)
 
@@ -508,7 +512,8 @@ Parsed JSON of this is passed to your renderer, which maps `strings_swell` → o
 4. **Build prompt templates**: For your AI models to expand cues into actual sound assets or synth parameters.
 5. **Integrate with DAW**: Export to MIDI + automation or spawn audio stems programmatically.
 6. **Add validation & CI checks**: Lint DSL files in repo, fail builds if invalid cues detected.
-7. **Create authoring UI**: A simple editor that highlights `[Section]`, `(Performance)`, `&lt;Cue&gt;` and can preview mapped samples.
+7. **Create authoring UI**: A simple editor that highlights `[Section]`, `(Performance)`, `&lt;Cue&gt;` and can preview
+   mapped samples.
 
 ## Quick Reference (cheat sheet)
 

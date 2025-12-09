@@ -1,7 +1,8 @@
 # Orchestrator Overview
 
 The orchestrator is responsible for coordinating microservices (jen1, muscgen), job queues, and shared infrastructure.
-It is the component responsible for scheduling generation jobs and managing shared resources such as Redis and the API endpoints.
+It is the component responsible for scheduling generation jobs and managing shared resources such as Redis and the API
+endpoints.
 
 Responsibilities
 
@@ -12,7 +13,8 @@ Responsibilities
 Preferred OS & runtime
 
 - Ubuntu 22.04 LTS as Docker base is recommended.
-- The orchestrator image is lightweight and can be Node.js-based (as implemented in this repo), with `redis` as runtime dependency.
+- The orchestrator image is lightweight and can be Node.js-based (as implemented in this repo), with `redis` as runtime
+  dependency.
 
 Service configuration
 

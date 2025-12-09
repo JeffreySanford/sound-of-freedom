@@ -806,3 +806,5 @@ describe('ModelsEffects', () => {
 * [NGRX Entity Adapter](https://ngrx.io/guide/entity)
 * [Redux DevTools](https://github.com/reduxjs/redux-devtools)
 * [RxJS Operators](https://rxjs.dev/guide/operators)
+  s]\(https://github.com/reduxjs/redux-devtools)
+* [RxJS Operators](https://rxjs.dev/guide/operators)

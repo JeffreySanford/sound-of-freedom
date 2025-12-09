@@ -1,13 +1,13 @@
 # Ollama Integration Guide
 
-**Version**: 2.0
-**Last Updated**: December 4, 2025
-**Status**: Active
-**Models**: deepseek-coder:6.7b (current), minstral3 (upcoming)
+**Version**: 2.0 **Last Updated**: December 4, 2025 **Status**: Active **Models**: deepseek-coder:6.7b (current),
+minstral3 (upcoming)
 
 ## Overview
 
-Harmonia's Ollama integration provides comprehensive AI-powered music generation through local LLM deployment. This system supports the complete Narrative → Lyric → Music → Video pipeline with multi-model orchestration, robust error handling, and production-ready guardrails.
+Harmonia's Ollama integration provides comprehensive AI-powered music generation through local LLM deployment. This
+system supports the complete Narrative → Lyric → Music → Video pipeline with multi-model orchestration, robust error
+handling, and production-ready guardrails.
 
 ## Architecture
 
@@ -46,8 +46,7 @@ Ollama enables side-by-side model execution with per-request switching:
 - Song annotation DSL generation
 - Lyrics-to-melody coupling suggestions
 
-**Status**: Active in local Ollama instance
-**Behavioral Notes**:
+**Status**: Active in local Ollama instance **Behavioral Notes**:
 
 - May include free-text explanations outside JSON - requires extraction
 - Excellent structured prompt following
@@ -208,12 +207,12 @@ pnpm run llm:debug -- --model deepseek-coder:6.7b --feature metadata
 **Recommended for Production**:
 
 ```yaml
-version: "3.8"
+version: '3.8'
 services:
   ollama:
     image: ollama/ollama:latest
     ports:
-      - "11434:11434"
+      - '11434:11434'
     volumes:
       - ./models:/root/.ollama/models
     environment:
@@ -305,10 +304,10 @@ Model registry with mappers that normalize outputs to canonical schema:
 function mapDeepSeekResponse(raw: any): SongMetadata {
   return {
     title: raw.title,
-    lyrics: Array.isArray(raw.lyrics) ? raw.lyrics.join("\n") : raw.lyrics,
+    lyrics: Array.isArray(raw.lyrics) ? raw.lyrics.join('\n') : raw.lyrics,
     genre: raw.genre,
     mood: Array.isArray(raw.mood) ? raw.mood : [raw.mood],
-    syllableCount: raw.syllableCount || 0,
+    syllableCount: raw.syllableCount || 0
   };
 }
 ```
@@ -396,8 +395,8 @@ Add audio cues <SFX>, <instrument>, etc. where appropriate.
 ```typescript
 // Add to model registry
 const modelMappers = {
-  "deepseek-coder:6.7b": mapDeepSeekResponse,
-  minstral3: mapMinstralResponse,
+  'deepseek-coder:6.7b': mapDeepSeekResponse,
+  minstral3: mapMinstralResponse
 };
 ```
 

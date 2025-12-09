@@ -2,7 +2,9 @@
 
 ## Overview
 
-Harmonia is an AI-driven music harmonization platform allowing performers and producers to quickly prototype harmonic arrangements for melodies, riffs, and complete songs. The system focuses on melodic context, stylistic reharmonization, and collaborative editing.
+Harmonia is an AI-driven music harmonization platform allowing performers and producers to quickly prototype harmonic
+arrangements for melodies, riffs, and complete songs. The system focuses on melodic context, stylistic reharmonization,
+and collaborative editing.
 
 ## Goals
 

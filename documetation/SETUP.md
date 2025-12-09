@@ -4,7 +4,8 @@ Complete setup guide for Harmonia development environment
 
 ## Overview
 
-This guide covers the complete setup process for developing Harmonia locally, including prerequisites, development environment configuration, Docker services, and deployment options.
+This guide covers the complete setup process for developing Harmonia locally, including prerequisites, development
+environment configuration, Docker services, and deployment options.
 
 ## Prerequisites
 
@@ -193,12 +194,12 @@ pnpm run docker:ml:stop
 For production-like local development:
 
 ```yaml
-version: "3.8"
+version: '3.8'
 services:
   mongodb:
     image: mongo:8.0
     ports:
-      - "27017:27017"
+      - '27017:27017'
     volumes:
       - mongodb_data:/data/db
     environment:
@@ -208,7 +209,7 @@ services:
   ml-service:
     image: harmonia-harmonia:latest
     ports:
-      - "8000:8000"
+      - '8000:8000'
     volumes:
       - ./models:/workspace/models:ro
       - ./artifacts:/workspace/artifacts
@@ -268,7 +269,8 @@ pnpm run docker:ml:start
 
 ### Nx-managed docker infra
 
-For convenience, an Nx-managed infra project (`infra`) exists to start local services via docker compose. These include `jen1` (Jenkins), `ollama` (local LLM), and `musicgen` (MusicGen worker).
+For convenience, an Nx-managed infra project (`infra`) exists to start local services via docker compose. These include
+`jen1` (Jenkins), `ollama` (local LLM), and `musicgen` (MusicGen worker).
 
 Quick commands:
 

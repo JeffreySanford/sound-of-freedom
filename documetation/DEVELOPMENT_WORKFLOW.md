@@ -163,13 +163,13 @@ nx generate @nx/angular:component \
 
 ```typescript
 // my-component.component.ts
-import { Component } from "@angular/core";
+import { Component } from '@angular/core';
 
 @Component({
-  selector: "app-my-component",
+  selector: 'app-my-component',
   standalone: false, // REQUIRED
-  templateUrl: "./my-component.component.html",
-  styleUrl: "./my-component.component.scss",
+  templateUrl: './my-component.component.html',
+  styleUrl: './my-component.component.scss'
 })
 export class MyComponent {}
 ```
@@ -178,9 +178,9 @@ export class MyComponent {}
 
 ```scss
 // my-component.component.scss
-@use "../../../../styles/colors";
-@use "../../../../styles/mixins";
-@use "../../../../styles/typography";
+@use '../../../../styles/colors';
+@use '../../../../styles/mixins';
+@use '../../../../styles/typography';
 
 .my-component {
   @include mixins.card-elevated;
@@ -198,14 +198,14 @@ export class MyComponent {}
 
 ```typescript
 // song-generation.module.ts
-import { NgModule } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { MyComponent } from "./components/my-component/my-component.component";
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MyComponent } from './components/my-component/my-component.component';
 
 @NgModule({
   declarations: [MyComponent],
   imports: [CommonModule],
-  exports: [MyComponent],
+  exports: [MyComponent]
 })
 export class SongGenerationModule {}
 ```
@@ -240,14 +240,14 @@ features/song-generation/
 
 ```typescript
 // song-generation.module.ts
-import { NgModule } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { ReactiveFormsModule } from "@angular/forms";
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 
-import { SongGenerationRoutingModule } from "./song-generation-routing.module";
-import { SongGenerationPageComponent } from "./pages/song-generation-page/song-generation-page.component";
-import { SongFormComponent } from "./components/song-form/song-form.component";
-import { SongGenerationMaterialModule } from "./song-generation-material.module";
+import { SongGenerationRoutingModule } from './song-generation-routing.module';
+import { SongGenerationPageComponent } from './pages/song-generation-page/song-generation-page.component';
+import { SongFormComponent } from './components/song-form/song-form.component';
+import { SongGenerationMaterialModule } from './song-generation-material.module';
 
 @NgModule({
   declarations: [SongGenerationPageComponent, SongFormComponent],
@@ -255,8 +255,8 @@ import { SongGenerationMaterialModule } from "./song-generation-material.module"
     CommonModule,
     ReactiveFormsModule,
     SongGenerationRoutingModule,
-    SongGenerationMaterialModule, // Centralized Material imports
-  ],
+    SongGenerationMaterialModule // Centralized Material imports
+  ]
 })
 export class SongGenerationModule {}
 ```
@@ -269,32 +269,20 @@ See [MATERIAL_MODULES.md](./MATERIAL_MODULES.md) for complete documentation.
 
 ```typescript
 // song-generation-material.module.ts
-import { NgModule } from "@angular/core";
-import { MatButtonModule } from "@angular/material/button";
-import { MatCardModule } from "@angular/material/card";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputModule } from "@angular/material/input";
-import { MatSelectModule } from "@angular/material/select";
+import { NgModule } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 
 /**
  * Material Design modules for Song Generation feature
  * Only imports what's needed for tree-shaking optimization
  */
 @NgModule({
-  imports: [
-    MatButtonModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-  ],
-  exports: [
-    MatButtonModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-  ],
+  imports: [MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule],
+  exports: [MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule]
 })
 export class SongGenerationMaterialModule {}
 ```
@@ -303,20 +291,20 @@ export class SongGenerationMaterialModule {}
 
 ```typescript
 // song-generation-routing.module.ts
-import { NgModule } from "@angular/core";
-import { RouterModule, Routes } from "@angular/router";
-import { SongGenerationPageComponent } from "./pages/song-generation-page/song-generation-page.component";
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { SongGenerationPageComponent } from './pages/song-generation-page/song-generation-page.component';
 
 const routes: Routes = [
   {
-    path: "",
-    component: SongGenerationPageComponent,
-  },
+    path: '',
+    component: SongGenerationPageComponent
+  }
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
+  exports: [RouterModule]
 })
 export class SongGenerationRoutingModule {}
 ```
@@ -325,16 +313,13 @@ export class SongGenerationRoutingModule {}
 
 ```typescript
 // app.routes.ts
-import { Route } from "@angular/router";
+import { Route } from '@angular/router';
 
 export const appRoutes: Route[] = [
   {
-    path: "generate/song",
-    loadChildren: () =>
-      import("./features/song-generation/song-generation.module").then(
-        (m) => m.SongGenerationModule
-      ),
-  },
+    path: 'generate/song',
+    loadChildren: () => import('./features/song-generation/song-generation.module').then((m) => m.SongGenerationModule)
+  }
   // ... other routes
 ];
 ```
@@ -345,16 +330,16 @@ export const appRoutes: Route[] = [
 
 ```typescript
 // song-generation-page.component.ts
-import { Component } from "@angular/core";
-import { Store } from "@ngrx/store";
-import { AppState } from "../../../../store/app.state";
-import * as JobsActions from "../../../../store/jobs/jobs.actions";
+import { Component } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../../../store/app.state';
+import * as JobsActions from '../../../../store/jobs/jobs.actions';
 
 @Component({
-  selector: "app-song-generation-page",
+  selector: 'app-song-generation-page',
   standalone: false,
-  templateUrl: "./song-generation-page.component.html",
-  styleUrl: "./song-generation-page.component.scss",
+  templateUrl: './song-generation-page.component.html',
+  styleUrl: './song-generation-page.component.scss'
 })
 export class SongGenerationPageComponent {
   constructor(private store: Store<AppState>) {}
@@ -362,8 +347,8 @@ export class SongGenerationPageComponent {
   onGenerate(params: SongParams): void {
     this.store.dispatch(
       JobsActions.createJob({
-        jobType: "generate",
-        parameters: params,
+        jobType: 'generate',
+        parameters: params
       })
     );
   }
@@ -373,8 +358,8 @@ export class SongGenerationPageComponent {
 #### 2. Select Data from Store
 
 ```typescript
-import { Observable } from "rxjs";
-import * as fromJobs from "../../../../store/jobs/jobs.selectors";
+import { Observable } from 'rxjs';
+import * as fromJobs from '../../../../store/jobs/jobs.selectors';
 
 export class SongGenerationPageComponent implements OnInit {
   jobs$!: Observable<Job[]>;
@@ -410,17 +395,14 @@ export class SongGenerationPageComponent implements OnInit {
 
 ```typescript
 // app.component.ts
-import { Component, OnInit, OnDestroy } from "@angular/core";
-import { Store } from "@ngrx/store";
-import { filter } from "rxjs/operators";
-import { WebSocketService } from "./services/websocket.service";
-import * as fromAuth from "./store/auth/auth.selectors";
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { filter } from 'rxjs/operators';
+import { WebSocketService } from './services/websocket.service';
+import * as fromAuth from './store/auth/auth.selectors';
 
 export class App implements OnInit, OnDestroy {
-  constructor(
-    private store: Store<AppState>,
-    private websocketService: WebSocketService
-  ) {}
+  constructor(private store: Store<AppState>, private websocketService: WebSocketService) {}
 
   ngOnInit(): void {
     this.store
@@ -445,13 +427,10 @@ export class App implements OnInit, OnDestroy {
 export class JobDetailComponent implements OnInit, OnDestroy {
   jobId!: string;
 
-  constructor(
-    private route: ActivatedRoute,
-    private websocketService: WebSocketService
-  ) {}
+  constructor(private route: ActivatedRoute, private websocketService: WebSocketService) {}
 
   ngOnInit(): void {
-    this.jobId = this.route.snapshot.params["id"];
+    this.jobId = this.route.snapshot.params['id'];
     this.websocketService.subscribeToJob(this.jobId);
   }
 
@@ -467,10 +446,10 @@ export class JobDetailComponent implements OnInit, OnDestroy {
 
 ```scss
 // Always import from styles folder
-@use "../../../styles/colors";
-@use "../../../styles/mixins";
-@use "../../../styles/typography";
-@use "../../../styles/layout";
+@use '../../../styles/colors';
+@use '../../../styles/mixins';
+@use '../../../styles/typography';
+@use '../../../styles/layout';
 ```
 
 #### 2. Use Mixins for Common Patterns
@@ -515,11 +494,11 @@ export class JobDetailComponent implements OnInit, OnDestroy {
 
 ```typescript
 // songs.controller.ts
-import { Controller, Get, Post, Body } from "@nestjs/common";
-import { SongsService } from "./songs.service";
-import { CreateSongDto } from "./dto/create-song.dto";
+import { Controller, Get, Post, Body } from '@nestjs/common';
+import { SongsService } from './songs.service';
+import { CreateSongDto } from './dto/create-song.dto';
 
-@Controller("api/songs")
+@Controller('api/songs')
 export class SongsController {
   constructor(private readonly songsService: SongsService) {}
 
@@ -539,10 +518,10 @@ export class SongsController {
 
 ```typescript
 // songs.service.ts
-import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-import { Song, SongDocument } from "./schemas/song.schema";
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Song, SongDocument } from './schemas/song.schema';
 
 @Injectable()
 export class SongsService {
@@ -563,27 +542,22 @@ export class SongsService {
 
 ```typescript
 // songs.gateway.ts
-import {
-  WebSocketGateway,
-  SubscribeMessage,
-  MessageBody,
-  WebSocketServer,
-} from "@nestjs/websockets";
-import { Server } from "socket.io";
+import { WebSocketGateway, SubscribeMessage, MessageBody, WebSocketServer } from '@nestjs/websockets';
+import { Server } from 'socket.io';
 
 @WebSocketGateway()
 export class SongsGateway {
   @WebSocketServer()
   server!: Server;
 
-  @SubscribeMessage("song:generate")
+  @SubscribeMessage('song:generate')
   handleGenerate(@MessageBody() data: { params: SongParams }) {
     // Process song generation
-    this.server.emit("song:progress", { progress: 50 });
+    this.server.emit('song:progress', { progress: 50 });
   }
 
   broadcastCompletion(songId: string): void {
-    this.server.emit("song:completed", { songId });
+    this.server.emit('song:completed', { songId });
   }
 }
 ```
@@ -593,18 +567,18 @@ export class SongsGateway {
 ### Component Testing
 
 ```typescript
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { provideMockStore } from "@ngrx/store/testing";
-import { SongFormComponent } from "./song-form.component";
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideMockStore } from '@ngrx/store/testing';
+import { SongFormComponent } from './song-form.component';
 
-describe("SongFormComponent", () => {
+describe('SongFormComponent', () => {
   let component: SongFormComponent;
   let fixture: ComponentFixture<SongFormComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [SongFormComponent],
-      providers: [provideMockStore()],
+      providers: [provideMockStore()]
     }).compileComponents();
 
     fixture = TestBed.createComponent(SongFormComponent);
@@ -612,13 +586,13 @@ describe("SongFormComponent", () => {
     fixture.detectChanges();
   });
 
-  it("should create", () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it("should emit form data on submit", () => {
-    spyOn(component.submit, "emit");
-    component.form.patchValue({ title: "Test Song" });
+  it('should emit form data on submit', () => {
+    spyOn(component.submit, 'emit');
+    component.form.patchValue({ title: 'Test Song' });
     component.onSubmit();
     expect(component.submit.emit).toHaveBeenCalled();
   });
@@ -628,22 +602,22 @@ describe("SongFormComponent", () => {
 ### Service Testing
 
 ```typescript
-import { TestBed } from "@angular/core/testing";
-import { HttpClientTestingModule } from "@angular/common/http/testing";
-import { SongsService } from "./songs.service";
+import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { SongsService } from './songs.service';
 
-describe("SongsService", () => {
+describe('SongsService', () => {
   let service: SongsService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [SongsService],
+      providers: [SongsService]
     });
     service = TestBed.inject(SongsService);
   });
 
-  it("should be created", () => {
+  it('should be created', () => {
     expect(service).toBeTruthy();
   });
 });

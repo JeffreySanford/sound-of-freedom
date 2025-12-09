@@ -2,13 +2,18 @@
 
 ## Executive Summary
 
-**Your Idea**: Reduce NGRX state model size by loading only the data needed for specific views/requests, rather than fetching complete entity objects.
+**Your Idea**: Reduce NGRX state model size by loading only the data needed for specific views/requests, rather than
+fetching complete entity objects.
 
 **My Assessment**: ⚠️ **PARTIALLY FLAWED - SIMPLER ALTERNATIVES EXIST**
 
-**Bottom Line**: Your instinct is correct that over-fetching is wasteful, but the proposed "context-aware reducer optimization" is solving a problem that doesn't exist in NGRX the way you're describing it. NGRX **already supports** selective data loading through **selectors** and **projection** - you don't need to modify reducers. The real optimization happens at the **API layer** and **selector layer**, not the reducer layer.
+**Bottom Line**: Your instinct is correct that over-fetching is wasteful, but the proposed "context-aware reducer
+optimization" is solving a problem that doesn't exist in NGRX the way you're describing it. NGRX **already supports**
+selective data loading through **selectors** and **projection** - you don't need to modify reducers. The real
+optimization happens at the **API layer** and **selector layer**, not the reducer layer.
 
-**What You're Actually Describing**: Backend API optimization with field filtering + frontend selector optimization - both are **standard practices**, not novel approaches.
+**What You're Actually Describing**: Backend API optimization with field filtering + frontend selector optimization -
+both are **standard practices**, not novel approaches.
 
 **Recommendation**: ✅ **Implement standard NGRX patterns instead**
 
@@ -25,7 +30,8 @@ Let me break down why, what you're missing, and what to do instead.
 
 ### Your Concern
 
-> "Library view doesn't need full song objects (50KB each with lyrics, history, metadata). It only needs: id, title, genre, duration, fileUrl. Loading full objects wastes memory and bandwidth."
+> "Library view doesn't need full song objects (50KB each with lyrics, history, metadata). It only needs: id, title,
+> genre, duration, fileUrl. Loading full objects wastes memory and bandwidth."
 
 ### You're Right About
 
@@ -80,7 +86,8 @@ interface LibrarySongView {
 
 ### Your Proposal (As I Understand It)
 
-> "NGRX reducers should minimize model size per request context. Library reducer only stores LibrarySongView, not FullSong. Different reducers for different views."
+> "NGRX reducers should minimize model size per request context. Library reducer only stores LibrarySongView, not
+> FullSong. Different reducers for different views."
 
 ### Why This Won't Work
 
@@ -113,19 +120,18 @@ loadLibrary$ = createEffect(() =>
     switchMap(() =>
       // THIS is where you control the data shape
       this.http
-        .get<LibrarySongView[]>("/api/library/minimal") // <-- Field filtering!
+        .get<LibrarySongView[]>('/api/library/minimal') // <-- Field filtering!
         .pipe(
           map((items) => LibraryActions.loadLibrarySuccess({ items })),
-          catchError((error) =>
-            of(LibraryActions.loadLibraryFailure({ error }))
-          )
+          catchError((error) => of(LibraryActions.loadLibraryFailure({ error })))
         )
     )
   )
 );
 ```
 
-**Key Point**: By the time data reaches the reducer, it's already been fetched from the API. The reducer can't "reduce" the payload size - it's too late.
+**Key Point**: By the time data reaches the reducer, it's already been fetched from the API. The reducer can't "reduce"
+the payload size - it's too late.
 
 #### 2. **This Creates Data Duplication and Inconsistency**
 
@@ -172,13 +178,12 @@ export const selectLibrarySongs = createSelector(selectAllSongs, (songs) =>
     title: song.title,
     genre: song.genre,
     duration: song.metadata.duration,
-    fileUrl: song.fileUrl,
+    fileUrl: song.fileUrl
   }))
 );
 
 // Selector for detail view (returns full data)
-export const selectSongById = (id: string) =>
-  createSelector(selectSongsEntities, (entities) => entities[id]);
+export const selectSongById = (id: string) => createSelector(selectSongsEntities, (entities) => entities[id]);
 ```
 
 **Result**:
@@ -257,7 +262,7 @@ loadSongDetails$ = createEffect(() =>
 NGRX has `@ngrx/entity` for managing collections efficiently.
 
 ```typescript
-import { createEntityAdapter, EntityState } from "@ngrx/entity";
+import { createEntityAdapter, EntityState } from '@ngrx/entity';
 
 export interface Song {
   id: string;
@@ -276,23 +281,15 @@ export const songsAdapter = createEntityAdapter<Song>();
 export const initialSongsState: SongsState = songsAdapter.getInitialState({
   selectedId: null,
   loading: false,
-  error: null,
+  error: null
 });
 
 export const songsReducer = createReducer(
   initialSongsState,
-  on(SongActions.loadSongsSuccess, (state, { songs }) =>
-    songsAdapter.setAll(songs, state)
-  ),
-  on(SongActions.addSong, (state, { song }) =>
-    songsAdapter.addOne(song, state)
-  ),
-  on(SongActions.updateSong, (state, { song }) =>
-    songsAdapter.updateOne({ id: song.id, changes: song }, state)
-  ),
-  on(SongActions.deleteSong, (state, { id }) =>
-    songsAdapter.removeOne(id, state)
-  )
+  on(SongActions.loadSongsSuccess, (state, { songs }) => songsAdapter.setAll(songs, state)),
+  on(SongActions.addSong, (state, { song }) => songsAdapter.addOne(song, state)),
+  on(SongActions.updateSong, (state, { song }) => songsAdapter.updateOne({ id: song.id, changes: song }, state)),
+  on(SongActions.deleteSong, (state, { id }) => songsAdapter.removeOne(id, state))
 );
 ```
 
@@ -438,7 +435,7 @@ async getLibrary(@Query('fields') fields?: string) {
 
 ```typescript
 // songs.state.ts
-import { createEntityAdapter, EntityState } from "@ngrx/entity";
+import { createEntityAdapter, EntityState } from '@ngrx/entity';
 
 export interface Song {
   id: string;
@@ -462,7 +459,7 @@ export const songsAdapter = createEntityAdapter<Song>();
 export const initialSongsState: SongsState = songsAdapter.getInitialState({
   selectedId: null,
   loading: false,
-  error: null,
+  error: null
 });
 ```
 
@@ -471,27 +468,21 @@ export const initialSongsState: SongsState = songsAdapter.getInitialState({
 ```typescript
 // songs.actions.ts
 // Load minimal data for library view
-export const loadLibrary = createAction("[Library] Load Library");
+export const loadLibrary = createAction('[Library] Load Library');
 export const loadLibrarySuccess = createAction(
-  "[Library] Load Library Success",
+  '[Library] Load Library Success',
   props<{ songs: Song[] }>() // Minimal Song objects
 );
-export const loadLibraryFailure = createAction(
-  "[Library] Load Library Failure",
-  props<{ error: string }>()
-);
+export const loadLibraryFailure = createAction('[Library] Load Library Failure', props<{ error: string }>());
 
 // Load full data for detail view
-export const loadSongDetails = createAction(
-  "[Song Detail] Load Song Details",
-  props<{ id: string }>()
-);
+export const loadSongDetails = createAction('[Song Detail] Load Song Details', props<{ id: string }>());
 export const loadSongDetailsSuccess = createAction(
-  "[Song Detail] Load Song Details Success",
+  '[Song Detail] Load Song Details Success',
   props<{ song: Song }>() // Full Song object
 );
 export const loadSongDetailsFailure = createAction(
-  "[Song Detail] Load Song Details Failure",
+  '[Song Detail] Load Song Details Failure',
   props<{ error: string }>()
 );
 ```
@@ -505,13 +496,11 @@ export const songsReducer = createReducer(
 
   // Load library (minimal data)
   on(loadLibrary, (state) => ({ ...state, loading: true })),
-  on(loadLibrarySuccess, (state, { songs }) =>
-    songsAdapter.setAll(songs, { ...state, loading: false })
-  ),
+  on(loadLibrarySuccess, (state, { songs }) => songsAdapter.setAll(songs, { ...state, loading: false })),
   on(loadLibraryFailure, (state, { error }) => ({
     ...state,
     loading: false,
-    error,
+    error
   })),
 
   // Load song details (full data)
@@ -523,12 +512,13 @@ export const songsReducer = createReducer(
   on(loadSongDetailsFailure, (state, { error }) => ({
     ...state,
     loading: false,
-    error,
+    error
   }))
 );
 ```
 
-**Key Point**: The reducer doesn't care whether it receives minimal or full objects. It just stores what it's given. The **effects** control what data enters.
+**Key Point**: The reducer doesn't care whether it receives minimal or full objects. It just stores what it's given. The
+**effects** control what data enters.
 
 #### 4. Effects
 
@@ -547,9 +537,7 @@ export class SongsEffects {
         this.songsService.getLibrary().pipe(
           // Returns minimal fields
           map((songs) => loadLibrarySuccess({ songs })),
-          catchError((error) =>
-            of(loadLibraryFailure({ error: error.message }))
-          )
+          catchError((error) => of(loadLibraryFailure({ error: error.message })))
         )
       )
     )
@@ -563,9 +551,7 @@ export class SongsEffects {
         this.songsService.getSongById(id).pipe(
           // Returns full object
           map((song) => loadSongDetailsSuccess({ song })),
-          catchError((error) =>
-            of(loadSongDetailsFailure({ error: error.message }))
-          )
+          catchError((error) => of(loadSongDetailsFailure({ error: error.message })))
         )
       )
     )
@@ -577,7 +563,7 @@ export class SongsEffects {
 
 ```typescript
 // songs.service.ts
-@Injectable({ providedIn: "root" })
+@Injectable({ providedIn: 'root' })
 export class SongsService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/api`;
@@ -585,7 +571,7 @@ export class SongsService {
   // Get minimal data for library
   getLibrary(): Observable<Song[]> {
     return this.http.get<Song[]>(`${this.apiUrl}/library`, {
-      params: { fields: "id,title,genre,duration,fileUrl" }, // Field filtering
+      params: { fields: 'id,title,genre,duration,fileUrl' } // Field filtering
     });
   }
 
@@ -602,13 +588,10 @@ export class SongsService {
 // songs.selectors.ts
 const { selectAll, selectEntities, selectIds } = songsAdapter.getSelectors();
 
-export const selectSongsState = createFeatureSelector<SongsState>("songs");
+export const selectSongsState = createFeatureSelector<SongsState>('songs');
 
 export const selectAllSongs = createSelector(selectSongsState, selectAll);
-export const selectSongsEntities = createSelector(
-  selectSongsState,
-  selectEntities
-);
+export const selectSongsEntities = createSelector(selectSongsState, selectEntities);
 export const selectSongsIds = createSelector(selectSongsState, selectIds);
 
 // Selector for library view (returns minimal data)
@@ -619,19 +602,16 @@ export const selectLibrarySongs = createSelector(selectAllSongs, (songs) =>
     title: song.title,
     genre: song.genre,
     duration: song.duration,
-    fileUrl: song.fileUrl,
+    fileUrl: song.fileUrl
   }))
 );
 
 // Selector for detail view (returns full object)
-export const selectSongById = (id: string) =>
-  createSelector(selectSongsEntities, (entities) => entities[id]);
+export const selectSongById = (id: string) => createSelector(selectSongsEntities, (entities) => entities[id]);
 
 // Check if full details are loaded
 export const selectIsSongFullyLoaded = (id: string) =>
-  createSelector(selectSongById(id), (song) =>
-    song ? !!song.lyrics && !!song.narrative : false
-  );
+  createSelector(selectSongById(id), (song) => (song ? !!song.lyrics && !!song.narrative : false));
 ```
 
 #### 7. Components
@@ -639,14 +619,14 @@ export const selectIsSongFullyLoaded = (id: string) =>
 ```typescript
 // library-page.component.ts
 @Component({
-  selector: "harmonia-library-page",
+  selector: 'harmonia-library-page',
   template: `
     <div *ngFor="let song of librarySongs$ | async">
       <h3>{{ song.title }}</h3>
       <p>{{ song.genre }}</p>
       <button (click)="onViewDetails(song.id)">View Details</button>
     </div>
-  `,
+  `
 })
 export class LibraryPageComponent implements OnInit {
   private readonly store = inject(Store);
@@ -660,13 +640,13 @@ export class LibraryPageComponent implements OnInit {
   }
 
   onViewDetails(id: string): void {
-    this.router.navigate(["/songs", id]);
+    this.router.navigate(['/songs', id]);
   }
 }
 
 // song-detail-page.component.ts
 @Component({
-  selector: "harmonia-song-detail-page",
+  selector: 'harmonia-song-detail-page',
   template: `
     <div *ngIf="song$ | async as song">
       <h1>{{ song.title }}</h1>
@@ -676,19 +656,15 @@ export class LibraryPageComponent implements OnInit {
       <p>{{ song.narrative }}</p>
       <!-- Full data -->
     </div>
-  `,
+  `
 })
 export class SongDetailPageComponent implements OnInit {
   private readonly store = inject(Store);
   private readonly route = inject(ActivatedRoute);
 
-  songId$ = this.route.params.pipe(map((params) => params["id"]));
-  song$ = this.songId$.pipe(
-    switchMap((id) => this.store.select(selectSongById(id)))
-  );
-  isFullyLoaded$ = this.songId$.pipe(
-    switchMap((id) => this.store.select(selectIsSongFullyLoaded(id)))
-  );
+  songId$ = this.route.params.pipe(map((params) => params['id']));
+  song$ = this.songId$.pipe(switchMap((id) => this.store.select(selectSongById(id))));
+  isFullyLoaded$ = this.songId$.pipe(switchMap((id) => this.store.select(selectIsSongFullyLoaded(id))));
 
   ngOnInit(): void {
     this.songId$
@@ -706,25 +682,25 @@ export class SongDetailPageComponent implements OnInit {
 
 ```typescript
 // songs.controller.ts (NestJS)
-@Controller("api/songs")
+@Controller('api/songs')
 export class SongsController {
   constructor(private readonly songsService: SongsService) {}
 
   // Minimal endpoint for library
-  @Get("library")
-  async getLibrary(@Query("fields") fields?: string) {
+  @Get('library')
+  async getLibrary(@Query('fields') fields?: string) {
     const projection = fields ? this.parseFieldsToProjection(fields) : null;
     return this.songsService.findAll(projection);
   }
 
   // Full endpoint for details
-  @Get(":id")
-  async getSongById(@Param("id") id: string) {
+  @Get(':id')
+  async getSongById(@Param('id') id: string) {
     return this.songsService.findById(id); // No projection - returns all fields
   }
 
   private parseFieldsToProjection(fields: string): any {
-    return fields.split(",").reduce((acc, field) => {
+    return fields.split(',').reduce((acc, field) => {
       acc[field] = 1;
       return acc;
     }, {});
@@ -753,15 +729,16 @@ export class SongsService {
 
 ### Scenario: 100 Songs in Library
 
-| Approach                                   | Bandwidth          | Memory                 | API Calls                     | Complexity                                |
-| ------------------------------------------ | ------------------ | ---------------------- | ----------------------------- | ----------------------------------------- |
-| **Your Proposal** (context-aware reducers) | 5MB (full objects) | 5MB (stored in state)  | 1                             | HIGH (multiple state slices, sync issues) |
-| **Standard NGRX** (with field filtering)   | 50KB (minimal)     | 50KB (stored in state) | 1 initial + 1 per detail view | LOW (single source of truth)              |
-| **GraphQL** (optimal)                      | 50KB (minimal)     | 50KB (stored in state) | 1 initial + 1 per detail view | MEDIUM (requires GraphQL setup)           |
+| Approach                                   | Bandwidth | Memory | API Calls | Complexity |
+|--------------------------------------------|-----------|--------|-----------|------------|
+| **Your Proposal** (context-aware reducers) | 5MB       | 5MB    | 1         | HIGH       |
+| **Standard NGRX** (with field filtering)   | 50KB      | 50KB   | 1 + 1     | LOW        |
+| **GraphQL** (optimal)                      | 50KB      | 50KB   | 1 + 1     | MEDIUM     |
 
 ### Verdict
 
-Standard NGRX with backend field filtering achieves the same result as your proposal, with **lower complexity** and **no data duplication**.
+Standard NGRX with backend field filtering achieves the same result as your proposal, with **lower complexity** and **no
+data duplication**.
 
 ---
 
@@ -825,7 +802,7 @@ interface SongsState {
 
 interface LibraryState {
   filters: {
-    type: "all" | "song" | "music";
+    type: 'all' | 'song' | 'music';
     search: string;
   };
   pagination: {
@@ -943,7 +920,8 @@ If you still want to optimize further after implementing the above:
 
 ## Code Example: Standard NGRX (Recommended)
 
-Full working example: See `USER_LIBRARY.md` sections "Library State (NGRX)", "Library Effects", "Library Selectors", and "Library Service".
+Full working example: See `USER_LIBRARY.md` sections "Library State (NGRX)", "Library Effects", "Library Selectors", and
+"Library Service".
 
 The architecture is already correctly designed there. No need for "context-aware reducers."
 
@@ -972,7 +950,8 @@ The architecture is already correctly designed there. No need for "context-aware
 
 ### My Verdict
 
-Your instinct to optimize is **correct**, but your proposed solution is **flawed**. The good news: **NGRX already has the tools you need**. You just need to use them correctly.
+Your instinct to optimize is **correct**, but your proposed solution is **flawed**. The good news: **NGRX already has
+the tools you need**. You just need to use them correctly.
 
 Implement the "Standard NGRX" approach above, and you'll get:
 

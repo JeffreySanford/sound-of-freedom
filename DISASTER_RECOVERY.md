@@ -361,3 +361,5 @@ docker ps | grep harmonia-mongo
 * \[ ] Document custom seed generation procedures
 * \[ ] Set up monitoring/alerting for backup failures
 * \[ ] Consider replica set for production deployments
+  up monitoring/alerting for backup failures
+* \[ ] Consider replica set for production deployments

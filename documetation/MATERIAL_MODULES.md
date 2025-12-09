@@ -2,7 +2,9 @@
 
 ## Overview
 
-Harmonia uses **dedicated Material Design modules** for each feature to enable tree-shaking, centralize imports, and optimize bundle sizes. This architecture ensures that only the Material components actually used by each feature are included in the final bundle.
+Harmonia uses **dedicated Material Design modules** for each feature to enable tree-shaking, centralize imports, and
+optimize bundle sizes. This architecture ensures that only the Material components actually used by each feature are
+included in the final bundle.
 
 ## Architecture Benefits
 
@@ -14,7 +16,8 @@ By creating separate Material modules per feature, Angular's build optimizer can
 - Reduce bundle size for each lazy-loaded route
 - Improve initial load performance
 
-**Example**: If Music Generation uses 8 Material components and Video Generation uses 7, only those specific components are included in each route's bundle.
+**Example**: If Music Generation uses 8 Material components and Video Generation uses 7, only those specific components
+are included in each route's bundle.
 
 ### 2. Centralized Imports
 
@@ -24,13 +27,13 @@ Instead of importing Material modules scattered throughout feature modules:
 
 ```typescript
 // music-generation.module.ts
-import { MatButtonModule } from "@angular/material/button";
-import { MatCardModule } from "@angular/material/card";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputModule } from "@angular/material/input";
-import { MatSelectModule } from "@angular/material/select";
-import { MatIconModule } from "@angular/material/icon";
-import { MatSliderModule } from "@angular/material/slider";
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSliderModule } from '@angular/material/slider';
 // ... more scattered Material imports
 ```
 
@@ -88,11 +91,11 @@ apps/frontend/src/app/
 Every Material module follows this pattern:
 
 ```typescript
-import { NgModule } from "@angular/core";
+import { NgModule } from '@angular/core';
 // Import Material components
-import { MatButtonModule } from "@angular/material/button";
-import { MatCardModule } from "@angular/material/card";
-import { MatIconModule } from "@angular/material/icon";
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 
 /**
  * Material Design modules for [Feature Name]
@@ -103,14 +106,14 @@ import { MatIconModule } from "@angular/material/icon";
     // Import all Material modules this feature needs
     MatButtonModule,
     MatCardModule,
-    MatIconModule,
+    MatIconModule
   ],
   exports: [
     // Export all imported modules (required for template usage)
     MatButtonModule,
     MatCardModule,
-    MatIconModule,
-  ],
+    MatIconModule
+  ]
 })
 export class FeatureMaterialModule {}
 ```
@@ -131,9 +134,9 @@ export class FeatureMaterialModule {}
 **Purpose**: Material components used in the root App component (header, footer, sidebar)
 
 ```typescript
-import { NgModule } from "@angular/core";
-import { MatCardModule } from "@angular/material/card";
-import { MatIconModule } from "@angular/material/icon";
+import { NgModule } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 
 /**
  * Material Design modules used in the root App component
@@ -141,7 +144,7 @@ import { MatIconModule } from "@angular/material/icon";
  */
 @NgModule({
   imports: [MatCardModule, MatIconModule],
-  exports: [MatCardModule, MatIconModule],
+  exports: [MatCardModule, MatIconModule]
 })
 export class AppMaterialModule {}
 ```
@@ -156,15 +159,15 @@ export class AppMaterialModule {}
 **Usage in AppModule**:
 
 ```typescript
-import { AppMaterialModule } from "./app-material.module";
+import { AppMaterialModule } from './app-material.module';
 
 @NgModule({
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    AppMaterialModule, // Import once
+    AppMaterialModule // Import once
     // ...
-  ],
+  ]
 })
 export class AppModule {}
 ```
@@ -176,15 +179,15 @@ export class AppModule {}
 **Purpose**: Material components for music generation forms with BPM slider
 
 ```typescript
-import { NgModule } from "@angular/core";
-import { MatButtonModule } from "@angular/material/button";
-import { MatCardModule } from "@angular/material/card";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
-import { MatSelectModule } from "@angular/material/select";
-import { MatSliderModule } from "@angular/material/slider";
-import { MatOptionModule } from "@angular/material/core";
+import { NgModule } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatOptionModule } from '@angular/material/core';
 
 /**
  * Material Design modules for Music Generation feature
@@ -199,7 +202,7 @@ import { MatOptionModule } from "@angular/material/core";
     MatInputModule,
     MatSelectModule,
     MatSliderModule,
-    MatOptionModule,
+    MatOptionModule
   ],
   exports: [
     MatButtonModule,
@@ -209,8 +212,8 @@ import { MatOptionModule } from "@angular/material/core";
     MatInputModule,
     MatSelectModule,
     MatSliderModule,
-    MatOptionModule,
-  ],
+    MatOptionModule
+  ]
 })
 export class MusicGenerationMaterialModule {}
 ```
@@ -237,14 +240,14 @@ export class MusicGenerationMaterialModule {}
 **Purpose**: Material components for song generation forms
 
 ```typescript
-import { NgModule } from "@angular/core";
-import { MatButtonModule } from "@angular/material/button";
-import { MatCardModule } from "@angular/material/card";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
-import { MatSelectModule } from "@angular/material/select";
-import { MatSliderModule } from "@angular/material/slider";
+import { NgModule } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSliderModule } from '@angular/material/slider';
 
 /**
  * Material Design modules for Song Generation feature
@@ -258,7 +261,7 @@ import { MatSliderModule } from "@angular/material/slider";
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    MatSliderModule,
+    MatSliderModule
   ],
   exports: [
     MatButtonModule,
@@ -267,14 +270,13 @@ import { MatSliderModule } from "@angular/material/slider";
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    MatSliderModule,
-  ],
+    MatSliderModule
+  ]
 })
 export class SongGenerationMaterialModule {}
 ```
 
-**Components**: 7 standard form components
-**Total Size**: ~22 KB
+**Components**: 7 standard form components **Total Size**: ~22 KB
 
 ### Video Generation Material Module
 
@@ -283,14 +285,14 @@ export class SongGenerationMaterialModule {}
 **Purpose**: Material components for video generation with duration slider
 
 ```typescript
-import { NgModule } from "@angular/core";
-import { MatButtonModule } from "@angular/material/button";
-import { MatCardModule } from "@angular/material/card";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
-import { MatSelectModule } from "@angular/material/select";
-import { MatSliderModule } from "@angular/material/slider";
+import { NgModule } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSliderModule } from '@angular/material/slider';
 
 /**
  * Material Design modules for Video Generation feature
@@ -304,7 +306,7 @@ import { MatSliderModule } from "@angular/material/slider";
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    MatSliderModule,
+    MatSliderModule
   ],
   exports: [
     MatButtonModule,
@@ -313,15 +315,14 @@ import { MatSliderModule } from "@angular/material/slider";
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    MatSliderModule,
-  ],
+    MatSliderModule
+  ]
 })
 export class VideoGenerationMaterialModule {}
 ```
 
-**Components**: 7 components including slider
-**Total Size**: ~22 KB
-**Special Feature**: Enhanced duration slider with tick marks (5-60 seconds)
+**Components**: 7 components including slider **Total Size**: ~22 KB **Special Feature**: Enhanced duration slider with
+tick marks (5-60 seconds)
 
 ### Video Editing Material Module
 
@@ -330,35 +331,21 @@ export class VideoGenerationMaterialModule {}
 **Purpose**: Material components for video editing timeline interface
 
 ```typescript
-import { NgModule } from "@angular/core";
-import { MatButtonModule } from "@angular/material/button";
-import { MatCardModule } from "@angular/material/card";
-import { MatDividerModule } from "@angular/material/divider";
-import { MatIconModule } from "@angular/material/icon";
-import { MatListModule } from "@angular/material/list";
-import { MatToolbarModule } from "@angular/material/toolbar";
+import { NgModule } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 /**
  * Material Design modules for Video Editing feature
  * Only imports what's needed for tree-shaking optimization
  */
 @NgModule({
-  imports: [
-    MatButtonModule,
-    MatCardModule,
-    MatDividerModule,
-    MatIconModule,
-    MatListModule,
-    MatToolbarModule,
-  ],
-  exports: [
-    MatButtonModule,
-    MatCardModule,
-    MatDividerModule,
-    MatIconModule,
-    MatListModule,
-    MatToolbarModule,
-  ],
+  imports: [MatButtonModule, MatCardModule, MatDividerModule, MatIconModule, MatListModule, MatToolbarModule],
+  exports: [MatButtonModule, MatCardModule, MatDividerModule, MatIconModule, MatListModule, MatToolbarModule]
 })
 export class VideoEditingMaterialModule {}
 ```
@@ -372,8 +359,7 @@ export class VideoEditingMaterialModule {}
 - `MatListModule` (3 KB) - Scene list (unique to this module)
 - `MatToolbarModule` (2 KB) - Timeline header (unique to this module)
 
-**Total Size**: ~12 KB
-**Unique Features**: Toolbar, List, and Divider components for timeline UI
+**Total Size**: ~12 KB **Unique Features**: Toolbar, List, and Divider components for timeline UI
 
 ## Integration into Feature Modules
 
@@ -381,13 +367,13 @@ export class VideoEditingMaterialModule {}
 
 ```typescript
 // video-generation.module.ts
-import { NgModule } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { ReactiveFormsModule, FormsModule } from "@angular/forms";
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
-import { VideoGenerationRoutingModule } from "./video-generation-routing.module";
-import { VideoGenerationPageComponent } from "./video-generation-page.component";
-import { VideoGenerationMaterialModule } from "./video-generation-material.module";
+import { VideoGenerationRoutingModule } from './video-generation-routing.module';
+import { VideoGenerationPageComponent } from './video-generation-page.component';
+import { VideoGenerationMaterialModule } from './video-generation-material.module';
 
 @NgModule({
   declarations: [VideoGenerationPageComponent],
@@ -396,8 +382,8 @@ import { VideoGenerationMaterialModule } from "./video-generation-material.modul
     ReactiveFormsModule,
     FormsModule,
     VideoGenerationRoutingModule,
-    VideoGenerationMaterialModule, // Single Material module import
-  ],
+    VideoGenerationMaterialModule // Single Material module import
+  ]
 })
 export class VideoGenerationModule {}
 ```
@@ -523,19 +509,8 @@ Users only download Material components for routes they visit:
 **Video Generation Feature** includes an enhanced Material slider:
 
 ```html
-<mat-slider
-  min="5"
-  max="60"
-  step="5"
-  showTickMarks
-  discrete
-  [displayWith]="formatDurationLabel"
->
-  <input
-    matSliderThumb
-    [(value)]="duration"
-    (valueChange)="onDurationChange($event)"
-  />
+<mat-slider min="5" max="60" step="5" showTickMarks discrete [displayWith]="formatDurationLabel">
+  <input matSliderThumb [(value)]="duration" (valueChange)="onDurationChange($event)" />
 </mat-slider>
 ```
 
@@ -684,13 +659,13 @@ Before adding Material components, consider:
 2. **Implement module**:
 
    ```typescript
-   import { NgModule } from "@angular/core";
-   import { MatButtonModule } from "@angular/material/button";
-   import { MatCardModule } from "@angular/material/card";
+   import { NgModule } from '@angular/core';
+   import { MatButtonModule } from '@angular/material/button';
+   import { MatCardModule } from '@angular/material/card';
 
    @NgModule({
      imports: [MatButtonModule, MatCardModule],
-     exports: [MatButtonModule, MatCardModule],
+     exports: [MatButtonModule, MatCardModule]
    })
    export class NewFeatureMaterialModule {}
    ```
@@ -698,10 +673,10 @@ Before adding Material components, consider:
 3. **Import in feature module**:
 
    ```typescript
-   import { NewFeatureMaterialModule } from "./new-feature-material.module";
+   import { NewFeatureMaterialModule } from './new-feature-material.module';
 
    @NgModule({
-     imports: [CommonModule, NewFeatureMaterialModule],
+     imports: [CommonModule, NewFeatureMaterialModule]
    })
    export class NewFeatureModule {}
    ```

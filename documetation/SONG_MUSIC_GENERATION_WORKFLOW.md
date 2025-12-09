@@ -2,14 +2,17 @@
 
 ## Overview
 
-This document describes the complete workflow for generating music from narrative descriptions using a two-stage AI pipeline:
+This document describes the complete workflow for generating music from narrative descriptions using a two-stage AI
+pipeline:
 
-1. **Stage 1 - Song Metadata Generation**: User narrative → AI-generated title, lyrics, genre, mood (via Ollama/Deepseek)
+1. **Stage 1 - Song Metadata Generation**: User narrative → AI-generated title, lyrics, genre, mood (via
+   Ollama/Deepseek)
 2. **Stage 2 - Audio Generation**: Song metadata → Generated audio file (via MusicGen model)
 
 ## Architecture Philosophy
 
-**Two-Stage Process**: We separate metadata generation (LLM) from audio generation (specialized audio model) for better quality, flexibility, and user control.
+**Two-Stage Process**: We separate metadata generation (LLM) from audio generation (specialized audio model) for better
+quality, flexibility, and user control.
 
 ```text
 ┌─────────────┐    ┌──────────────┐    ┌─────────────┐    ┌──────────────┐
@@ -140,13 +143,16 @@ interface SuggestGenresResponse {
 
 ### Overview
 
-To improve user success rates and reduce failed generations, we implement intelligent guidance for narrative input based on song duration and genre. This addresses the challenge that different song lengths require different levels of narrative detail.
+To improve user success rates and reduce failed generations, we implement intelligent guidance for narrative input based
+on song duration and genre. This addresses the challenge that different song lengths require different levels of
+narrative detail.
 
 ### Core Components
 
 #### 1. Narrative Length Indicator
 
-**Visual Progress Bar**: Real-time feedback showing if the current narrative provides sufficient content for the selected duration.
+**Visual Progress Bar**: Real-time feedback showing if the current narrative provides sufficient content for the
+selected duration.
 
 ```typescript
 // Example implementation
@@ -154,8 +160,8 @@ interface NarrativeGuidance {
   duration: number; // seconds
   wordCount: number; // current words in narrative
   targetRange: { min: number; max: number }; // word count range
-  status: "insufficient" | "sufficient" | "optimal";
-  color: "red" | "yellow" | "green";
+  status: 'insufficient' | 'sufficient' | 'optimal';
+  color: 'red' | 'yellow' | 'green';
 }
 ```
 
@@ -180,23 +186,24 @@ interface NarrativeGuidance {
 
 ```typescript
 // Pop - 30s
-"Focus on a catchy hook and emotional peak. Describe the main feeling and one key moment.";
+'Focus on a catchy hook and emotional peak. Describe the main feeling and one key moment.';
 
 // Rock - 60s
-"Build tension with a verse-chorus structure. Include conflict and resolution in your story.";
+'Build tension with a verse-chorus structure. Include conflict and resolution in your story.';
 
 // Hip-Hop - 120s
-"Create a narrative arc with multiple perspectives. Include social commentary or personal growth.";
+'Create a narrative arc with multiple perspectives. Include social commentary or personal growth.';
 
 // Jazz - 45s
-"Emphasize mood and atmosphere. Use sensory details and emotional nuance.";
+'Emphasize mood and atmosphere. Use sensory details and emotional nuance.';
 ```
 
 ### Technical Challenges & Solutions
 
 #### Challenge 1: Variable Song Structures
 
-**Problem**: Songs aren't linear text - they have verses, choruses, bridges, intros, outros. A 3-minute song might need less narrative detail if it has repetitive choruses.
+**Problem**: Songs aren't linear text - they have verses, choruses, bridges, intros, outros. A 3-minute song might need
+less narrative detail if it has repetitive choruses.
 
 **Solutions**:
 
@@ -222,7 +229,8 @@ interface NarrativeGuidance {
 
 #### Challenge 2: Narrative Quality vs Quantity
 
-**Problem**: Word count alone doesn't guarantee good lyrics. A verbose, unfocused narrative might generate worse results than a concise, vivid one.
+**Problem**: Word count alone doesn't guarantee good lyrics. A verbose, unfocused narrative might generate worse results
+than a concise, vivid one.
 
 **Solutions**:
 
@@ -237,9 +245,9 @@ interface NarrativeGuidance {
    ```typescript
    // Fast, cheap model for guidance
    const quality = await ollama.generate({
-     model: "tiny-llm",
+     model: 'tiny-llm',
      prompt: `Rate this narrative for song lyrics (1-10): ${narrative}`,
-     max_tokens: 10,
+     max_tokens: 10
    });
    ```
 
@@ -323,7 +331,7 @@ Examples:
 function countSyllables(text: string): number {
   const words = text
     .toLowerCase()
-    .replace(/[^a-z\s]/g, "")
+    .replace(/[^a-z\s]/g, '')
     .split(/\s+/);
   return words.reduce((count, word) => {
     if (word.length === 0) return count;
@@ -333,7 +341,7 @@ function countSyllables(text: string): number {
     let syllables = vowelGroups ? vowelGroups.length : 0;
 
     // Adjust for silent 'e'
-    if (word.endsWith("e") && syllables > 1) syllables--;
+    if (word.endsWith('e') && syllables > 1) syllables--;
 
     // Minimum 1 syllable per word
     return count + Math.max(1, syllables);
@@ -414,11 +422,11 @@ interface SongStyle {
   tempo: number; // BPM (60-180)
   intro: {
     enabled: boolean;
-    style: "with-music" | "sung" | "no-music";
+    style: 'with-music' | 'sung' | 'no-music';
   };
   outro: {
     enabled: boolean;
-    style: "with-music" | "sung" | "no-music";
+    style: 'with-music' | 'sung' | 'no-music';
   };
 }
 ```
@@ -540,12 +548,12 @@ exportToMusicGeneration({ songId });
   mood: string; // Suggested mood
   syllableCount: number; // Calculated syllable count
   targetSyllables: number; // Target based on duration
-  validationStatus: "valid" | "warning" | "error";
+  validationStatus: 'valid' | 'warning' | 'error';
 }
 ```
 
-**Ollama Prompt Design** (Future Implementation):
-**Note:** If `model` is supplied in the request body it will override `OLLAMA_MODEL` set on the backend; the service will call the mapped per-model mapper for consistent schema output.
+**Ollama Prompt Design** (Future Implementation): **Note:** If `model` is supplied in the request body it will override
+`OLLAMA_MODEL` set on the backend; the service will call the mapped per-model mapper for consistent schema output.
 
 ```typescript
 const prompt = `
@@ -614,7 +622,7 @@ const SongSchema = new Schema({
   approved: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   approvedAt: { type: Date },
-  userId: { type: Schema.Types.ObjectId, ref: "User" },
+  userId: { type: Schema.Types.ObjectId, ref: 'User' }
 });
 ```
 
@@ -655,9 +663,9 @@ export class MusicGenService {
   async generate(params: MusicGenerationParams): Promise<Job> {
     // 1. Create async job
     const job = await this.jobsService.create({
-      type: "music-generation",
+      type: 'music-generation',
       parameters: params,
-      status: "queued",
+      status: 'queued'
     });
 
     // 2. Start background process
@@ -666,7 +674,7 @@ export class MusicGenService {
       lyrics: params.lyrics,
       genre: params.genre,
       bpm: params.bpm,
-      duration: params.duration,
+      duration: params.duration
     });
 
     // 3. Return job for WebSocket tracking
@@ -675,11 +683,11 @@ export class MusicGenService {
 
   private async executeMusicGen(job: Job): Promise<void> {
     // Python script integration
-    const result = await this.pythonService.execute("musicgen_cli.py", {
+    const result = await this.pythonService.execute('musicgen_cli.py', {
       lyrics: job.parameters.lyrics,
       genre: job.parameters.genre,
       duration: job.parameters.duration,
-      bpm: job.parameters.bpm,
+      bpm: job.parameters.bpm
     });
 
     // Emit progress via WebSocket
@@ -716,23 +724,23 @@ function validateLyrics(lyrics: string, duration: number): ValidationResult {
 
   if (syllableCount < minSyllables) {
     return {
-      status: "error",
-      message: `Lyrics too short: ${syllableCount} syllables (need ${Math.floor(
-        minSyllables
-      )}-${Math.ceil(maxSyllables)})`,
+      status: 'error',
+      message: `Lyrics too short: ${syllableCount} syllables (need ${Math.floor(minSyllables)}-${Math.ceil(
+        maxSyllables
+      )})`
     };
   }
 
   if (syllableCount > maxSyllables) {
     return {
-      status: "error",
-      message: `Lyrics too long: ${syllableCount} syllables (need ${Math.floor(
-        minSyllables
-      )}-${Math.ceil(maxSyllables)})`,
+      status: 'error',
+      message: `Lyrics too long: ${syllableCount} syllables (need ${Math.floor(minSyllables)}-${Math.ceil(
+        maxSyllables
+      )})`
     };
   }
 
-  return { status: "valid", message: "Lyrics length matches duration" };
+  return { status: 'valid', message: 'Lyrics length matches duration' };
 }
 ```
 
@@ -742,7 +750,7 @@ function validateLyrics(lyrics: string, duration: number): ValidationResult {
 
 ```typescript
 // Optional: Filter inappropriate content
-import Filter from "bad-words";
+import Filter from 'bad-words';
 
 const filter = new Filter();
 
@@ -755,18 +763,18 @@ function validateContent(text: string): boolean {
 
 ```typescript
 const STANDARD_GENRES = [
-  "pop",
-  "rock",
-  "hip-hop",
-  "country",
-  "jazz",
-  "blues",
-  "electronic",
-  "r&b",
-  "folk",
-  "classical",
-  "indie",
-  "alternative",
+  'pop',
+  'rock',
+  'hip-hop',
+  'country',
+  'jazz',
+  'blues',
+  'electronic',
+  'r&b',
+  'folk',
+  'classical',
+  'indie',
+  'alternative'
 ];
 
 function validateGenre(genre: string): boolean {
@@ -896,17 +904,17 @@ export class JobsGateway {
 #### Syllable Counter
 
 ```typescript
-describe("countSyllables", () => {
-  it("should count single-syllable words", () => {
-    expect(countSyllables("cat dog run")).toBe(3);
+describe('countSyllables', () => {
+  it('should count single-syllable words', () => {
+    expect(countSyllables('cat dog run')).toBe(3);
   });
 
-  it("should count multi-syllable words", () => {
-    expect(countSyllables("beautiful amazing wonderful")).toBe(10);
+  it('should count multi-syllable words', () => {
+    expect(countSyllables('beautiful amazing wonderful')).toBe(10);
   });
 
-  it("should handle silent e", () => {
-    expect(countSyllables("love hope care")).toBe(3);
+  it('should handle silent e', () => {
+    expect(countSyllables('love hope care')).toBe(3);
   });
 });
 ```
@@ -914,15 +922,15 @@ describe("countSyllables", () => {
 #### Lyrics Validation View
 
 ```typescript
-describe("validateLyrics", () => {
-  it("should validate correct syllable count", () => {
-    const result = validateLyrics("A simple test song here", 5); // ~20 syllables for 5s
-    expect(result.status).toBe("valid");
+describe('validateLyrics', () => {
+  it('should validate correct syllable count', () => {
+    const result = validateLyrics('A simple test song here', 5); // ~20 syllables for 5s
+    expect(result.status).toBe('valid');
   });
 
-  it("should error on too short lyrics", () => {
-    const result = validateLyrics("Short", 30);
-    expect(result.status).toBe("error");
+  it('should error on too short lyrics', () => {
+    const result = validateLyrics('Short', 30);
+    expect(result.status).toBe('error');
   });
 });
 ```
@@ -932,29 +940,29 @@ describe("validateLyrics", () => {
 ### Song Generation API Flow
 
 ```typescript
-describe("Song Generation Flow", () => {
-  it("should generate metadata from narrative", async () => {
+describe('Song Generation Flow', () => {
+  it('should generate metadata from narrative', async () => {
     const response = await request(app)
-      .post("/api/songs/generate-metadata")
-      .send({ narrative: "Test narrative", duration: 30 });
+      .post('/api/songs/generate-metadata')
+      .send({ narrative: 'Test narrative', duration: 30 });
 
     expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("title");
-    expect(response.body).toHaveProperty("lyrics");
+    expect(response.body).toHaveProperty('title');
+    expect(response.body).toHaveProperty('lyrics');
   });
 
-  it("should approve and save song metadata", async () => {
-    const response = await request(app).post("/api/songs/approve").send({
-      narrative: "Test",
+  it('should approve and save song metadata', async () => {
+    const response = await request(app).post('/api/songs/approve').send({
+      narrative: 'Test',
       duration: 30,
-      title: "Test Song",
-      lyrics: "Test lyrics",
-      genre: "rock",
-      mood: "energetic",
+      title: 'Test Song',
+      lyrics: 'Test lyrics',
+      genre: 'rock',
+      mood: 'energetic'
     });
 
     expect(response.status).toBe(201);
-    expect(response.body).toHaveProperty("songId");
+    expect(response.body).toHaveProperty('songId');
   });
 });
 ```
@@ -962,19 +970,19 @@ describe("Song Generation Flow", () => {
 ### E2E Tests
 
 ```typescript
-test("complete song-to-music workflow", async ({ page }) => {
+test('complete song-to-music workflow', async ({ page }) => {
   // 1. Navigate to Song Generation
-  await page.goto("/generate/song");
+  await page.goto('/generate/song');
 
   // 2. Enter narrative
-  await page.fill('textarea[name="narrative"]', "A sad story about loss");
+  await page.fill('textarea[name="narrative"]', 'A sad story about loss');
 
   // 3. Set duration
-  await page.getByLabel("Duration").fill("30");
+  await page.getByLabel('Duration').fill('30');
 
   // 4. Generate metadata
   await page.click('button:has-text("Generate")');
-  await page.waitForSelector(".metadata-result");
+  await page.waitForSelector('.metadata-result');
 
   // 5. Verify lyrics appear
   const lyrics = await page.inputValue('textarea[name="lyrics"]');
@@ -984,11 +992,11 @@ test("complete song-to-music workflow", async ({ page }) => {
   await page.click('button:has-text("Approve")');
 
   // 7. Should navigate to Music Generation
-  await expect(page).toHaveURL("/generate/music");
+  await expect(page).toHaveURL('/generate/music');
 
   // 8. Verify pre-filled data
   const title = await page.inputValue('input[name="title"]');
-  expect(title).toBe("A sad story about loss");
+  expect(title).toBe('A sad story about loss');
 });
 ```
 
@@ -1003,18 +1011,12 @@ When ready to implement Ollama:
    ```typescript
    @Injectable()
    export class OllamaService {
-     async generate(
-       prompt: string,
-       model: string = "deepseek"
-     ): Promise<string> {
-       const response = await axios.post(
-         "http://localhost:11434/api/generate",
-         {
-           model,
-           prompt,
-           stream: false,
-         }
-       );
+     async generate(prompt: string, model: string = 'deepseek'): Promise<string> {
+       const response = await axios.post('http://localhost:11434/api/generate', {
+         model,
+         prompt,
+         stream: false
+       });
        return response.data.response;
      }
    }

@@ -1,6 +1,7 @@
 # Developer Onboarding & Local Runbook
 
-This document helps a new developer (or you) get the Harmonia repo up and running on a local workstation (Windows + WSL2 recommended). It assumes basic familiarity with Docker, Python, Node, and Git.
+This document helps a new developer (or you) get the Harmonia repo up and running on a local workstation (Windows + WSL2
+recommended). It assumes basic familiarity with Docker, Python, Node, and Git.
 
 Prerequisites
 

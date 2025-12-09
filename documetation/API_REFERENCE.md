@@ -1,15 +1,14 @@
 # Harmonia API Reference
 
-**Version**: 1.0.0
-**Base URL**: `http://localhost:3000/api`
-**Authentication**: JWT Bearer tokens
-**Date**: December 4, 2025
+**Version**: 1.0.0 **Base URL**: `http://localhost:3000/api` **Authentication**: JWT Bearer tokens **Date**: December 4,
+2025
 
 ---
 
 ## Overview
 
-The Harmonia API provides comprehensive endpoints for user authentication, song generation, and music creation workflows. All endpoints return JSON responses and use standard HTTP status codes.
+The Harmonia API provides comprehensive endpoints for user authentication, song generation, and music creation
+workflows. All endpoints return JSON responses and use standard HTTP status codes.
 
 ### Authentication
 
@@ -411,7 +410,7 @@ interface User {
   id: string; // MongoDB ObjectId
   email: string; // Unique email address
   username: string; // Unique username
-  role: "user" | "admin"; // User role
+  role: 'user' | 'admin'; // User role
   createdAt: Date; // Account creation timestamp
   updatedAt: Date; // Last update timestamp
 }
@@ -434,7 +433,7 @@ interface SongMetadata {
 
 ```typescript
 interface MMSLSection {
-  type: "verse" | "chorus" | "bridge" | "intro" | "outro";
+  type: 'verse' | 'chorus' | 'bridge' | 'intro' | 'outro';
   number?: number; // Section number (for verses/choruses)
   chords?: string[]; // Chord progression
   performance?: string; // Performance instructions
@@ -527,23 +526,23 @@ X-RateLimit-Reset: 1638360000
 ```javascript
 // Authentication
 const login = async (emailOrUsername, password) => {
-  const response = await fetch("/api/auth/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ emailOrUsername, password }),
+  const response = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ emailOrUsername, password })
   });
   return response.json();
 };
 
 // Song Generation
 const generateSong = async (narrative, token) => {
-  const response = await fetch("/api/songs/generate-metadata", {
-    method: "POST",
+  const response = await fetch('/api/songs/generate-metadata', {
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
     },
-    body: JSON.stringify({ narrative, duration: 180 }),
+    body: JSON.stringify({ narrative, duration: 180 })
   });
   return response.json();
 };

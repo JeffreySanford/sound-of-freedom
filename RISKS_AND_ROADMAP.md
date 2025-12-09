@@ -74,3 +74,4 @@ This document consolidates the project's risk analysis, suggested phased deliver
 ***
 
 If any of the above items require more detail, or you'd like me to implement Phase 0 artifacts now (Dockerfile + compose + smoke.yml schedule changes + manifest schema), tell me which specific step to start and I will begin implementing it and update the todo list.
+do list.

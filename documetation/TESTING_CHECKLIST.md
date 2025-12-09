@@ -38,9 +38,12 @@ pnpm nx serve frontend
 
 **Local Dev Convenience**:
 
-You may enable `DEV_AUTOGEN_TEST_USER=true` in your local `.env` to auto-create a weak local dev test user (`test` / `password`) when standard E2E env vars are not set. This is only intended for local development; do not enable in CI or production.
+You may enable `DEV_AUTOGEN_TEST_USER=true` in your local `.env` to auto-create a weak local dev test user (`test` /
+`password`) when standard E2E env vars are not set. This is only intended for local development; do not enable in CI or
+production.
 
-Note: If you enable `DEV_AUTOGEN_TEST_USER=true` and the script appends env values to `.env`, you'll need to restart the backend to pick up the new `E2E_TEST_USER_*` values before running Playwright tests.
+Note: If you enable `DEV_AUTOGEN_TEST_USER=true` and the script appends env values to `.env`, you'll need to restart the
+backend to pick up the new `E2E_TEST_USER_*` values before running Playwright tests.
 
 Quick verification commands (local convenience):
 
@@ -63,16 +66,20 @@ pnpm test:e2e:check-user
 pnpm test:e2e:verify-user
 ```
 
-If your backend is configured with a runtime `MONGODB_URI` (for example in Docker/remote DB), the setup script will attempt to seed that runtime DB as well; it now passes `--mongo-uri` to the seeder. If seeding fails, run the seeder manually and inspect logs:
+If your backend is configured with a runtime `MONGODB_URI` (for example in Docker/remote DB), the setup script will
+attempt to seed that runtime DB as well; it now passes `--mongo-uri` to the seeder. If seeding fails, run the seeder
+manually and inspect logs:
 
 ```bash
 # Example: seed runtime DB explicitly using a provided MONGODB_URI
 node scripts/add-test-user.js --mongo-uri="$MONGODB_URI" --env=<db_name> --username=test --email=test@harmonia.local --password=password
 ```
 
-If the user exists in the DB but you still receive "invalid credentials" in the frontend, re-run the verification step to see the HTTP response and check backend logs for 401/Unauthorized messages.
+If the user exists in the DB but you still receive "invalid credentials" in the frontend, re-run the verification step
+to see the HTTP response and check backend logs for 401/Unauthorized messages.
 
-To help debug why the login comparison fails locally, run the password verification tool which compares a plain password against the hash stored in the DB (does not contact the backend):
+To help debug why the login comparison fails locally, run the password verification tool which compares a plain password
+against the hash stored in the DB (does not contact the backend):
 
 ```bash
 # Verify the stored password hash for the test user using the MONGODB_URI
@@ -81,16 +88,22 @@ pnpm test:e2e:verify-password
 node scripts/verify-user-password.js --mongo-uri="$MONGODB_URI" --emailOrUsername=test --password=password
 ```
 
-> 💡 Note: E2E tests capture network responses for `POST /api/auth/login` and `POST /api/auth/register` and assert HTTP status codes (201 for register, 200 for login). If a test fails to navigate after a successful response, inspect the captured response JSON for details.
-> 💡 Developer Note: The E2E helper `loginViaModal(page, { emailOrUsername, password })` is available at `tests/e2e/helpers/auth.ts` (centralizes login flow, retries on 429, asserts tokens exist in localStorage, and waits for UI updates).
+> 💡 Note: E2E tests capture network responses for `POST /api/auth/login` and `POST /api/auth/register` and assert HTTP
+> status codes (201 for register, 200 for login). If a test fails to navigate after a successful response, inspect the
+> captured response JSON for details. 💡 Developer Note: The E2E helper
+> `loginViaModal(page, { emailOrUsername, password })` is available at `tests/e2e/helpers/auth.ts` (centralizes login
+> flow, retries on 429, asserts tokens exist in localStorage, and waits for UI updates).
 >
-> The helper now exposes both Promise-based and Observable-based variants (choose the idiom matching your test framework):
+> The helper now exposes both Promise-based and Observable-based variants (choose the idiom matching your test
+> framework):
 >
 > - `loginViaModal(page, creds)` → returns a Promise (backwards-compatible)
 >
-> - `loginViaModal$(page, creds)` → returns a hot Observable (ReplaySubject) — use if you prefer RxJS-style composition and operators.
+> - `loginViaModal$(page, creds)` → returns a hot Observable (ReplaySubject) — use if you prefer RxJS-style composition
+>   and operators.
 >
-> Recommendation: For Jest and Playwright tests prefer the Promise wrapper `loginViaModal(...)` and `async/await` for clean, idiomatic testing code. Observables are available for those who prefer RxJS.
+> Recommendation: For Jest and Playwright tests prefer the Promise wrapper `loginViaModal(...)` and `async/await` for
+> clean, idiomatic testing code. Observables are available for those who prefer RxJS.
 >
 > Use these helpers to reduce flakiness in login flows.
 
@@ -294,8 +307,8 @@ node scripts/verify-user-password.js --mongo-uri="$MONGODB_URI" --emailOrUsernam
 
    ```javascript
    // Get current token
-   const token = localStorage.getItem("auth_token");
-   console.log("Current token:", token);
+   const token = localStorage.getItem('auth_token');
+   console.log('Current token:', token);
 
    // Decode JWT (copy token to jwt.io)
    // Verify 'exp' claim (expiration timestamp)

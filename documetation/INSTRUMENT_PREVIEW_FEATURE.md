@@ -4,13 +4,25 @@
 
 **AI-Prompted Feature Concept:**
 
-In modern web development with HTML5 audio APIs, audio preview capabilities are often underestimated by stakeholders as being overly complex or unnecessary. However, implementing hover-to-describe and click-to-play short audio clips for instruments can significantly enhance user experience in music generation tools.
+In modern web development with HTML5 audio APIs, audio preview capabilities are often underestimated by stakeholders as
+being overly complex or unnecessary. However, implementing hover-to-describe and click-to-play short audio clips for
+instruments can significantly enhance user experience in music generation tools.
 
-**Prompt to AI (ChatGPT):** "Design a user interface feature for a music generation platform where hovering over an instrument shows a description, and clicking plays a short audio preview. Evaluate if this is a good idea from a UX and technical perspective."
+**Prompt to AI (ChatGPT):** "Design a user interface feature for a music generation platform where hovering over an
+instrument shows a description, and clicking plays a short audio preview. Evaluate if this is a good idea from a UX and
+technical perspective."
 
-**AI Response (9-second thinking time):** Yes, this is an excellent idea. From a high-IQ/high-EQ perspective: it reduces friction for users, enables better instrument discovery, and accelerates decision-making in palette selection. However, it requires careful implementation considering browser autoplay policies, performance optimization (preload/decoding), accessibility standards, and content licensing.
+**AI Response (9-second thinking time):** Yes, this is an excellent idea. From a high-IQ/high-EQ perspective: it reduces
+friction for users, enables better instrument discovery, and accelerates decision-making in palette selection. However,
+it requires careful implementation considering browser autoplay policies, performance optimization (preload/decoding),
+accessibility standards, and content licensing.
 
-**Integration with Project's AI Ecosystem:** This feature aligns with Harmonia's broader AI-driven approach, where LLMs like Mistral3 and DeepSeek generate song metadata and genre suggestions (as documented in `docs/OLLAMA.md` and `docs/SONG_MUSIC_GENERATION_WORKFLOW.md`). Audio previews complement AI instrument selection (detailed in `docs/INSTRUMENT_SELECTION_EXPAND_FEATURE.md`) by providing immediate auditory feedback, reducing reliance on text descriptions alone. Similar to prompting patterns in `docs/SONG_ANNOTATION_DSL.md` that guide AI for cue mapping, this feature uses AI-validated instrument catalogs to ensure previews match generated content.
+**Integration with Project's AI Ecosystem:** This feature aligns with Harmonia's broader AI-driven approach, where LLMs
+like Mistral3 and DeepSeek generate song metadata and genre suggestions (as documented in `docs/OLLAMA.md` and
+`docs/SONG_MUSIC_GENERATION_WORKFLOW.md`). Audio previews complement AI instrument selection (detailed in
+`docs/INSTRUMENT_SELECTION_EXPAND_FEATURE.md`) by providing immediate auditory feedback, reducing reliance on text
+descriptions alone. Similar to prompting patterns in `docs/SONG_ANNOTATION_DSL.md` that guide AI for cue mapping, this
+feature uses AI-validated instrument catalogs to ensure previews match generated content.
 
 ### Why This is a Strong Idea (Short)
 
@@ -22,7 +34,8 @@ Enhances onboarding: Users learn instrument sounds, especially beneficial for no
 
 Minimal privacy risk: Short, pre-approved clips maintain user trust.
 
-Technical considerations: Browser autoplay restrictions, mobile limitations, and asset licensing require careful planning.
+Technical considerations: Browser autoplay restrictions, mobile limitations, and asset licensing require careful
+planning.
 
 ## Key Browser-Policy Sources
 
@@ -32,25 +45,38 @@ Technical considerations: Browser autoplay restrictions, mobile limitations, and
 
 ## Design Constraints & Rules (Must-Follow)
 
-User gesture first. Browsers generally require a user gesture (click/tap/keyboard) before playing unmuted audio. Hover ≠ gesture. Plan UX where the first click on the page (or first instrument click) unlocks audio. If you want sound on hover, only do it after the user has already interacted.
+User gesture first. Browsers generally require a user gesture (click/tap/keyboard) before playing unmuted audio. Hover ≠
+gesture. Plan UX where the first click on the page (or first instrument click) unlocks audio. If you want sound on
+hover, only do it after the user has already interacted.
 
-Short clips only. Keep samples ~0.8–4 seconds — long enough to be meaningful, short enough to be cheap to CDN, and to avoid annoying users.
+Short clips only. Keep samples ~0.8–4 seconds — long enough to be meaningful, short enough to be cheap to CDN, and to
+avoid annoying users.
 
-Preload but don't overfetch. Lazy-load audio for visible palette items; prefetch probable choices. Use range requests or progressive fetch when targeting bandwidth-sensitive devices.
+Preload but don't overfetch. Lazy-load audio for visible palette items; prefetch probable choices. Use range requests or
+progressive fetch when targeting bandwidth-sensitive devices.
 
-Use decoded audio buffers. For lowest latency and consistent playback, fetch then decode with Web Audio API (AudioContext.decodeAudioData) into AudioBuffer. Play via AudioBufferSourceNode.
+Use decoded audio buffers. For lowest latency and consistent playback, fetch then decode with Web Audio API
+(AudioContext.decodeAudioData) into AudioBuffer. Play via AudioBufferSourceNode.
 
-Format strategy. Serve compressed files (MP3, OGG, AAC) for size; provide WAV/FLAC for hi-fi preview if needed and budget allows. Detect browser support and choose accordingly. (MP3/MP4 widely supported; OGG is good if you prefer open codecs).
+Format strategy. Serve compressed files (MP3, OGG, AAC) for size; provide WAV/FLAC for hi-fi preview if needed and
+budget allows. Detect browser support and choose accordingly. (MP3/MP4 widely supported; OGG is good if you prefer open
+codecs).
 
-Volume & loudness normalization. Normalize RMS/LUFS across previews so the user doesn't experience large jumps. Render/normalize clips offline or include per-clip gain metadata and apply via a GainNode.
+Volume & loudness normalization. Normalize RMS/LUFS across previews so the user doesn't experience large jumps.
+Render/normalize clips offline or include per-clip gain metadata and apply via a GainNode.
 
-Accessibility. Tooltips must be keyboard accessible and screen-reader friendly. Keyboard users should be able to focus an instrument and press Enter/Space to play. Provide aria-describedby for short descriptions and aria-pressed or state markers to show playback state.
+Accessibility. Tooltips must be keyboard accessible and screen-reader friendly. Keyboard users should be able to focus
+an instrument and press Enter/Space to play. Provide aria-describedby for short descriptions and aria-pressed or state
+markers to show playback state.
 
-Licensing & provenance. Only play clips you have rights to. Store license metadata in your asset catalog and show licensing info in the instrument info panel.
+Licensing & provenance. Only play clips you have rights to. Store license metadata in your asset catalog and show
+licensing info in the instrument info panel.
 
-Analytics & consent. Log plays, hovers, and accepts so AI palette suggestions can improve, but respect privacy and cookie/consent rules.
+Analytics & consent. Log plays, hovers, and accepts so AI palette suggestions can improve, but respect privacy and
+cookie/consent rules.
 
-Mobile considerations. Mobile devices may require the first interaction to be a direct tap on the control to start audio; preload carefully to avoid data overages.
+Mobile considerations. Mobile devices may require the first interaction to be a direct tap on the control to start
+audio; preload carefully to avoid data overages.
 
 ## UX Pattern (Recommended)
 
@@ -62,7 +88,8 @@ Click instrument: play short preview (visual progress ring + playback state).
 
 Click again: stop.
 
-Long-press or "details" icon: open instrument panel with full description, sample list, license, and "Preview full sample" (longer clip with higher fidelity).
+Long-press or "details" icon: open instrument panel with full description, sample list, license, and "Preview full
+sample" (longer clip with higher fidelity).
 
 Disabled state if no network / asset missing: show fallback + "Try again" button.
 
@@ -113,7 +140,8 @@ Use connection hints (`<link rel="preload" as="audio">`) for critical assets but
 
 This is a compact, robust pattern you can drop into your app. It:
 
-- obeys autoplay policies by unlocking AudioContext on first user gesture, solving the autoplay block. This is required behavior per modern browsers.
+- obeys autoplay policies by unlocking AudioContext on first user gesture, solving the autoplay block. This is required
+  behavior per modern browsers.
 - Chrome for Developers
 
 - lazy-loads and decodes previews
@@ -172,21 +200,21 @@ Copy/paste and adapt paths / JSON catalog as needed.
       /* Minimal instrument catalog - in production, fetch from server */
       const catalog = [
         {
-          id: "gtr_ac_clean",
-          label: "Acoustic Guitar",
-          description: "Warm, fingerpicked. 2s preview",
-          previews: { mp3: "/previews/gtr_ac_clean_2s.mp3" },
+          id: 'gtr_ac_clean',
+          label: 'Acoustic Guitar',
+          description: 'Warm, fingerpicked. 2s preview',
+          previews: { mp3: '/previews/gtr_ac_clean_2s.mp3' },
           duration_s: 2.0,
-          loudness_lufs: -16,
+          loudness_lufs: -16
         },
         {
-          id: "synth_pad",
-          label: "Warm Synth Pad",
-          description: "Analog-style pad, 3s loop",
-          previews: { mp3: "/previews/synth_pad_3s.mp3" },
+          id: 'synth_pad',
+          label: 'Warm Synth Pad',
+          description: 'Analog-style pad, 3s loop',
+          previews: { mp3: '/previews/synth_pad_3s.mp3' },
           duration_s: 3.0,
-          loudness_lufs: -18,
-        },
+          loudness_lufs: -18
+        }
       ];
 
       const AUDIO_CTX_STATE = { ctx: null, unlocked: false };
@@ -202,12 +230,12 @@ Copy/paste and adapt paths / JSON catalog as needed.
 
       function unlockAudioContextIfNeeded() {
         ensureAudioContext();
-        if (AUDIO_CTX_STATE.ctx.state === "suspended") {
+        if (AUDIO_CTX_STATE.ctx.state === 'suspended') {
           AUDIO_CTX_STATE.ctx
             .resume()
             .then(() => {
               AUDIO_CTX_STATE.unlocked = true;
-              console.log("AudioContext resumed");
+              console.log('AudioContext resumed');
             })
             .catch(() => {
               /* ignore */
@@ -222,11 +250,9 @@ Copy/paste and adapt paths / JSON catalog as needed.
         if (buffers[instrument.id]) return buffers[instrument.id].buffer;
         ensureAudioContext();
         const url = instrument.previews.mp3;
-        const res = await fetch(url, { cache: "force-cache" });
+        const res = await fetch(url, { cache: 'force-cache' });
         const arrayBuffer = await res.arrayBuffer();
-        const audioBuffer = await AUDIO_CTX_STATE.ctx.decodeAudioData(
-          arrayBuffer
-        );
+        const audioBuffer = await AUDIO_CTX_STATE.ctx.decodeAudioData(arrayBuffer);
         buffers[instrument.id] = { buffer: audioBuffer, fetchedAt: Date.now() };
         return audioBuffer;
       }
@@ -240,15 +266,15 @@ Copy/paste and adapt paths / JSON catalog as needed.
       }
 
       function createInstrumentCard(instrument) {
-        const el = document.createElement("button");
-        el.className = "instrument";
-        el.setAttribute("role", "button");
-        el.setAttribute("aria-describedby", "desc-" + instrument.id);
+        const el = document.createElement('button');
+        el.className = 'instrument';
+        el.setAttribute('role', 'button');
+        el.setAttribute('aria-describedby', 'desc-' + instrument.id);
         el.tabIndex = 0;
         el.innerHTML = `<strong>${instrument.label}</strong><div id="desc-${instrument.id}" style="font-size:12px;color:#444">${instrument.description}</div>
     <div class="play-state" id="state-${instrument.id}">Play preview</div>
     <div class="progress" aria-hidden="true"><i id="bar-${instrument.id}"></i></div>`;
-        el.addEventListener("click", async (ev) => {
+        el.addEventListener('click', async (ev) => {
           // unlock audio context (comply with autoplay)
           unlockAudioContextIfNeeded();
           // toggle play
@@ -258,8 +284,8 @@ Copy/paste and adapt paths / JSON catalog as needed.
           }
           playInstrument(instrument, el);
         });
-        el.addEventListener("keydown", (ev) => {
-          if (ev.key === "Enter" || ev.key === " ") {
+        el.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Enter' || ev.key === ' ') {
             ev.preventDefault();
             el.click();
           }
@@ -269,8 +295,8 @@ Copy/paste and adapt paths / JSON catalog as needed.
 
       async function playInstrument(instrument, el) {
         try {
-          const stateEl = document.getElementById("state-" + instrument.id);
-          stateEl.textContent = "Loading…";
+          const stateEl = document.getElementById('state-' + instrument.id);
+          stateEl.textContent = 'Loading…';
           const buffer = await loadBuffer(instrument);
           // create nodes
           const source = AUDIO_CTX_STATE.ctx.createBufferSource();
@@ -290,9 +316,9 @@ Copy/paste and adapt paths / JSON catalog as needed.
           source.start(0);
           updatePlayUI(instrument.id, true, instrument.duration_s);
         } catch (err) {
-          console.error("preview play error", err);
-          const stateEl = document.getElementById("state-" + instrument.id);
-          stateEl.textContent = "Unable to play";
+          console.error('preview play error', err);
+          const stateEl = document.getElementById('state-' + instrument.id);
+          stateEl.textContent = 'Unable to play';
         }
       }
 
@@ -305,55 +331,51 @@ Copy/paste and adapt paths / JSON catalog as needed.
           playing.id = null;
         }
         // clear UI bars
-        document
-          .querySelectorAll(".progress > i")
-          .forEach((i) => (i.style.width = "0%"));
+        document.querySelectorAll('.progress > i').forEach((i) => (i.style.width = '0%'));
         document.querySelectorAll('[id^="state-"]').forEach((s) => {
-          if (s) s.textContent = "Play preview";
+          if (s) s.textContent = 'Play preview';
         });
       }
 
       // progress UI helper
       function updatePlayUI(id, playingFlag, duration) {
-        const stateEl = document.getElementById("state-" + id);
-        const bar = document.getElementById("bar-" + id);
+        const stateEl = document.getElementById('state-' + id);
+        const bar = document.getElementById('bar-' + id);
         if (!stateEl || !bar) return;
         if (!playingFlag) {
-          stateEl.textContent = "Play preview";
-          bar.style.width = "0%";
+          stateEl.textContent = 'Play preview';
+          bar.style.width = '0%';
           return;
         }
-        stateEl.textContent = "Playing…";
+        stateEl.textContent = 'Playing…';
         const start = performance.now();
         const tick = () => {
           if (!playing.node && playing.id !== id) {
-            bar.style.width = "0%";
-            stateEl.textContent = "Play preview";
+            bar.style.width = '0%';
+            stateEl.textContent = 'Play preview';
             return;
           }
           const elapsed = (performance.now() - start) / 1000;
           const pct = Math.min(100, (elapsed / duration) * 100);
-          bar.style.width = pct + "%";
+          bar.style.width = pct + '%';
           if (pct < 100) requestAnimationFrame(tick);
         };
         requestAnimationFrame(tick);
       }
 
       // render catalog
-      const catalogEl = document.getElementById("catalog");
-      catalog.forEach((inst) =>
-        catalogEl.appendChild(createInstrumentCard(inst))
-      );
+      const catalogEl = document.getElementById('catalog');
+      catalog.forEach((inst) => catalogEl.appendChild(createInstrumentCard(inst)));
 
       // Optional: early unlock hint button for mobile to preauthorize audio
-      const unlockBtn = document.createElement("button");
-      unlockBtn.textContent = "Enable audio previews";
-      unlockBtn.style.display = "block";
-      unlockBtn.style.margin = "12px";
-      unlockBtn.addEventListener("click", () => {
+      const unlockBtn = document.createElement('button');
+      unlockBtn.textContent = 'Enable audio previews';
+      unlockBtn.style.display = 'block';
+      unlockBtn.style.margin = '12px';
+      unlockBtn.addEventListener('click', () => {
         ensureAudioContext();
         unlockAudioContextIfNeeded();
-        unlockBtn.style.display = "none";
+        unlockBtn.style.display = 'none';
       });
       document.body.insertBefore(unlockBtn, catalogEl);
     </script>
@@ -363,7 +385,8 @@ Copy/paste and adapt paths / JSON catalog as needed.
 
 ## Notes on the Snippet
 
-unlockAudioContextIfNeeded() resumes the AudioContext on the first gesture, solving the autoplay block. This is required behavior per modern browsers.
+unlockAudioContextIfNeeded() resumes the AudioContext on the first gesture, solving the autoplay block. This is required
+behavior per modern browsers.
 
 Replace previews.mp3 with CDN paths and add versioned filenames for cache control.
 

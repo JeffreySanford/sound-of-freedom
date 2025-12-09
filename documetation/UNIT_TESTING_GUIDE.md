@@ -8,7 +8,8 @@
 
 ## Overview
 
-This document provides comprehensive guidelines for writing and maintaining unit tests in the Harmonia project. We use Jest as our testing framework with Angular-specific testing utilities.
+This document provides comprehensive guidelines for writing and maintaining unit tests in the Harmonia project. We use
+Jest as our testing framework with Angular-specific testing utilities.
 
 ---
 
@@ -126,26 +127,26 @@ Backend tests use Jest with NestJS testing utilities.
 **Example Test** (`app.service.spec.ts`):
 
 ```typescript
-import { Test, TestingModule } from "@nestjs/testing";
-import { AppService } from "./app.service";
+import { Test, TestingModule } from '@nestjs/testing';
+import { AppService } from './app.service';
 
-describe("AppService", () => {
+describe('AppService', () => {
   let service: AppService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AppService],
+      providers: [AppService]
     }).compile();
 
     service = module.get<AppService>(AppService);
   });
 
-  it("should be defined", () => {
+  it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  it("should return greeting message", () => {
-    expect(service.getData()).toEqual({ message: "Hello API" });
+  it('should return greeting message', () => {
+    expect(service.getData()).toEqual({ message: 'Hello API' });
   });
 });
 ```
@@ -153,11 +154,11 @@ describe("AppService", () => {
 ### Testing Controllers
 
 ```typescript
-import { Test, TestingModule } from "@nestjs/testing";
-import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
+import { Test, TestingModule } from '@nestjs/testing';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
-describe("AppController", () => {
+describe('AppController', () => {
   let app: TestingModule;
   let controller: AppController;
   let service: AppService;
@@ -165,16 +166,16 @@ describe("AppController", () => {
   beforeEach(async () => {
     app = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService],
+      providers: [AppService]
     }).compile();
 
     controller = app.get<AppController>(AppController);
     service = app.get<AppService>(AppService);
   });
 
-  it("should return data from service", () => {
-    const result = { message: "Hello API" };
-    jest.spyOn(service, "getData").mockImplementation(() => result);
+  it('should return data from service', () => {
+    const result = { message: 'Hello API' };
+    jest.spyOn(service, 'getData').mockImplementation(() => result);
 
     expect(controller.getData()).toBe(result);
   });
@@ -184,7 +185,7 @@ describe("AppController", () => {
 ### Testing Services with Dependencies
 
 ```typescript
-describe("AuthService", () => {
+describe('AuthService', () => {
   let service: AuthService;
   let userModel: Model<User>;
   let jwtService: JwtService;
@@ -198,17 +199,17 @@ describe("AuthService", () => {
           useValue: {
             findOne: jest.fn(),
             create: jest.fn(),
-            save: jest.fn(),
-          },
+            save: jest.fn()
+          }
         },
         {
           provide: JwtService,
           useValue: {
-            sign: jest.fn(() => "mock-token"),
-            verify: jest.fn(),
-          },
-        },
-      ],
+            sign: jest.fn(() => 'mock-token'),
+            verify: jest.fn()
+          }
+        }
+      ]
     }).compile();
 
     service = module.get<AuthService>(AuthService);
@@ -216,18 +217,16 @@ describe("AuthService", () => {
     jwtService = module.get<JwtService>(JwtService);
   });
 
-  it("should create user", async () => {
+  it('should create user', async () => {
     const dto = {
-      email: "test@example.com",
-      username: "test",
-      password: "password123",
+      email: 'test@example.com',
+      username: 'test',
+      password: 'password123'
     };
-    jest
-      .spyOn(userModel, "create")
-      .mockResolvedValue({ ...dto, _id: "123" } as any);
+    jest.spyOn(userModel, 'create').mockResolvedValue({ ...dto, _id: '123' } as any);
 
     const result = await service.register(dto);
-    expect(result).toHaveProperty("_id");
+    expect(result).toHaveProperty('_id');
   });
 });
 ```
@@ -238,7 +237,8 @@ describe("AuthService", () => {
 
 ### Current Status
 
-Frontend tests are written for Angular 20 testing patterns; keep tests aligned with Angular 20 unless a separate Angular 21 migration is planned.
+Frontend tests are written for Angular 20 testing patterns; keep tests aligned with Angular 20 unless a separate Angular
+21 migration is planned.
 
 ### Migration Required
 
@@ -264,12 +264,12 @@ expect(result).toBe(true);
 Once migration is complete, use this pattern:
 
 ```typescript
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MyComponent } from "./my.component";
-import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideStore } from "@ngrx/store";
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MyComponent } from './my.component';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideStore } from '@ngrx/store';
 
-describe("MyComponent", () => {
+describe('MyComponent', () => {
   let component: MyComponent;
   let fixture: ComponentFixture<MyComponent>;
 
@@ -277,9 +277,9 @@ describe("MyComponent", () => {
     await TestBed.configureTestingModule({
       imports: [MyComponent, NoopAnimationsModule],
       providers: [
-        provideStore({}),
+        provideStore({})
         // Add other providers
-      ],
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(MyComponent);
@@ -287,7 +287,7 @@ describe("MyComponent", () => {
     fixture.detectChanges();
   });
 
-  it("should create", () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 });
@@ -296,13 +296,13 @@ describe("MyComponent", () => {
 ### Guard Testing Template
 
 ```typescript
-import { TestBed } from "@angular/core/testing";
-import { Router } from "@angular/router";
-import { authGuard } from "./auth.guard";
-import { Store } from "@ngrx/store";
-import { of } from "rxjs";
+import { TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
+import { authGuard } from './auth.guard';
+import { Store } from '@ngrx/store';
+import { of } from 'rxjs';
 
-describe("authGuard", () => {
+describe('authGuard', () => {
   let store: Store;
   let router: Router;
 
@@ -312,24 +312,24 @@ describe("authGuard", () => {
         {
           provide: Store,
           useValue: {
-            select: jest.fn(() => of(false)),
-          },
+            select: jest.fn(() => of(false))
+          }
         },
         {
           provide: Router,
           useValue: {
-            createUrlTree: jest.fn(() => ({} as any)),
-          },
-        },
-      ],
+            createUrlTree: jest.fn(() => ({} as any))
+          }
+        }
+      ]
     });
 
     store = TestBed.inject(Store);
     router = TestBed.inject(Router);
   });
 
-  it("should allow authenticated users", (done) => {
-    jest.spyOn(store, "select").mockReturnValue(of(true));
+  it('should allow authenticated users', (done) => {
+    jest.spyOn(store, 'select').mockReturnValue(of(true));
 
     const result = authGuard(null as any, null as any);
     expect(result).toBe(true);
@@ -341,21 +341,18 @@ describe("authGuard", () => {
 ### Service Testing Template
 
 ```typescript
-import { TestBed } from "@angular/core/testing";
-import {
-  HttpClientTestingModule,
-  HttpTestingController,
-} from "@angular/common/http/testing";
-import { AuthService } from "./auth.service";
+import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { AuthService } from './auth.service';
 
-describe("AuthService", () => {
+describe('AuthService', () => {
   let service: AuthService;
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [AuthService],
+      providers: [AuthService]
     });
 
     service = TestBed.inject(AuthService);
@@ -366,21 +363,19 @@ describe("AuthService", () => {
     httpMock.verify();
   });
 
-  it("should login user", () => {
+  it('should login user', () => {
     const mockResponse = {
-      user: { id: "1", email: "test@example.com" },
-      accessToken: "token",
-      refreshToken: "refresh",
+      user: { id: '1', email: 'test@example.com' },
+      accessToken: 'token',
+      refreshToken: 'refresh'
     };
 
-    service
-      .login({ emailOrUsername: "test", password: "pass" })
-      .subscribe((response) => {
-        expect(response).toEqual(mockResponse);
-      });
+    service.login({ emailOrUsername: 'test', password: 'pass' }).subscribe((response) => {
+      expect(response).toEqual(mockResponse);
+    });
 
-    const req = httpMock.expectOne("http://localhost:3000/api/auth/login");
-    expect(req.request.method).toBe("POST");
+    const req = httpMock.expectOne('http://localhost:3000/api/auth/login');
+    expect(req.request.method).toBe('POST');
     req.flush(mockResponse);
   });
 });
@@ -422,16 +417,16 @@ error TS2307: Cannot find module '@angular/core/testing' or its corresponding ty
 
 ```typescript
 // Good
-it("should return user data when login is successful", () => {});
+it('should return user data when login is successful', () => {});
 
 // Bad
-it("test 1", () => {});
+it('test 1', () => {});
 ```
 
 ### 2. Arrange-Act-Assert Pattern
 
 ```typescript
-it("should calculate total price", () => {
+it('should calculate total price', () => {
   // Arrange
   const items = [{ price: 10 }, { price: 20 }];
 
@@ -448,7 +443,7 @@ it("should calculate total price", () => {
 ```typescript
 // Good - mocked
 const mockService = {
-  getData: jest.fn(() => of({ data: "test" })),
+  getData: jest.fn(() => of({ data: 'test' }))
 };
 
 // Bad - real service
@@ -459,19 +454,19 @@ const service = new RealService(); // May cause side effects
 
 ```typescript
 // Good
-it("should return correct status code", () => {
+it('should return correct status code', () => {
   expect(response.status).toBe(200);
 });
 
-it("should return user data", () => {
-  expect(response.body).toHaveProperty("user");
+it('should return user data', () => {
+  expect(response.body).toHaveProperty('user');
 });
 
 // Acceptable when testing related properties
-it("should return valid user object", () => {
+it('should return valid user object', () => {
   expect(response.body.user).toBeDefined();
-  expect(response.body.user.id).toBe("123");
-  expect(response.body.user.email).toBe("test@example.com");
+  expect(response.body.user.id).toBe('123');
+  expect(response.body.user.email).toBe('test@example.com');
 });
 ```
 
@@ -481,21 +476,21 @@ it("should return valid user object", () => {
 // Bad - tests depend on order
 let sharedState: any;
 
-it("test 1", () => {
+it('test 1', () => {
   sharedState = { value: 1 };
 });
 
-it("test 2", () => {
+it('test 2', () => {
   expect(sharedState.value).toBe(1); // Fails if test 1 doesn't run first
 });
 
 // Good - each test is independent
-it("test 1", () => {
+it('test 1', () => {
   const state = { value: 1 };
   expect(state.value).toBe(1);
 });
 
-it("test 2", () => {
+it('test 2', () => {
   const state = { value: 1 };
   expect(state.value).toBe(1);
 });
@@ -508,33 +503,33 @@ it("test 2", () => {
 ### Backend Service Test Example
 
 ```typescript
-import { Test, TestingModule } from "@nestjs/testing";
-import { MyNewService } from "./my-new.service";
+import { Test, TestingModule } from '@nestjs/testing';
+import { MyNewService } from './my-new.service';
 
-describe("MyNewService", () => {
+describe('MyNewService', () => {
   let service: MyNewService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [MyNewService],
+      providers: [MyNewService]
     }).compile();
 
     service = module.get<MyNewService>(MyNewService);
   });
 
-  describe("myMethod", () => {
-    it("should return expected result", () => {
-      const result = service.myMethod("input");
-      expect(result).toBe("expected output");
+  describe('myMethod', () => {
+    it('should return expected result', () => {
+      const result = service.myMethod('input');
+      expect(result).toBe('expected output');
     });
 
-    it("should handle null input", () => {
+    it('should handle null input', () => {
       const result = service.myMethod(null);
       expect(result).toBeNull();
     });
 
-    it("should throw error for invalid input", () => {
-      expect(() => service.myMethod("invalid")).toThrow();
+    it('should throw error for invalid input', () => {
+      expect(() => service.myMethod('invalid')).toThrow();
     });
   });
 });
@@ -543,16 +538,16 @@ describe("MyNewService", () => {
 ### Frontend Component Test Example
 
 ```typescript
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { MyNewComponent } from "./my-new.component";
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MyNewComponent } from './my-new.component';
 
-describe("MyNewComponent", () => {
+describe('MyNewComponent', () => {
   let component: MyNewComponent;
   let fixture: ComponentFixture<MyNewComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MyNewComponent],
+      imports: [MyNewComponent]
     }).compileComponents();
 
     fixture = TestBed.createComponent(MyNewComponent);
@@ -560,22 +555,22 @@ describe("MyNewComponent", () => {
     fixture.detectChanges();
   });
 
-  it("should create", () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it("should display title", () => {
-    component.title = "Test Title";
+  it('should display title', () => {
+    component.title = 'Test Title';
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement;
-    expect(compiled.querySelector("h1")?.textContent).toContain("Test Title");
+    expect(compiled.querySelector('h1')?.textContent).toContain('Test Title');
   });
 
-  it("should call method on button click", () => {
-    jest.spyOn(component, "handleClick");
+  it('should call method on button click', () => {
+    jest.spyOn(component, 'handleClick');
 
-    const button = fixture.nativeElement.querySelector("button");
+    const button = fixture.nativeElement.querySelector('button');
     button.click();
 
     expect(component.handleClick).toHaveBeenCalled();

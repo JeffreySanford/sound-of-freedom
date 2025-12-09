@@ -2,7 +2,9 @@
 
 ## Overview
 
-The User Library is a personalized view where authenticated users can browse, play, download, and manage their generated content. It serves as a central hub for all music generation output, including songs, audio files, and saved style presets.
+The User Library is a personalized view where authenticated users can browse, play, download, and manage their generated
+content. It serves as a central hub for all music generation output, including songs, audio files, and saved style
+presets.
 
 **Key Features**:
 
@@ -83,21 +85,21 @@ The User Library is a personalized view where authenticated users can browse, pl
 ## MongoDB Library Schema
 
 ```typescript
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document, Types } from "mongoose";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
 
 export type LibraryItemDocument = LibraryItem & Document;
 
 @Schema({ timestamps: true })
 export class LibraryItem {
-  @Prop({ type: Types.ObjectId, ref: "User", required: true, index: true })
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
   userId: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: "Song", index: true })
+  @Prop({ type: Types.ObjectId, ref: 'Song', index: true })
   songId?: Types.ObjectId; // Optional: Link to original song metadata
 
-  @Prop({ required: true, enum: ["song", "music", "audio", "style"] })
-  type: "song" | "music" | "audio" | "style";
+  @Prop({ required: true, enum: ['song', 'music', 'audio', 'style'] })
+  type: 'song' | 'music' | 'audio' | 'style';
 
   @Prop({ required: true })
   title: string;
@@ -108,7 +110,7 @@ export class LibraryItem {
   @Prop({ required: true })
   fileUrl: string; // S3 URL or local file path
 
-  @Prop({ enum: ["wav", "mp3", "flac", "json"] })
+  @Prop({ enum: ['wav', 'mp3', 'flac', 'json'] })
   fileType: string;
 
   @Prop()
@@ -150,7 +152,7 @@ export const LibraryItemSchema = SchemaFactory.createForClass(LibraryItem);
 // Compound index for efficient queries
 LibraryItemSchema.index({ userId: 1, createdAt: -1 });
 LibraryItemSchema.index({ userId: 1, type: 1 });
-LibraryItemSchema.index({ userId: 1, title: "text" }); // Text search
+LibraryItemSchema.index({ userId: 1, title: 'text' }); // Text search
 ```
 
 ## Frontend Implementation
@@ -165,9 +167,9 @@ export interface LibraryState {
   loading: boolean;
   error: string | null;
   filters: {
-    type: "all" | "song" | "music" | "audio" | "style";
+    type: 'all' | 'song' | 'music' | 'audio' | 'style';
     search: string;
-    sortBy: "newest" | "oldest" | "title" | "mostPlayed";
+    sortBy: 'newest' | 'oldest' | 'title' | 'mostPlayed';
   };
   pagination: {
     page: number;
@@ -180,7 +182,7 @@ export interface LibraryItem {
   id: string;
   userId: string;
   songId?: string;
-  type: "song" | "music" | "audio" | "style";
+  type: 'song' | 'music' | 'audio' | 'style';
   title: string;
   description?: string;
   fileUrl: string;
@@ -210,15 +212,15 @@ export const initialLibraryState: LibraryState = {
   loading: false,
   error: null,
   filters: {
-    type: "all",
-    search: "",
-    sortBy: "newest",
+    type: 'all',
+    search: '',
+    sortBy: 'newest'
   },
   pagination: {
     page: 1,
     pageSize: 20,
-    total: 0,
-  },
+    total: 0
+  }
 };
 ```
 
@@ -226,84 +228,57 @@ export const initialLibraryState: LibraryState = {
 
 ```typescript
 // library.actions.ts
-import { createAction, props } from "@ngrx/store";
+import { createAction, props } from '@ngrx/store';
 
 // Load library
 export const loadLibrary = createAction(
-  "[Library] Load Library",
-  props<{ filters?: Partial<LibraryState["filters"]>; page?: number }>()
+  '[Library] Load Library',
+  props<{ filters?: Partial<LibraryState['filters']>; page?: number }>()
 );
 
 export const loadLibrarySuccess = createAction(
-  "[Library] Load Library Success",
+  '[Library] Load Library Success',
   props<{ items: LibraryItem[]; total: number }>()
 );
 
-export const loadLibraryFailure = createAction(
-  "[Library] Load Library Failure",
-  props<{ error: string }>()
-);
+export const loadLibraryFailure = createAction('[Library] Load Library Failure', props<{ error: string }>());
 
 // Select item
-export const selectLibraryItem = createAction(
-  "[Library] Select Item",
-  props<{ item: LibraryItem }>()
-);
+export const selectLibraryItem = createAction('[Library] Select Item', props<{ item: LibraryItem }>());
 
-export const deselectLibraryItem = createAction("[Library] Deselect Item");
+export const deselectLibraryItem = createAction('[Library] Deselect Item');
 
 // Delete item
-export const deleteLibraryItem = createAction(
-  "[Library] Delete Item",
-  props<{ id: string }>()
-);
+export const deleteLibraryItem = createAction('[Library] Delete Item', props<{ id: string }>());
 
-export const deleteLibraryItemSuccess = createAction(
-  "[Library] Delete Item Success",
-  props<{ id: string }>()
-);
+export const deleteLibraryItemSuccess = createAction('[Library] Delete Item Success', props<{ id: string }>());
 
-export const deleteLibraryItemFailure = createAction(
-  "[Library] Delete Item Failure",
-  props<{ error: string }>()
-);
+export const deleteLibraryItemFailure = createAction('[Library] Delete Item Failure', props<{ error: string }>());
 
 // Download item
-export const downloadLibraryItem = createAction(
-  "[Library] Download Item",
-  props<{ id: string; title: string }>()
-);
+export const downloadLibraryItem = createAction('[Library] Download Item', props<{ id: string; title: string }>());
 
-export const downloadLibraryItemSuccess = createAction(
-  "[Library] Download Item Success",
-  props<{ id: string }>()
-);
+export const downloadLibraryItemSuccess = createAction('[Library] Download Item Success', props<{ id: string }>());
 
 // Play item
-export const playLibraryItem = createAction(
-  "[Library] Play Item",
-  props<{ id: string }>()
-);
+export const playLibraryItem = createAction('[Library] Play Item', props<{ id: string }>());
 
 // Update filters
 export const updateLibraryFilters = createAction(
-  "[Library] Update Filters",
-  props<{ filters: Partial<LibraryState["filters"]> }>()
+  '[Library] Update Filters',
+  props<{ filters: Partial<LibraryState['filters']> }>()
 );
 
 // Update pagination
-export const updateLibraryPagination = createAction(
-  "[Library] Update Pagination",
-  props<{ page: number }>()
-);
+export const updateLibraryPagination = createAction('[Library] Update Pagination', props<{ page: number }>());
 ```
 
 ### Library Reducer
 
 ```typescript
 // library.reducer.ts
-import { createReducer, on } from "@ngrx/store";
-import * as LibraryActions from "./library.actions";
+import { createReducer, on } from '@ngrx/store';
+import * as LibraryActions from './library.actions';
 
 export const libraryReducer = createReducer(
   initialLibraryState,
@@ -312,7 +287,7 @@ export const libraryReducer = createReducer(
   on(LibraryActions.loadLibrary, (state) => ({
     ...state,
     loading: true,
-    error: null,
+    error: null
   })),
 
   on(LibraryActions.loadLibrarySuccess, (state, { items, total }) => ({
@@ -320,30 +295,30 @@ export const libraryReducer = createReducer(
     items,
     pagination: { ...state.pagination, total },
     loading: false,
-    error: null,
+    error: null
   })),
 
   on(LibraryActions.loadLibraryFailure, (state, { error }) => ({
     ...state,
     loading: false,
-    error,
+    error
   })),
 
   // Select/deselect item
   on(LibraryActions.selectLibraryItem, (state, { item }) => ({
     ...state,
-    selectedItem: item,
+    selectedItem: item
   })),
 
   on(LibraryActions.deselectLibraryItem, (state) => ({
     ...state,
-    selectedItem: null,
+    selectedItem: null
   })),
 
   // Delete item
   on(LibraryActions.deleteLibraryItem, (state) => ({
     ...state,
-    loading: true,
+    loading: true
   })),
 
   on(LibraryActions.deleteLibraryItemSuccess, (state, { id }) => ({
@@ -351,34 +326,32 @@ export const libraryReducer = createReducer(
     items: state.items.filter((item) => item.id !== id),
     selectedItem: state.selectedItem?.id === id ? null : state.selectedItem,
     loading: false,
-    pagination: { ...state.pagination, total: state.pagination.total - 1 },
+    pagination: { ...state.pagination, total: state.pagination.total - 1 }
   })),
 
   on(LibraryActions.deleteLibraryItemFailure, (state, { error }) => ({
     ...state,
     loading: false,
-    error,
+    error
   })),
 
   // Play item (increment play count)
   on(LibraryActions.playLibraryItem, (state, { id }) => ({
     ...state,
-    items: state.items.map((item) =>
-      item.id === id ? { ...item, playCount: item.playCount + 1 } : item
-    ),
+    items: state.items.map((item) => (item.id === id ? { ...item, playCount: item.playCount + 1 } : item))
   })),
 
   // Update filters
   on(LibraryActions.updateLibraryFilters, (state, { filters }) => ({
     ...state,
     filters: { ...state.filters, ...filters },
-    pagination: { ...state.pagination, page: 1 }, // Reset to page 1 on filter change
+    pagination: { ...state.pagination, page: 1 } // Reset to page 1 on filter change
   })),
 
   // Update pagination
   on(LibraryActions.updateLibraryPagination, (state, { page }) => ({
     ...state,
-    pagination: { ...state.pagination, page },
+    pagination: { ...state.pagination, page }
   }))
 );
 ```
@@ -387,12 +360,12 @@ export const libraryReducer = createReducer(
 
 ```typescript
 // library.effects.ts
-import { Injectable, inject } from "@angular/core";
-import { Actions, createEffect, ofType } from "@ngrx/effects";
-import { of } from "rxjs";
-import { map, catchError, switchMap, tap } from "rxjs/operators";
-import * as LibraryActions from "./library.actions";
-import { LibraryService } from "../../services/library.service";
+import { Injectable, inject } from '@angular/core';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { of } from 'rxjs';
+import { map, catchError, switchMap, tap } from 'rxjs/operators';
+import * as LibraryActions from './library.actions';
+import { LibraryService } from '../../services/library.service';
 
 @Injectable()
 export class LibraryEffects {
@@ -407,13 +380,13 @@ export class LibraryEffects {
           map((response) =>
             LibraryActions.loadLibrarySuccess({
               items: response.items,
-              total: response.total,
+              total: response.total
             })
           ),
           catchError((error) =>
             of(
               LibraryActions.loadLibraryFailure({
-                error: error.message || "Failed to load library",
+                error: error.message || 'Failed to load library'
               })
             )
           )
@@ -431,7 +404,7 @@ export class LibraryEffects {
           catchError((error) =>
             of(
               LibraryActions.deleteLibraryItemFailure({
-                error: error.message || "Failed to delete item",
+                error: error.message || 'Failed to delete item'
               })
             )
           )
@@ -447,8 +420,8 @@ export class LibraryEffects {
         this.libraryService.downloadItem(id, title).pipe(
           map(() => LibraryActions.downloadLibraryItemSuccess({ id })),
           catchError((error) => {
-            console.error("Download failed:", error);
-            return of({ type: "[Library] Download Item Failure" });
+            console.error('Download failed:', error);
+            return of({ type: '[Library] Download Item Failure' });
           })
         )
       )
@@ -466,10 +439,7 @@ export class LibraryEffects {
   // Reload library after filter or pagination change
   reloadOnFilterChange$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(
-        LibraryActions.updateLibraryFilters,
-        LibraryActions.updateLibraryPagination
-      ),
+      ofType(LibraryActions.updateLibraryFilters, LibraryActions.updateLibraryPagination),
       map(() => LibraryActions.loadLibrary({}))
     )
   );
@@ -480,42 +450,39 @@ export class LibraryEffects {
 
 ```typescript
 // library.service.ts
-import { Injectable, inject } from "@angular/core";
-import { HttpClient, HttpParams } from "@angular/common/http";
-import { Observable } from "rxjs";
-import { tap } from "rxjs/operators";
-import { LibraryItem } from "../store/library/library.state";
-import { environment } from "../../environments/environment";
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { LibraryItem } from '../store/library/library.state';
+import { environment } from '../../environments/environment';
 
-@Injectable({ providedIn: "root" })
+@Injectable({ providedIn: 'root' })
 export class LibraryService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/api/library`;
 
-  getLibrary(
-    filters?: any,
-    page?: number
-  ): Observable<{ items: LibraryItem[]; total: number }> {
+  getLibrary(filters?: any, page?: number): Observable<{ items: LibraryItem[]; total: number }> {
     let params = new HttpParams();
 
-    if (filters?.type && filters.type !== "all") {
-      params = params.set("type", filters.type);
+    if (filters?.type && filters.type !== 'all') {
+      params = params.set('type', filters.type);
     }
 
     if (filters?.search) {
-      params = params.set("search", filters.search);
+      params = params.set('search', filters.search);
     }
 
     if (filters?.sortBy) {
-      params = params.set("sortBy", filters.sortBy);
+      params = params.set('sortBy', filters.sortBy);
     }
 
     if (page) {
-      params = params.set("page", page.toString());
+      params = params.set('page', page.toString());
     }
 
     return this.http.get<{ items: LibraryItem[]; total: number }>(this.apiUrl, {
-      params,
+      params
     });
   }
 
@@ -530,13 +497,13 @@ export class LibraryService {
   downloadItem(id: string, title: string): Observable<Blob> {
     return this.http
       .get(`${this.apiUrl}/${id}/download`, {
-        responseType: "blob",
+        responseType: 'blob'
       })
       .pipe(
         tap((blob) => {
           // Trigger browser download
           const url = window.URL.createObjectURL(blob);
-          const link = document.createElement("a");
+          const link = document.createElement('a');
           link.href = url;
           link.download = `${title}.mp3`; // Or extract extension from response
           link.click();
@@ -551,21 +518,21 @@ export class LibraryService {
 
 ```typescript
 // library-page.component.ts
-import { Component, OnInit, inject } from "@angular/core";
-import { Store } from "@ngrx/store";
-import { Observable } from "rxjs";
-import { MatDialog } from "@angular/material/dialog";
-import { AppState } from "../../store/app.state";
-import * as fromLibrary from "../../store/library/library.selectors";
-import * as LibraryActions from "../../store/library/library.actions";
-import { LibraryItem } from "../../store/library/library.state";
-import { ConfirmDialogComponent } from "../../components/confirm-dialog/confirm-dialog.component";
+import { Component, OnInit, inject } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { AppState } from '../../store/app.state';
+import * as fromLibrary from '../../store/library/library.selectors';
+import * as LibraryActions from '../../store/library/library.actions';
+import { LibraryItem } from '../../store/library/library.state';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
 @Component({
-  selector: "harmonia-library-page",
+  selector: 'harmonia-library-page',
   standalone: false,
-  templateUrl: "./library-page.component.html",
-  styleUrl: "./library-page.component.scss",
+  templateUrl: './library-page.component.html',
+  styleUrl: './library-page.component.scss'
 })
 export class LibraryPageComponent implements OnInit {
   private readonly store = inject(Store<AppState>);
@@ -579,28 +546,24 @@ export class LibraryPageComponent implements OnInit {
   filters$ = this.store.select(fromLibrary.selectLibraryFilters);
   pagination$ = this.store.select(fromLibrary.selectLibraryPagination);
 
-  viewMode: "grid" | "list" = "grid";
+  viewMode: 'grid' | 'list' = 'grid';
 
   ngOnInit(): void {
     this.store.dispatch(LibraryActions.loadLibrary({}));
   }
 
   onFilterChange(type: string): void {
-    this.store.dispatch(
-      LibraryActions.updateLibraryFilters({ filters: { type: type as any } })
-    );
+    this.store.dispatch(LibraryActions.updateLibraryFilters({ filters: { type: type as any } }));
   }
 
   onSearchChange(search: string): void {
-    this.store.dispatch(
-      LibraryActions.updateLibraryFilters({ filters: { search } })
-    );
+    this.store.dispatch(LibraryActions.updateLibraryFilters({ filters: { search } }));
   }
 
   onSortChange(sortBy: string): void {
     this.store.dispatch(
       LibraryActions.updateLibraryFilters({
-        filters: { sortBy: sortBy as any },
+        filters: { sortBy: sortBy as any }
       })
     );
   }
@@ -618,21 +581,21 @@ export class LibraryPageComponent implements OnInit {
     this.store.dispatch(
       LibraryActions.downloadLibraryItem({
         id: item.id,
-        title: item.title,
+        title: item.title
       })
     );
   }
 
   onDeleteItem(item: LibraryItem): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: "400px",
+      width: '400px',
       data: {
-        title: "Delete Item",
+        title: 'Delete Item',
         message: `Are you sure you want to delete "${item.title}"? This action cannot be undone.`,
-        confirmText: "Delete",
-        cancelText: "Cancel",
-        confirmColor: "warn",
-      },
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        confirmColor: 'warn'
+      }
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -643,18 +606,18 @@ export class LibraryPageComponent implements OnInit {
   }
 
   toggleViewMode(): void {
-    this.viewMode = this.viewMode === "grid" ? "list" : "grid";
+    this.viewMode = this.viewMode === 'grid' ? 'list' : 'grid';
   }
 
   formatDuration(seconds?: number): string {
-    if (!seconds) return "--:--";
+    if (!seconds) return '--:--';
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
 
   formatFileSize(bytes?: number): string {
-    if (!bytes) return "--";
+    if (!bytes) return '--';
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -704,10 +667,7 @@ export class LibraryPageComponent implements OnInit {
     <!-- Sort -->
     <mat-form-field appearance="outline" class="sort-field">
       <mat-label>Sort by</mat-label>
-      <mat-select
-        [value]="(filters$ | async)?.sortBy"
-        (selectionChange)="onSortChange($event.value)"
-      >
+      <mat-select [value]="(filters$ | async)?.sortBy" (selectionChange)="onSortChange($event.value)">
         <mat-option value="newest">Newest First</mat-option>
         <mat-option value="oldest">Oldest First</mat-option>
         <mat-option value="title">Title</mat-option>
@@ -716,14 +676,8 @@ export class LibraryPageComponent implements OnInit {
     </mat-form-field>
 
     <!-- View Mode Toggle -->
-    <button
-      mat-icon-button
-      (click)="toggleViewMode()"
-      [matTooltip]="viewMode === 'grid' ? 'List View' : 'Grid View'"
-    >
-      <mat-icon
-        >{{ viewMode === 'grid' ? 'view_list' : 'view_module' }}</mat-icon
-      >
+    <button mat-icon-button (click)="toggleViewMode()" [matTooltip]="viewMode === 'grid' ? 'List View' : 'Grid View'">
+      <mat-icon>{{ viewMode === 'grid' ? 'view_list' : 'view_module' }}</mat-icon>
     </button>
   </mat-toolbar>
 
@@ -737,38 +691,26 @@ export class LibraryPageComponent implements OnInit {
   <div *ngIf="error$ | async as error" class="error-container">
     <mat-icon color="warn">error</mat-icon>
     <p>{{ error }}</p>
-    <button mat-raised-button color="primary" (click)="ngOnInit()">
-      Retry
-    </button>
+    <button mat-raised-button color="primary" (click)="ngOnInit()">Retry</button>
   </div>
 
   <!-- Empty State -->
-  <div
-    *ngIf="!(loading$ | async) && (filteredItems$ | async)?.length === 0"
-    class="empty-container"
-  >
+  <div *ngIf="!(loading$ | async) && (filteredItems$ | async)?.length === 0" class="empty-container">
     <mat-icon>library_music</mat-icon>
     <h2>No items in your library</h2>
     <p>Start generating music to build your collection!</p>
-    <button mat-raised-button color="primary" routerLink="/generate/song">
-      Generate Song
-    </button>
+    <button mat-raised-button color="primary" routerLink="/generate/song">Generate Song</button>
   </div>
 
   <!-- Grid View -->
-  <div
-    *ngIf="viewMode === 'grid' && !(loading$ | async) && (filteredItems$ | async)?.length! > 0"
-    class="library-grid"
-  >
+  <div *ngIf="viewMode === 'grid' && !(loading$ | async) && (filteredItems$ | async)?.length! > 0" class="library-grid">
     <mat-card *ngFor="let item of filteredItems$ | async" class="library-card">
       <mat-card-header>
         <mat-card-title>{{ item.title }}</mat-card-title>
         <mat-card-subtitle>
           <mat-chip-set>
             <mat-chip>{{ item.type }}</mat-chip>
-            <mat-chip *ngIf="item.metadata?.genre"
-              >{{ item.metadata.genre }}</mat-chip
-            >
+            <mat-chip *ngIf="item.metadata?.genre">{{ item.metadata.genre }}</mat-chip>
           </mat-chip-set>
         </mat-card-subtitle>
       </mat-card-header>
@@ -793,18 +735,11 @@ export class LibraryPageComponent implements OnInit {
           </span>
         </div>
 
-        <p class="item-description" *ngIf="item.description">
-          {{ item.description }}
-        </p>
+        <p class="item-description" *ngIf="item.description">{{ item.description }}</p>
       </mat-card-content>
 
       <mat-card-actions>
-        <button
-          mat-button
-          color="primary"
-          (click)="onPlayItem(item)"
-          *ngIf="item.type !== 'style'"
-        >
+        <button mat-button color="primary" (click)="onPlayItem(item)" *ngIf="item.type !== 'style'">
           <mat-icon>play_arrow</mat-icon>
           Play
         </button>
@@ -825,53 +760,28 @@ export class LibraryPageComponent implements OnInit {
   </div>
 
   <!-- List View -->
-  <div
-    *ngIf="viewMode === 'list' && !(loading$ | async) && (filteredItems$ | async)?.length! > 0"
-    class="library-list"
-  >
+  <div *ngIf="viewMode === 'list' && !(loading$ | async) && (filteredItems$ | async)?.length! > 0" class="library-list">
     <mat-list>
-      <mat-list-item
-        *ngFor="let item of filteredItems$ | async"
-        class="library-list-item"
-      >
-        <mat-icon matListItemIcon
-          >{{ item.type === 'style' ? 'style' : 'audiotrack' }}</mat-icon
-        >
+      <mat-list-item *ngFor="let item of filteredItems$ | async" class="library-list-item">
+        <mat-icon matListItemIcon>{{ item.type === 'style' ? 'style' : 'audiotrack' }}</mat-icon>
 
         <div matListItemTitle>{{ item.title }}</div>
         <div matListItemLine>
           <span class="item-meta">
             {{ item.type }} •
-            <span *ngIf="item.metadata?.genre"
-              >{{ item.metadata.genre }} •
-            </span>
-            {{ formatDuration(item.duration) }} • {{
-            formatFileSize(item.fileSize) }}
+            <span *ngIf="item.metadata?.genre">{{ item.metadata.genre }} • </span>
+            {{ formatDuration(item.duration) }} • {{ formatFileSize(item.fileSize) }}
           </span>
         </div>
 
         <div matListItemMeta class="item-actions">
-          <button
-            mat-icon-button
-            (click)="onPlayItem(item)"
-            *ngIf="item.type !== 'style'"
-            matTooltip="Play"
-          >
+          <button mat-icon-button (click)="onPlayItem(item)" *ngIf="item.type !== 'style'" matTooltip="Play">
             <mat-icon>play_arrow</mat-icon>
           </button>
-          <button
-            mat-icon-button
-            (click)="onDownloadItem(item)"
-            matTooltip="Download"
-          >
+          <button mat-icon-button (click)="onDownloadItem(item)" matTooltip="Download">
             <mat-icon>download</mat-icon>
           </button>
-          <button
-            mat-icon-button
-            color="warn"
-            (click)="onDeleteItem(item)"
-            matTooltip="Delete"
-          >
+          <button mat-icon-button color="warn" (click)="onDeleteItem(item)" matTooltip="Delete">
             <mat-icon>delete</mat-icon>
           </button>
         </div>
@@ -903,22 +813,14 @@ export class LibraryPageComponent implements OnInit {
 
 ```typescript
 // audio-player.component.ts
-import {
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-  OnInit,
-  OnDestroy,
-  inject,
-} from "@angular/core";
-import { LibraryItem } from "../../store/library/library.state";
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, inject } from '@angular/core';
+import { LibraryItem } from '../../store/library/library.state';
 
 @Component({
-  selector: "harmonia-audio-player",
+  selector: 'harmonia-audio-player',
   standalone: false,
-  templateUrl: "./audio-player.component.html",
-  styleUrl: "./audio-player.component.scss",
+  templateUrl: './audio-player.component.html',
+  styleUrl: './audio-player.component.scss'
 })
 export class AudioPlayerComponent implements OnInit, OnDestroy {
   @Input() item!: LibraryItem;
@@ -934,15 +836,15 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.audio = new Audio(this.item.fileUrl);
 
-    this.audio.addEventListener("loadedmetadata", () => {
+    this.audio.addEventListener('loadedmetadata', () => {
       this.duration = this.audio!.duration;
     });
 
-    this.audio.addEventListener("timeupdate", () => {
+    this.audio.addEventListener('timeupdate', () => {
       this.currentTime = this.audio!.currentTime;
     });
 
-    this.audio.addEventListener("ended", () => {
+    this.audio.addEventListener('ended', () => {
       this.isPlaying = false;
       this.currentTime = 0;
     });
@@ -993,7 +895,7 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
   formatTime(seconds: number): string {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
 }
 ```
@@ -1008,9 +910,7 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
       <mat-icon>audiotrack</mat-icon>
       <div>
         <div class="track-title">{{ item.title }}</div>
-        <div class="track-subtitle">
-          {{ item.metadata?.genre || 'Unknown Genre' }}
-        </div>
+        <div class="track-subtitle">{{ item.metadata?.genre || 'Unknown Genre' }}</div>
       </div>
     </div>
     <button mat-icon-button (click)="onClose()">
@@ -1025,13 +925,7 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
 
     <div class="time-display">{{ formatTime(currentTime) }}</div>
 
-    <mat-slider
-      [min]="0"
-      [max]="duration"
-      [value]="currentTime"
-      (input)="seek($event)"
-      class="progress-slider"
-    >
+    <mat-slider [min]="0" [max]="duration" [value]="currentTime" (input)="seek($event)" class="progress-slider">
       <input matSliderThumb />
     </mat-slider>
 
@@ -1041,14 +935,7 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
       <mat-icon>{{ isMuted ? 'volume_off' : 'volume_up' }}</mat-icon>
     </button>
 
-    <mat-slider
-      [min]="0"
-      [max]="1"
-      [step]="0.01"
-      [value]="volume"
-      (input)="setVolume($event)"
-      class="volume-slider"
-    >
+    <mat-slider [min]="0" [max]="1" [step]="0.01" [value]="volume" (input)="setVolume($event)" class="volume-slider">
       <input matSliderThumb />
     </mat-slider>
   </div>
@@ -1061,25 +948,15 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
 
 ```typescript
 // library.controller.ts
-import {
-  Controller,
-  Get,
-  Delete,
-  Param,
-  Query,
-  UseGuards,
-  Req,
-  Res,
-  StreamableFile,
-} from "@nestjs/common";
-import { Response } from "express";
-import { LibraryService } from "./library.service";
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
-import { CurrentUser } from "../auth/decorators/current-user.decorator";
-import { createReadStream } from "fs";
-import { join } from "path";
+import { Controller, Get, Delete, Param, Query, UseGuards, Req, Res, StreamableFile } from '@nestjs/common';
+import { Response } from 'express';
+import { LibraryService } from './library.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { createReadStream } from 'fs';
+import { join } from 'path';
 
-@Controller("api/library")
+@Controller('api/library')
 @UseGuards(JwtAuthGuard)
 export class LibraryController {
   constructor(private readonly libraryService: LibraryService) {}
@@ -1087,36 +964,36 @@ export class LibraryController {
   @Get()
   async getLibrary(
     @CurrentUser() user: any,
-    @Query("type") type?: string,
-    @Query("search") search?: string,
-    @Query("sortBy") sortBy?: string,
-    @Query("page") page?: string
+    @Query('type') type?: string,
+    @Query('search') search?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('page') page?: string
   ) {
     const filters = {
-      type: type || "all",
-      search: search || "",
-      sortBy: sortBy || "newest",
+      type: type || 'all',
+      search: search || '',
+      sortBy: sortBy || 'newest'
     };
     const pageNum = page ? parseInt(page) : 1;
 
     return this.libraryService.findByUserId(user.sub, filters, pageNum);
   }
 
-  @Get(":id")
-  async getLibraryItem(@CurrentUser() user: any, @Param("id") id: string) {
+  @Get(':id')
+  async getLibraryItem(@CurrentUser() user: any, @Param('id') id: string) {
     return this.libraryService.findById(id, user.sub);
   }
 
-  @Delete(":id")
-  async deleteLibraryItem(@CurrentUser() user: any, @Param("id") id: string) {
+  @Delete(':id')
+  async deleteLibraryItem(@CurrentUser() user: any, @Param('id') id: string) {
     await this.libraryService.delete(id, user.sub);
-    return { message: "Item deleted successfully" };
+    return { message: 'Item deleted successfully' };
   }
 
-  @Get(":id/download")
+  @Get(':id/download')
   async downloadLibraryItem(
     @CurrentUser() user: any,
-    @Param("id") id: string,
+    @Param('id') id: string,
     @Res({ passthrough: true }) res: Response
   ): Promise<StreamableFile> {
     const item = await this.libraryService.findById(id, user.sub);
@@ -1129,8 +1006,8 @@ export class LibraryController {
     const filename = `${item.title}.${item.fileType}`;
 
     res.set({
-      "Content-Type": `audio/${item.fileType}`,
-      "Content-Disposition": `attachment; filename="${filename}"`,
+      'Content-Type': `audio/${item.fileType}`,
+      'Content-Disposition': `attachment; filename="${filename}"`
     });
 
     return new StreamableFile(file);
@@ -1142,17 +1019,10 @@ export class LibraryController {
 
 ```typescript
 // library.service.ts
-import {
-  Injectable,
-  NotFoundException,
-  ForbiddenException,
-} from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-import {
-  LibraryItem,
-  LibraryItemDocument,
-} from "../schemas/library-item.schema";
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { LibraryItem, LibraryItemDocument } from '../schemas/library-item.schema';
 
 @Injectable()
 export class LibraryService {
@@ -1168,7 +1038,7 @@ export class LibraryService {
     // Build query
     const query: any = { userId };
 
-    if (filters.type && filters.type !== "all") {
+    if (filters.type && filters.type !== 'all') {
       query.type = filters.type;
     }
 
@@ -1179,23 +1049,18 @@ export class LibraryService {
     // Build sort
     let sort: any = { createdAt: -1 }; // Default: newest first
 
-    if (filters.sortBy === "oldest") {
+    if (filters.sortBy === 'oldest') {
       sort = { createdAt: 1 };
-    } else if (filters.sortBy === "title") {
+    } else if (filters.sortBy === 'title') {
       sort = { title: 1 };
-    } else if (filters.sortBy === "mostPlayed") {
+    } else if (filters.sortBy === 'mostPlayed') {
       sort = { playCount: -1 };
     }
 
     // Execute query with pagination
     const [items, total] = await Promise.all([
-      this.libraryItemModel
-        .find(query)
-        .sort(sort)
-        .skip(skip)
-        .limit(pageSize)
-        .exec(),
-      this.libraryItemModel.countDocuments(query),
+      this.libraryItemModel.find(query).sort(sort).skip(skip).limit(pageSize).exec(),
+      this.libraryItemModel.countDocuments(query)
     ]);
 
     return {
@@ -1203,7 +1068,7 @@ export class LibraryService {
       total,
       page,
       pageSize,
-      totalPages: Math.ceil(total / pageSize),
+      totalPages: Math.ceil(total / pageSize)
     };
   }
 
@@ -1211,12 +1076,12 @@ export class LibraryService {
     const item = await this.libraryItemModel.findById(id);
 
     if (!item) {
-      throw new NotFoundException("Library item not found");
+      throw new NotFoundException('Library item not found');
     }
 
     // Ensure user owns this item
     if (item.userId.toString() !== userId) {
-      throw new ForbiddenException("You do not have access to this item");
+      throw new ForbiddenException('You do not have access to this item');
     }
 
     return this.mapToDto(item);
@@ -1234,13 +1099,13 @@ export class LibraryService {
 
   async incrementPlayCount(id: string) {
     await this.libraryItemModel.findByIdAndUpdate(id, {
-      $inc: { playCount: 1 },
+      $inc: { playCount: 1 }
     });
   }
 
   async incrementDownloadCount(id: string) {
     await this.libraryItemModel.findByIdAndUpdate(id, {
-      $inc: { downloadCount: 1 },
+      $inc: { downloadCount: 1 }
     });
   }
 
@@ -1262,7 +1127,7 @@ export class LibraryService {
       playCount: item.playCount,
       downloadCount: item.downloadCount,
       createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
+      updatedAt: item.updatedAt
     };
   }
 
@@ -1270,7 +1135,7 @@ export class LibraryService {
     // TODO: Implement file deletion
     // If S3: await s3.deleteObject(...)
     // If local: await fs.promises.unlink(...)
-    console.log("Deleting file:", fileUrl);
+    console.log('Deleting file:', fileUrl);
   }
 }
 ```
@@ -1279,22 +1144,22 @@ export class LibraryService {
 
 ```typescript
 // library-routing.module.ts
-import { NgModule } from "@angular/core";
-import { RouterModule, Routes } from "@angular/router";
-import { LibraryPageComponent } from "./library-page.component";
-import { authGuard } from "../../guards/auth.guard";
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { LibraryPageComponent } from './library-page.component';
+import { authGuard } from '../../guards/auth.guard';
 
 const routes: Routes = [
   {
-    path: "",
+    path: '',
     component: LibraryPageComponent,
-    canActivate: [authGuard], // Requires authentication
-  },
+    canActivate: [authGuard] // Requires authentication
+  }
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
+  exports: [RouterModule]
 })
 export class LibraryRoutingModule {}
 ```
@@ -1304,21 +1169,19 @@ export class LibraryRoutingModule {}
 ### Unit Tests
 
 ```typescript
-describe("LibraryService", () => {
-  it("should filter by type", async () => {
-    const result = await service.findByUserId("user123", { type: "song" }, 1);
-    expect(result.items.every((item) => item.type === "song")).toBe(true);
+describe('LibraryService', () => {
+  it('should filter by type', async () => {
+    const result = await service.findByUserId('user123', { type: 'song' }, 1);
+    expect(result.items.every((item) => item.type === 'song')).toBe(true);
   });
 
-  it("should search by title", async () => {
-    const result = await service.findByUserId("user123", { search: "jazz" }, 1);
+  it('should search by title', async () => {
+    const result = await service.findByUserId('user123', { search: 'jazz' }, 1);
     expect(result.items.length).toBeGreaterThan(0);
   });
 
-  it("should prevent unauthorized access", async () => {
-    await expect(service.findById("item123", "wrong-user")).rejects.toThrow(
-      ForbiddenException
-    );
+  it('should prevent unauthorized access', async () => {
+    await expect(service.findById('item123', 'wrong-user')).rejects.toThrow(ForbiddenException);
   });
 });
 ```
@@ -1326,27 +1189,27 @@ describe("LibraryService", () => {
 ### E2E Tests
 
 ```typescript
-test("library flow", async ({ page }) => {
+test('library flow', async ({ page }) => {
   // Login
-  await page.goto("/");
+  await page.goto('/');
   await loginUser(page);
 
   // Navigate to library
   await page.click('[aria-label="User menu"]');
   await page.click('button:has-text("My Library")');
-  await expect(page).toHaveURL("/library");
+  await expect(page).toHaveURL('/library');
 
   // Wait for items to load
-  await page.waitForSelector(".library-card");
+  await page.waitForSelector('.library-card');
 
   // Play an item
   await page.click('.library-card >> button:has-text("Play")');
-  await expect(page.locator(".audio-player")).toBeVisible();
+  await expect(page.locator('.audio-player')).toBeVisible();
 
   // Delete an item
   await page.click('.library-card >> button:has-text("Delete")');
   await page.click('button:has-text("Confirm")');
-  await expect(page.locator(".library-card")).toHaveCount(previousCount - 1);
+  await expect(page.locator('.library-card')).toHaveCount(previousCount - 1);
 });
 ```
 

@@ -1,7 +1,7 @@
 # Inference Optimization Strategies (Low-VRAM & Local Hardware)
 
-Context
-Target hardware: consumer workstation (i9 24-core, 32GB RAM, GPU with ~10GB VRAM). Heavy model inference requires strategies to reduce memory, compute, and latency.
+Context Target hardware: consumer workstation (i9 24-core, 32GB RAM, GPU with ~10GB VRAM). Heavy model inference
+requires strategies to reduce memory, compute, and latency.
 
 Strategies
 
@@ -21,11 +21,13 @@ Strategies
 
 4. Model sharding & streaming
 
-   - Load only parts of the model on-demand where architecture permits (e.g., splitting encoder/decoder responsibilities).
+   - Load only parts of the model on-demand where architecture permits (e.g., splitting encoder/decoder
+     responsibilities).
 
 5. CPU-GPU offload
 
-   - Move non-critical layers to CPU, keep attention/key modules on GPU. Use libraries that support offloading (accelerate, vLLM-style approaches).
+   - Move non-critical layers to CPU, keep attention/key modules on GPU. Use libraries that support offloading
+     (accelerate, vLLM-style approaches).
 
 6. Preprocessing and caching
 

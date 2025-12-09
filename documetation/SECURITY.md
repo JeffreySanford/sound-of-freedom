@@ -9,8 +9,10 @@ This document outlines security best practices developers and CI systems should 
 
 2. Test credentials
 
-   - Do not hardcode passwords in test files or documentation. Reference `E2E_TEST_USER_*` and `E2E_ADMIN_*` environment variables.
-   - Use the `scripts/add-test-user.js` script to seed users into the `harmonia_test` DB; do not commit passwords to source.
+   - Do not hardcode passwords in test files or documentation. Reference `E2E_TEST_USER_*` and `E2E_ADMIN_*` environment
+     variables.
+   - Use the `scripts/add-test-user.js` script to seed users into the `harmonia_test` DB; do not commit passwords to
+     source.
 
 ## Sessions & Tokens
 
@@ -21,9 +23,13 @@ This document outlines security best practices developers and CI systems should 
 ## Tests & CI
 
 - Tests should never hardcode credentials. Use `E2E_TEST_USER_*` and `E2E_ADMIN_*` environment variables.
-- E2E seeds should use `scripts/add-test-user.js` and `scripts/setup-e2e-tests.sh` must read `E2E_TEST_USER_*` from `.env` or CI secrets.
-- Developer convenience: A `DEV_AUTOGEN_TEST_USER` option exists for local development to auto-create a weak test user (`test/password`) if `E2E_*` env vars are missing — **do not** enable this in CI or production, and remove or change the credentials before sharing any environment files.
-- Ensure tests always clear localStorage and sessionStorage between test cases (`localStorage.clear()`/`sessionStorage.clear()`).
+- E2E seeds should use `scripts/add-test-user.js` and `scripts/setup-e2e-tests.sh` must read `E2E_TEST_USER_*` from
+  `.env` or CI secrets.
+- Developer convenience: A `DEV_AUTOGEN_TEST_USER` option exists for local development to auto-create a weak test user
+  (`test/password`) if `E2E_*` env vars are missing — **do not** enable this in CI or production, and remove or change
+  the credentials before sharing any environment files.
+- Ensure tests always clear localStorage and sessionStorage between test cases
+  (`localStorage.clear()`/`sessionStorage.clear()`).
 
 ## Rate Limiting & Throttling
 
@@ -32,12 +38,15 @@ This document outlines security best practices developers and CI systems should 
 
 ## Two-Factor Authentication (2FA)
 
-- Implement 2FA for admin users in a future release; document recommended TOTP/HOTP flows, backup codes, and user opt-in flows.
+- Implement 2FA for admin users in a future release; document recommended TOTP/HOTP flows, backup codes, and user opt-in
+  flows.
 
 ---
 
-Follow these guidelines strictly. Security is important and these practices reduce the risk of accidental credential exposure and improve test reliability.
+Follow these guidelines strictly. Security is important and these practices reduce the risk of accidental credential
+exposure and improve test reliability.
 
 ---
 
-Follow these guidelines strictly. Security is important and these practices reduce the risk of accidental credential exposure and improve test reliability.
+Follow these guidelines strictly. Security is important and these practices reduce the risk of accidental credential
+exposure and improve test reliability.

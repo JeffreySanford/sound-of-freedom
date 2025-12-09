@@ -2,7 +2,8 @@
 
 ## Overview
 
-Harmonia follows a **strict NgModule-based architecture** with separated HTML/SCSS files for all components. This guide covers component patterns, styling architecture, and best practices for Phase 1.
+Harmonia follows a **strict NgModule-based architecture** with separated HTML/SCSS files for all components. This guide
+covers component patterns, styling architecture, and best practices for Phase 1.
 
 ## Component Principles
 
@@ -12,9 +13,9 @@ Harmonia follows a **strict NgModule-based architecture** with separated HTML/SC
 
 ```typescript
 @Component({
-  selector: "app-example",
+  selector: 'app-example',
   standalone: true, // NEVER USE THIS
-  templateUrl: "./example.component.html",
+  templateUrl: './example.component.html'
 })
 export class ExampleComponent {}
 ```
@@ -23,10 +24,10 @@ export class ExampleComponent {}
 
 ```typescript
 @Component({
-  selector: "app-example",
+  selector: 'app-example',
   standalone: false, // Always explicitly set to false
-  templateUrl: "./example.component.html",
-  styleUrl: "./example.component.scss",
+  templateUrl: './example.component.html',
+  styleUrl: './example.component.scss'
 })
 export class ExampleComponent {}
 ```
@@ -65,9 +66,9 @@ src/app/components/example/
 
 ```scss
 // example.component.scss
-@use "../../../styles/colors";
-@use "../../../styles/mixins";
-@use "../../../styles/typography";
+@use '../../../styles/colors';
+@use '../../../styles/mixins';
+@use '../../../styles/typography';
 
 .example-container {
   background-color: colors.$primary-500;
@@ -118,16 +119,16 @@ app-container (flex column)
 ### App Component (`apps/frontend/src/app/app.ts`)
 
 ```typescript
-import { Component } from "@angular/core";
+import { Component } from '@angular/core';
 
 @Component({
-  selector: "harmonia-root",
+  selector: 'harmonia-root',
   standalone: false,
-  templateUrl: "./app.html",
-  styleUrl: "./app.scss",
+  templateUrl: './app.html',
+  styleUrl: './app.scss'
 })
 export class App {
-  protected title = "frontend";
+  protected title = 'frontend';
 }
 ```
 
@@ -145,11 +146,7 @@ export class App {
   <div class="app-content">
     <aside class="app-sidebar">
       <nav class="sidebar-nav">
-        <a
-          routerLink="/generate/song"
-          routerLinkActive="active"
-          class="nav-item"
-        >
+        <a routerLink="/generate/song" routerLinkActive="active" class="nav-item">
           <span class="nav-icon">🎵</span>
           <span class="nav-label">Song Generation</span>
         </a>
@@ -171,9 +168,9 @@ export class App {
 ### Layout Styles (`app.scss`)
 
 ```scss
-@use "../styles/colors";
-@use "../styles/mixins";
-@use "../styles/typography";
+@use '../styles/colors';
+@use '../styles/mixins';
+@use '../styles/typography';
 
 .app-container {
   display: flex;
@@ -249,20 +246,20 @@ export class App {
 
 ```typescript
 // sidebar.component.ts
-import { Component } from "@angular/core";
+import { Component } from '@angular/core';
 
 @Component({
-  selector: "app-sidebar",
+  selector: 'app-sidebar',
   standalone: false,
-  templateUrl: "./sidebar.component.html",
-  styleUrl: "./sidebar.component.scss",
+  templateUrl: './sidebar.component.html',
+  styleUrl: './sidebar.component.scss'
 })
 export class SidebarComponent {
   navItems = [
-    { icon: "🎵", label: "Song Generation", route: "/generate/song" },
-    { icon: "🎼", label: "Music Generation", route: "/generate/music" },
-    { icon: "🎬", label: "Video Generation", route: "/generate/video" },
-    { icon: "✂️", label: "Video Editing", route: "/edit/video" },
+    { icon: '🎵', label: 'Song Generation', route: '/generate/song' },
+    { icon: '🎼', label: 'Music Generation', route: '/generate/music' },
+    { icon: '🎬', label: 'Video Generation', route: '/generate/video' },
+    { icon: '✂️', label: 'Video Editing', route: '/edit/video' }
   ];
 }
 ```
@@ -270,12 +267,7 @@ export class SidebarComponent {
 ```html
 <!-- sidebar.component.html -->
 <nav class="sidebar-nav">
-  <a
-    *ngFor="let item of navItems"
-    [routerLink]="item.route"
-    routerLinkActive="active"
-    class="nav-item"
-  >
+  <a *ngFor="let item of navItems" [routerLink]="item.route" routerLinkActive="active" class="nav-item">
     <span class="nav-icon">{{ item.icon }}</span>
     <span class="nav-label">{{ item.label }}</span>
   </a>
@@ -284,9 +276,9 @@ export class SidebarComponent {
 
 ```scss
 // sidebar.component.scss
-@use "../../../styles/colors";
-@use "../../../styles/mixins";
-@use "../../../styles/typography";
+@use '../../../styles/colors';
+@use '../../../styles/mixins';
+@use '../../../styles/typography';
 
 .sidebar-nav {
   display: flex;
@@ -333,7 +325,8 @@ export class SidebarComponent {
 
 ### Advanced Song Generation Component Architecture
 
-The song generation feature implements a sophisticated multi-stage AI pipeline with specialized components for each phase:
+The song generation feature implements a sophisticated multi-stage AI pipeline with specialized components for each
+phase:
 
 ```text
 src/app/features/song-generation/
@@ -409,18 +402,18 @@ src/app/features/song-generation/
 
 ```typescript
 // song-generation-page.component.ts
-import { Component, OnInit } from "@angular/core";
-import { Store } from "@ngrx/store";
-import { Observable } from "rxjs";
-import { AppState } from "../../../../store/app.state";
-import * as JobsActions from "../../../../store/jobs/jobs.actions";
-import * as fromJobs from "../../../../store/jobs/jobs.selectors";
+import { Component, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { AppState } from '../../../../store/app.state';
+import * as JobsActions from '../../../../store/jobs/jobs.actions';
+import * as fromJobs from '../../../../store/jobs/jobs.selectors';
 
 @Component({
-  selector: "app-song-generation-page",
+  selector: 'app-song-generation-page',
   standalone: false,
-  templateUrl: "./song-generation-page.component.html",
-  styleUrl: "./song-generation-page.component.scss",
+  templateUrl: './song-generation-page.component.html',
+  styleUrl: './song-generation-page.component.scss'
 })
 export class SongGenerationPageComponent implements OnInit {
   jobs$!: Observable<Job[]>;
@@ -437,8 +430,8 @@ export class SongGenerationPageComponent implements OnInit {
   onSubmit(params: SongParams): void {
     this.store.dispatch(
       JobsActions.createJob({
-        jobType: "generate",
-        parameters: params,
+        jobType: 'generate',
+        parameters: params
       })
     );
   }
@@ -454,13 +447,13 @@ export class SongGenerationPageComponent implements OnInit {
 
 ```typescript
 // song-form.component.ts
-import { Component, Output, EventEmitter } from "@angular/core";
+import { Component, Output, EventEmitter } from '@angular/core';
 
 @Component({
-  selector: "app-song-form",
+  selector: 'app-song-form',
   standalone: false,
-  templateUrl: "./song-form.component.html",
-  styleUrl: "./song-form.component.scss",
+  templateUrl: './song-form.component.html',
+  styleUrl: './song-form.component.scss'
 })
 export class SongFormComponent {
   @Output() submit = new EventEmitter<SongParams>();
@@ -481,19 +474,15 @@ See [MATERIAL_MODULES.md](./MATERIAL_MODULES.md) for complete documentation.
 
 ```typescript
 // Import dedicated Material module (preferred approach)
-import { SongGenerationMaterialModule } from "./song-generation-material.module";
+import { SongGenerationMaterialModule } from './song-generation-material.module';
 
 @NgModule({
-  declarations: [
-    SongGenerationPageComponent,
-    SongFormComponent,
-    StyleSelectorComponent,
-  ],
+  declarations: [SongGenerationPageComponent, SongFormComponent, StyleSelectorComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    SongGenerationMaterialModule, // Single import for all Material components
-  ],
+    SongGenerationMaterialModule // Single import for all Material components
+  ]
 })
 export class SongGenerationModule {}
 ```
@@ -501,28 +490,16 @@ export class SongGenerationModule {}
 **Material Module Structure** (`song-generation-material.module.ts`):
 
 ```typescript
-import { NgModule } from "@angular/core";
-import { MatButtonModule } from "@angular/material/button";
-import { MatCardModule } from "@angular/material/card";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputModule } from "@angular/material/input";
-import { MatSelectModule } from "@angular/material/select";
+import { NgModule } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 
 @NgModule({
-  imports: [
-    MatButtonModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-  ],
-  exports: [
-    MatButtonModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-  ],
+  imports: [MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule],
+  exports: [MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule]
 })
 export class SongGenerationMaterialModule {}
 ```
@@ -573,9 +550,9 @@ export class SongGenerationMaterialModule {}
 
 ```scss
 // song-form.component.scss
-@use "../../../../styles/colors";
-@use "../../../../styles/mixins";
-@use "../../../../styles/typography";
+@use '../../../../styles/colors';
+@use '../../../../styles/mixins';
+@use '../../../../styles/typography';
 
 .song-form-card {
   @include mixins.card-elevated;
@@ -587,7 +564,7 @@ export class SongGenerationMaterialModule {}
     margin-bottom: mixins.spacing(2);
   }
 
-  button[type="submit"] {
+  button[type='submit'] {
     width: 100%;
     height: 48px;
     @include typography.button;
@@ -601,20 +578,20 @@ export class SongGenerationMaterialModule {}
 
 ```typescript
 // song-generation-routing.module.ts
-import { NgModule } from "@angular/core";
-import { RouterModule, Routes } from "@angular/router";
-import { SongGenerationPageComponent } from "./pages/song-generation-page/song-generation-page.component";
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { SongGenerationPageComponent } from './pages/song-generation-page/song-generation-page.component';
 
 const routes: Routes = [
   {
-    path: "",
-    component: SongGenerationPageComponent,
-  },
+    path: '',
+    component: SongGenerationPageComponent
+  }
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
+  exports: [RouterModule]
 })
 export class SongGenerationRoutingModule {}
 ```
@@ -623,42 +600,32 @@ export class SongGenerationRoutingModule {}
 
 ```typescript
 // app.routes.ts
-import { Route } from "@angular/router";
+import { Route } from '@angular/router';
 
 export const appRoutes: Route[] = [
   {
-    path: "generate/song",
-    loadChildren: () =>
-      import("./features/song-generation/song-generation.module").then(
-        (m) => m.SongGenerationModule
-      ),
+    path: 'generate/song',
+    loadChildren: () => import('./features/song-generation/song-generation.module').then((m) => m.SongGenerationModule)
   },
   {
-    path: "generate/music",
+    path: 'generate/music',
     loadChildren: () =>
-      import("./features/music-generation/music-generation.module").then(
-        (m) => m.MusicGenerationModule
-      ),
+      import('./features/music-generation/music-generation.module').then((m) => m.MusicGenerationModule)
   },
   {
-    path: "generate/video",
+    path: 'generate/video',
     loadChildren: () =>
-      import("./features/video-generation/video-generation.module").then(
-        (m) => m.VideoGenerationModule
-      ),
+      import('./features/video-generation/video-generation.module').then((m) => m.VideoGenerationModule)
   },
   {
-    path: "edit/video",
-    loadChildren: () =>
-      import("./features/video-editing/video-editing.module").then(
-        (m) => m.VideoEditingModule
-      ),
+    path: 'edit/video',
+    loadChildren: () => import('./features/video-editing/video-editing.module').then((m) => m.VideoEditingModule)
   },
   {
-    path: "",
-    redirectTo: "/generate/song",
-    pathMatch: "full",
-  },
+    path: '',
+    redirectTo: '/generate/song',
+    pathMatch: 'full'
+  }
 ];
 ```
 
@@ -670,8 +637,8 @@ export const appRoutes: Route[] = [
 
 ```scss
 // Good - minimal component styles
-@use "../../../styles/colors";
-@use "../../../styles/mixins";
+@use '../../../styles/colors';
+@use '../../../styles/mixins';
 
 .song-form {
   @include mixins.card-elevated; // From mixins
@@ -711,7 +678,7 @@ export const appRoutes: Route[] = [
   ],
   providers: [
     /* Services scoped to this module */
-  ],
+  ]
 })
 export class FeatureModule {}
 ```
@@ -752,7 +719,7 @@ export class FeatureModule {}
 Use mixins for breakpoints:
 
 ```scss
-@use "../../../styles/mixins";
+@use '../../../styles/mixins';
 
 .sidebar {
   width: 240px;
@@ -772,19 +739,19 @@ Use mixins for breakpoints:
 ### Component Testing
 
 ```typescript
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { SongFormComponent } from "./song-form.component";
-import { ReactiveFormsModule } from "@angular/forms";
-import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { SongFormComponent } from './song-form.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
-describe("SongFormComponent", () => {
+describe('SongFormComponent', () => {
   let component: SongFormComponent;
   let fixture: ComponentFixture<SongFormComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [SongFormComponent],
-      imports: [ReactiveFormsModule, NoopAnimationsModule],
+      imports: [ReactiveFormsModule, NoopAnimationsModule]
     }).compileComponents();
 
     fixture = TestBed.createComponent(SongFormComponent);
@@ -792,17 +759,17 @@ describe("SongFormComponent", () => {
     fixture.detectChanges();
   });
 
-  it("should create", () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it("should emit submit event with form data", () => {
-    spyOn(component.submit, "emit");
-    component.songForm.patchValue({ title: "Test Song", genre: "rock" });
+  it('should emit submit event with form data', () => {
+    spyOn(component.submit, 'emit');
+    component.songForm.patchValue({ title: 'Test Song', genre: 'rock' });
     component.onSubmit();
     expect(component.submit.emit).toHaveBeenCalledWith({
-      title: "Test Song",
-      genre: "rock",
+      title: 'Test Song',
+      genre: 'rock'
     });
   });
 });

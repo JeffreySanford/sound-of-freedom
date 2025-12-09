@@ -85,3 +85,4 @@ End of Legal & License Audit guidance.
 
 * **Licensing caution:** Many Hugging Face–hosted models and other community checkpoints restrict redistribution or commercial use. Do not bundle such models into public images or releases. Always store the license text (snapshot) in `legal/licenses/` and require legal sign-off before using a model in any commercial product.
 * **Distribution practice:** If redistribution is restricted, provide a downloader script (that references the original source URL) rather than including the model binary in any image or release.
+  release.

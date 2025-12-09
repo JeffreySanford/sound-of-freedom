@@ -1,12 +1,15 @@
 # MCP / AI Operator Instructions (Harmonia)
 
-Purpose
-These instructions define how AI agents or human operators should interact with the repository and automation. They are deliberately conservative: agents default to read-only, and any write action must be explicit and linked to a TODO item.
+Purpose These instructions define how AI agents or human operators should interact with the repository and automation.
+They are deliberately conservative: agents default to read-only, and any write action must be explicit and linked to a
+TODO item.
 
 Principles
 
-- Read-only by default: Agents should analyze, propose, and open TODOs. They only edit files when explicitly given a write authorization tied to a TODO.
-- Traceability: Every action that modifies artifacts, manifests, or models must reference a ticket or PR with rationale and checksum verification.
+- Read-only by default: Agents should analyze, propose, and open TODOs. They only edit files when explicitly given a
+  write authorization tied to a TODO.
+- Traceability: Every action that modifies artifacts, manifests, or models must reference a ticket or PR with rationale
+  and checksum verification.
 - Least privilege: Tokens and credentials must never be printed or stored in logs.
 
 Operator rules
@@ -25,11 +28,13 @@ Operator rules
 
 1. CI interactions
 
-- CI smoke checks compare recorded checksums against `models/` present in workspace. If mismatches are detected, CI should fail and create an issue automatically where possible.
+- CI smoke checks compare recorded checksums against `models/` present in workspace. If mismatches are detected, CI
+  should fail and create an issue automatically where possible.
 
 1. Emergency rollback
 
-- If a model update causes regressions, revert the manifest and re-run smoke checks. Keep old artifacts archived under `artifacts/` with a version tag.
+- If a model update causes regressions, revert the manifest and re-run smoke checks. Keep old artifacts archived under
+  `artifacts/` with a version tag.
 
 1. Security & Secrets
 

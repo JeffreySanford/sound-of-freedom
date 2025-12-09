@@ -6,7 +6,8 @@
 
 ## ⚠️ Current Architecture Note
 
-**This guide describes the original Docker-based MongoDB setup.** The production Harmonia environment now uses **native MongoDB** (Windows Service) for better performance and easier management.
+**This guide describes the original Docker-based MongoDB setup.** The production Harmonia environment now uses **native
+MongoDB** (Windows Service) for better performance and easier management.
 
 **For current setup, see:**
 
@@ -53,7 +54,7 @@ cat .env | grep MONGO
 Create `docker-compose.mongo.yml`:
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   mongo:
@@ -61,7 +62,7 @@ services:
     container_name: harmonia-mongo-i9
     restart: unless-stopped
     ports:
-      - "127.0.0.1:27017:27017" # Bind to localhost only
+      - '127.0.0.1:27017:27017' # Bind to localhost only
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
@@ -74,12 +75,9 @@ services:
     networks:
       - harmonia-net
     command: >
-      --auth
-      --wiredTigerCacheSizeGB 8
-      --maxConns 1000
-      --bind_ip_all
+      --auth --wiredTigerCacheSizeGB 8 --maxConns 1000 --bind_ip_all
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ['CMD', 'mongosh', '--eval', "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -89,7 +87,7 @@ services:
     container_name: harmonia-mongo-ui
     restart: unless-stopped
     ports:
-      - "127.0.0.1:8081:8081" # Bind to localhost only
+      - '127.0.0.1:8081:8081' # Bind to localhost only
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: admin
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ROOT_PASSWORD}
@@ -122,40 +120,40 @@ Create `scripts/mongo-init/01-init-harmonia-db.js`:
 
 ```javascript
 // MongoDB initialization script - runs on first container start
-db = db.getSiblingDB("harmonia");
+db = db.getSiblingDB('harmonia');
 
 // Create application user with limited permissions
 db.createUser({
-  user: "harmonia_app",
-  pwd: process.env.MONGO_HARMONIA_PASSWORD || "changeme",
+  user: 'harmonia_app',
+  pwd: process.env.MONGO_HARMONIA_PASSWORD || 'changeme',
   roles: [
     {
-      role: "readWrite",
-      db: "harmonia",
-    },
-  ],
+      role: 'readWrite',
+      db: 'harmonia'
+    }
+  ]
 });
 
 // Create collections with validation schemas
-db.createCollection("model_artifacts", {
+db.createCollection('model_artifacts', {
   validator: {
     $jsonSchema: {
-      bsonType: "object",
-      required: ["name", "version", "path", "size_bytes"],
+      bsonType: 'object',
+      required: ['name', 'version', 'path', 'size_bytes'],
       properties: {
-        name: { bsonType: "string" },
-        version: { bsonType: "string" },
-        path: { bsonType: "string" },
-        size_bytes: { bsonType: "number" },
-      },
-    },
-  },
+        name: { bsonType: 'string' },
+        version: { bsonType: 'string' },
+        path: { bsonType: 'string' },
+        size_bytes: { bsonType: 'number' }
+      }
+    }
+  }
 });
 
-db.createCollection("licenses");
-db.createCollection("inventory_versions");
-db.createCollection("jobs");
-db.createCollection("events");
+db.createCollection('licenses');
+db.createCollection('inventory_versions');
+db.createCollection('jobs');
+db.createCollection('events');
 
 // Create indexes
 db.model_artifacts.createIndex({ name: 1, version: 1 }, { unique: true });
@@ -163,7 +161,7 @@ db.model_artifacts.createIndex({ tags: 1 });
 db.jobs.createIndex({ status: 1, worker_id: 1 });
 db.events.createIndex({ created_at: 1 }, { expireAfterSeconds: 2592000 }); // 30 days TTL
 
-print("Harmonia database initialized successfully");
+print('Harmonia database initialized successfully');
 ```
 
 ### Step 4: Start MongoDB
@@ -283,11 +281,8 @@ sed -i "s/MONGO_HARMONIA_PASSWORD=.*/MONGO_HARMONIA_PASSWORD=${NEW_PASSWORD}/" .
 ```yaml
 # In docker-compose.mongo.yml
 command: >
-  --auth
-  --wiredTigerCacheSizeGB 12      # ~40% of total RAM
-  --maxConns 2000                  # High connection limit for dev
-  --slowOpThresholdMs 100          # Log slow queries
-  --logLevel info
+  --auth --wiredTigerCacheSizeGB 12      # ~40% of total RAM --maxConns 2000                  # High connection limit
+  for dev --slowOpThresholdMs 100          # Log slow queries --logLevel info
 ```
 
 **If running other heavy services (inference), reduce to 8GB.**
@@ -310,8 +305,7 @@ volumes:
 
 ```yaml
 command: >
-  --wiredTigerCollectionBlockCompressor snappy
-  --wiredTigerIndexPrefixCompression true
+  --wiredTigerCollectionBlockCompressor snappy --wiredTigerIndexPrefixCompression true
 ```
 
 ### Connection Pooling
@@ -323,7 +317,7 @@ mongoose.connect(process.env.MONGO_URI!, {
   maxPoolSize: 50,
   minPoolSize: 10,
   serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
+  socketTimeoutMS: 45000
 });
 ```
 

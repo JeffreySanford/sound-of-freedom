@@ -2,9 +2,11 @@
 
 ## Overview
 
-Harmonia includes automated MongoDB backup scripts that create daily compressed archives using `mongodump`. Backups are retained for 7 days and stored in `backups/mongo/`.
+Harmonia includes automated MongoDB backup scripts that create daily compressed archives using `mongodump`. Backups are
+retained for 7 days and stored in `backups/mongo/`.
 
-**Note**: This guide assumes you're using native MongoDB (Windows Service) as per the production setup. If you're using Docker MongoDB, see `docs/I9_MONGODB_INSTALL.md` for Docker-specific backup instructions.
+**Note**: This guide assumes you're using native MongoDB (Windows Service) as per the production setup. If you're using
+Docker MongoDB, see `docs/I9_MONGODB_INSTALL.md` for Docker-specific backup instructions.
 
 ## Features
 

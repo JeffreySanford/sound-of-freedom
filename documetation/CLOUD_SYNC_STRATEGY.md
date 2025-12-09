@@ -44,7 +44,8 @@
    - ❌ No Atlas monitoring/alerting (can use Prometheus/Grafana)
    - ❌ No cross-region replication (not needed yet)
 
-**Verdict:** MongoDB Community Edition is perfect for 3-5 years of local development before considering Enterprise/Atlas.
+**Verdict:** MongoDB Community Edition is perfect for 3-5 years of local development before considering
+Enterprise/Atlas.
 
 ---
 
@@ -321,10 +322,10 @@ docs/
 
 ```typescript
 // src/services/cloud-sync.service.ts
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger } from '@nestjs/common';
 
 export interface SyncConfig {
-  provider: "jeffreysanford" | "s3" | "gcs" | "backblaze" | "none";
+  provider: 'jeffreysanford' | 's3' | 'gcs' | 'backblaze' | 'none';
   endpoint?: string;
   apiKey?: string;
   bucket?: string;
@@ -339,8 +340,8 @@ export class CloudSyncService {
   constructor() {
     // Load from environment or config
     this.config = {
-      provider: "none",
-      enabled: false,
+      provider: 'none',
+      enabled: false
     };
   }
 
@@ -349,12 +350,12 @@ export class CloudSyncService {
    */
   async syncMetadata(data: any): Promise<void> {
     if (!this.config.enabled) {
-      this.logger.debug("Cloud sync disabled, skipping metadata sync");
+      this.logger.debug('Cloud sync disabled, skipping metadata sync');
       return;
     }
 
     // TODO: Implement when cloud endpoint ready
-    this.logger.warn("Cloud sync not yet implemented");
+    this.logger.warn('Cloud sync not yet implemented');
   }
 
   /**
@@ -362,12 +363,12 @@ export class CloudSyncService {
    */
   async uploadBackup(filePath: string): Promise<void> {
     if (!this.config.enabled) {
-      this.logger.debug("Cloud sync disabled, skipping backup upload");
+      this.logger.debug('Cloud sync disabled, skipping backup upload');
       return;
     }
 
     // TODO: Implement S3/GCS/Backblaze upload
-    this.logger.warn("Cloud backup upload not yet implemented");
+    this.logger.warn('Cloud backup upload not yet implemented');
   }
 
   /**
@@ -481,7 +482,8 @@ Monthly Cost:              ~$306/month
 3. **6-12 months:** Deploy lightweight metadata API to jeffreysanford.us (read-only)
 4. **3+ years:** Consider MongoDB Atlas if team/scale demands it
 
-**Key Insight:** Your models are static (100GB) and rarely change. MongoDB is overkill for cloud sync—just sync metadata (1MB) and keep models local. Use object storage (S3/B2) for disaster recovery backups only.
+**Key Insight:** Your models are static (100GB) and rarely change. MongoDB is overkill for cloud sync—just sync metadata
+(1MB) and keep models local. Use object storage (S3/B2) for disaster recovery backups only.
 
 **Next Steps:**
 

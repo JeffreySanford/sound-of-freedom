@@ -1,10 +1,9 @@
 # Harmonia Documentation
 
-**Version**: 1.0.0
-**Last Updated**: December 4, 2025
-**Project**: Harmonia Music Generation Platform
+**Version**: 1.0.0 **Last Updated**: December 4, 2025 **Project**: Harmonia Music Generation Platform
 
-Welcome to the Harmonia documentation! This is your comprehensive guide to understanding, developing, and deploying the Harmonia music generation platform.
+Welcome to the Harmonia documentation! This is your comprehensive guide to understanding, developing, and deploying the
+Harmonia music generation platform.
 
 ## 📚 Documentation Structure
 
@@ -95,7 +94,8 @@ Welcome to the Harmonia documentation! This is your comprehensive guide to under
 - **Start Here**: If you're new, begin with [SETUP.md](SETUP.md)
 - **API First**: For integration work, start with [API_REFERENCE.md](API_REFERENCE.md)
 - **Deep Dive**: For architecture understanding, read [ARCHITECTURE.md](ARCHITECTURE.md)
-- **Contributing**: Review [CODING_STANDARDS.md](CODING_STANDARDS.md) and [DEVELOPMENT_WORKFLOW.md](DEVELOPMENT_WORKFLOW.md)
+- **Contributing**: Review [CODING_STANDARDS.md](CODING_STANDARDS.md) and
+  [DEVELOPMENT_WORKFLOW.md](DEVELOPMENT_WORKFLOW.md)
 
 ## 🔗 External Resources
 
@@ -111,4 +111,5 @@ Welcome to the Harmonia documentation! This is your comprehensive guide to under
 
 ---
 
-**Legend**: 📚 Documentation | 🚀 Getting Started | 🏗️ Architecture | 🔧 Development | 📡 API | 🎵 Features | 🗄️ Infrastructure | 🔒 Security | 🚀 Deployment | 📋 Quality
+**Legend**: 📚 Documentation | 🚀 Getting Started | 🏗️ Architecture | 🔧 Development | 📡 API | 🎵 Features | 🗄️
+Infrastructure | 🔒 Security | 🚀 Deployment | 📋 Quality

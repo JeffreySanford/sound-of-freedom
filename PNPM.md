@@ -364,3 +364,13 @@ store-dir=/path/to/custom/store
 
 **Bottom line for Harmonia:**\
 Pnpm provides enterprise-grade security, dramatically faster installations, and efficient disk usage — critical for a project managing large ML models and potentially expanding to a monorepo. The phantom dependency prevention alone justifies migration, as it prevents an entire class of hard-to-debug production failures.
+/)
+
+* [Security Features](https://pnpm.io/feature-comparison)
+* [Benchmarks](https://pnpm.io/benchmarks)
+* [Workspace Guide](https://pnpm.io/workspaces)
+
+***
+
+**Bottom line for Harmonia:**\
+Pnpm provides enterprise-grade security, dramatically faster installations, and efficient disk usage — critical for a project managing large ML models and potentially expanding to a monorepo. The phantom dependency prevention alone justifies migration, as it prevents an entire class of hard-to-debug production failures.

@@ -2,9 +2,12 @@
 
 ## Executive Summary
 
-This document provides a comprehensive overview of additional features and considerations for building a full LLM + MusicGen song and music generation platform. It builds upon the existing foundation of DSL (M-MSL), beat-counting, SFX, instrument palettes, parsing, and synchronization systems.
+This document provides a comprehensive overview of additional features and considerations for building a full LLM +
+MusicGen song and music generation platform. It builds upon the existing foundation of DSL (M-MSL), beat-counting, SFX,
+instrument palettes, parsing, and synchronization systems.
 
-The overview is organized by functional areas, with prioritized roadmaps and immediate next deliverables to guide implementation.
+The overview is organized by functional areas, with prioritized roadmaps and immediate next deliverables to guide
+implementation.
 
 ## 1. Modeling & Generation Features
 
@@ -467,7 +470,10 @@ The overview is organized by functional areas, with prioritized roadmaps and imm
 
 ## Conclusion
 
-This overview provides a comprehensive roadmap for evolving the Harmonia platform from its current solid foundation (DSL, beat-counting, instrument palettes) toward a full-featured music generation ecosystem. The prioritized roadmap focuses on practical, high-impact features that unlock new creative workflows while maintaining the platform's commitment to ethical AI, professional production quality, and user experience.
+This overview provides a comprehensive roadmap for evolving the Harmonia platform from its current solid foundation
+(DSL, beat-counting, instrument palettes) toward a full-featured music generation ecosystem. The prioritized roadmap
+focuses on practical, high-impact features that unlock new creative workflows while maintaining the platform's
+commitment to ethical AI, professional production quality, and user experience.
 
 Key immediate priorities include:
 
@@ -476,4 +482,5 @@ Key immediate priorities include:
 3. Enhanced authoring tools with A/B comparison
 4. Legal compliance and safety features
 
-Each area builds upon the existing M-MSL foundation while expanding capabilities for both casual creators and professional producers.
+Each area builds upon the existing M-MSL foundation while expanding capabilities for both casual creators and
+professional producers.

@@ -413,7 +413,7 @@ Error: bind: Only one usage of each socket address is normally permitted
 
    ```yaml
    ports:
-     - "27018:27017" # External:Internal
+     - '27018:27017' # External:Internal
    ```
 
 ---

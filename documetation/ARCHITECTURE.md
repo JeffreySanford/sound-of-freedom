@@ -1,15 +1,22 @@
 # Harmonia Architecture Overview
 
-This document describes the high-level architecture and design goals for the Harmonia project: a sophisticated AI-powered music generation platform featuring a two-stage LLM + MusicGen pipeline, comprehensive song metadata generation, and real-time collaborative workflows.
+This document describes the high-level architecture and design goals for the Harmonia project: a sophisticated
+AI-powered music generation platform featuring a two-stage LLM + MusicGen pipeline, comprehensive song metadata
+generation, and real-time collaborative workflows.
 
 ## Goals
 
-- **Two-Stage AI Pipeline**: Separate metadata generation (Ollama/LLM) from audio synthesis (MusicGen) for superior quality and user control
-- **Reproducible Local Development**: Full-stack local development with Ollama models for metadata and MusicGen for audio
-- **Comprehensive Song Generation**: Narrative-to-song pipeline with genre suggestions, instrument selection, lyrics generation, and structured annotations
+- **Two-Stage AI Pipeline**: Separate metadata generation (Ollama/LLM) from audio synthesis (MusicGen) for superior
+  quality and user control
+- **Reproducible Local Development**: Full-stack local development with Ollama models for metadata and MusicGen for
+  audio
+- **Comprehensive Song Generation**: Narrative-to-song pipeline with genre suggestions, instrument selection, lyrics
+  generation, and structured annotations
 - **Real-Time Collaboration**: WebSocket-powered progress tracking and live generation status updates
-- **Enterprise-Grade Frontend**: Angular + Material 3 + NGRX with sophisticated state management for complex AI workflows
-- **Modular AI Services**: Specialized Ollama services for different generation tasks (metadata, genres, instruments, annotations)
+- **Enterprise-Grade Frontend**: Angular + Material 3 + NGRX with sophisticated state management for complex AI
+  workflows
+- **Modular AI Services**: Specialized Ollama services for different generation tasks (metadata, genres, instruments,
+  annotations)
 
 ## Core Components
 

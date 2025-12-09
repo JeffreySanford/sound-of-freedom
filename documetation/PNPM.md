@@ -1,6 +1,7 @@
 # PNPM: Modern, Secure, and Efficient Package Management
 
-This project uses `pnpm` as the exclusive package manager. `pnpm` provides significant advantages over `npm` and `yarn` in performance, security, and disk efficiency.
+This project uses `pnpm` as the exclusive package manager. `pnpm` provides significant advantages over `npm` and `yarn`
+in performance, security, and disk efficiency.
 
 ## Why PNPM?
 
@@ -92,7 +93,8 @@ your-app/
     └── body-parser/  ← Hoisted by npm, accessible even though not declared!
 ```
 
-Your code can `require('body-parser')` even though it's not in `package.json`. If `express` drops `body-parser`, your app breaks.
+Your code can `require('body-parser')` even though it's not in `package.json`. If `express` drops `body-parser`, your
+app breaks.
 
 **With pnpm:**
 
@@ -170,7 +172,7 @@ git commit -m "chore: migrate to pnpm"
 - name: Setup Node
   uses: actions/setup-node@v4
   with:
-    node-version: "18"
+    node-version: '18'
 
 - name: Enable corepack
   run: corepack enable
@@ -219,8 +221,8 @@ The repository includes `pnpm-workspace.yaml`:
 
 ```yaml
 packages:
-  - "."
-  - "packages/*"
+  - '.'
+  - 'packages/*'
 ```
 
 This allows future expansion into a monorepo structure where:
@@ -367,4 +369,6 @@ store-dir=/path/to/custom/store
 ---
 
 **Bottom line for Harmonia:**  
-Pnpm provides enterprise-grade security, dramatically faster installations, and efficient disk usage — critical for a project managing large ML models and potentially expanding to a monorepo. The phantom dependency prevention alone justifies migration, as it prevents an entire class of hard-to-debug production failures.
+Pnpm provides enterprise-grade security, dramatically faster installations, and efficient disk usage — critical for a
+project managing large ML models and potentially expanding to a monorepo. The phantom dependency prevention alone
+justifies migration, as it prevents an entire class of hard-to-debug production failures.

@@ -2,7 +2,8 @@
 
 ## Overview
 
-Harmonia uses **NGRX 20.1.0** for predictable state management following Redux patterns. This guide covers architecture, best practices, and implementation patterns for Phase 1.
+Harmonia uses **NGRX 20.1.0** for predictable state management following Redux patterns. This guide covers architecture,
+best practices, and implementation patterns for Phase 1.
 
 ## Store Architecture
 
@@ -52,14 +53,14 @@ export const initialAuthState: AuthState = {
   refreshToken: null,
   isAuthenticated: false,
   loading: false,
-  error: null,
+  error: null
 };
 ```
 
 ### Entity State (Normalized Data)
 
 ```typescript
-import { EntityState } from "@ngrx/entity";
+import { EntityState } from '@ngrx/entity';
 
 export interface ModelArtifact {
   id: string;
@@ -97,57 +98,42 @@ Examples:
 ### Action Structure
 
 ```typescript
-import { createAction, props } from "@ngrx/store";
+import { createAction, props } from '@ngrx/store';
 
 // Simple action (no payload)
-export const logout = createAction("[Auth] Logout");
+export const logout = createAction('[Auth] Logout');
 
 // Action with payload
-export const login = createAction(
-  "[Auth] Login",
-  props<{ email: string; password: string }>()
-);
+export const login = createAction('[Auth] Login', props<{ email: string; password: string }>());
 
 // Success/Failure pattern
 export const loginSuccess = createAction(
-  "[Auth] Login Success",
+  '[Auth] Login Success',
   props<{ user: User; token: string; refreshToken: string }>()
 );
 
-export const loginFailure = createAction(
-  "[Auth] Login Failure",
-  props<{ error: string }>()
-);
+export const loginFailure = createAction('[Auth] Login Failure', props<{ error: string }>());
 ```
 
 ### Async Operation Pattern (Request/Success/Failure)
 
 ```typescript
 // Load operation
-export const loadModels = createAction("[Models] Load Models");
+export const loadModels = createAction('[Models] Load Models');
 
-export const loadModelsSuccess = createAction(
-  "[Models] Load Models Success",
-  props<{ models: ModelArtifact[] }>()
-);
+export const loadModelsSuccess = createAction('[Models] Load Models Success', props<{ models: ModelArtifact[] }>());
 
-export const loadModelsFailure = createAction(
-  "[Models] Load Models Failure",
-  props<{ error: string }>()
-);
+export const loadModelsFailure = createAction('[Models] Load Models Failure', props<{ error: string }>());
 ```
 
 ### Real-Time Update Actions
 
 ```typescript
 // WebSocket events dispatch these actions
-export const jobStatusUpdated = createAction(
-  "[Jobs] Job Status Updated",
-  props<{ id: string; status: JobStatus }>()
-);
+export const jobStatusUpdated = createAction('[Jobs] Job Status Updated', props<{ id: string; status: JobStatus }>());
 
 export const jobProgressUpdated = createAction(
-  "[Jobs] Job Progress Updated",
+  '[Jobs] Job Progress Updated',
   props<{ id: string; progress: JobProgress }>()
 );
 ```
@@ -157,8 +143,8 @@ export const jobProgressUpdated = createAction(
 ### Basic Reducer
 
 ```typescript
-import { createReducer, on } from "@ngrx/store";
-import * as AuthActions from "./auth.actions";
+import { createReducer, on } from '@ngrx/store';
+import * as AuthActions from './auth.actions';
 
 export const authReducer = createReducer(
   initialAuthState,
@@ -167,7 +153,7 @@ export const authReducer = createReducer(
   on(AuthActions.login, (state) => ({
     ...state,
     loading: true,
-    error: null,
+    error: null
   })),
 
   // Success state (update multiple properties)
@@ -177,14 +163,14 @@ export const authReducer = createReducer(
     token,
     refreshToken,
     isAuthenticated: true,
-    loading: false,
+    loading: false
   })),
 
   // Error state
   on(AuthActions.loginFailure, (state, { error }) => ({
     ...state,
     loading: false,
-    error,
+    error
   })),
 
   // Reset state
@@ -195,20 +181,19 @@ export const authReducer = createReducer(
 ### Entity Adapter Reducer
 
 ```typescript
-import { createReducer, on } from "@ngrx/store";
-import { createEntityAdapter, EntityAdapter } from "@ngrx/entity";
+import { createReducer, on } from '@ngrx/store';
+import { createEntityAdapter, EntityAdapter } from '@ngrx/entity';
 
-export const modelsAdapter: EntityAdapter<ModelArtifact> =
-  createEntityAdapter<ModelArtifact>({
-    selectId: (model) => model.id,
-    sortComparer: (a, b) => b.createdAt.localeCompare(a.createdAt),
-  });
+export const modelsAdapter: EntityAdapter<ModelArtifact> = createEntityAdapter<ModelArtifact>({
+  selectId: (model) => model.id,
+  sortComparer: (a, b) => b.createdAt.localeCompare(a.createdAt)
+});
 
 export const initialModelsState: ModelsState = modelsAdapter.getInitialState({
   selectedModelId: null,
   loading: false,
   error: null,
-  filters: { search: "", modelType: null, tags: [] },
+  filters: { search: '', modelType: null, tags: [] }
 });
 
 export const modelsReducer = createReducer(
@@ -220,27 +205,19 @@ export const modelsReducer = createReducer(
   ),
 
   // Add one entity
-  on(ModelsActions.createModelSuccess, (state, { model }) =>
-    modelsAdapter.addOne(model, { ...state, loading: false })
-  ),
+  on(ModelsActions.createModelSuccess, (state, { model }) => modelsAdapter.addOne(model, { ...state, loading: false })),
 
   // Update one entity
   on(ModelsActions.updateModelSuccess, (state, { model }) =>
-    modelsAdapter.updateOne(
-      { id: model.id, changes: model },
-      { ...state, loading: false }
-    )
+    modelsAdapter.updateOne({ id: model.id, changes: model }, { ...state, loading: false })
   ),
 
   // Remove one entity
-  on(ModelsActions.deleteModelSuccess, (state, { id }) =>
-    modelsAdapter.removeOne(id, { ...state, loading: false })
-  )
+  on(ModelsActions.deleteModelSuccess, (state, { id }) => modelsAdapter.removeOne(id, { ...state, loading: false }))
 );
 
 // Export entity adapter selectors
-export const { selectAll, selectEntities, selectIds, selectTotal } =
-  modelsAdapter.getSelectors();
+export const { selectAll, selectEntities, selectIds, selectTotal } = modelsAdapter.getSelectors();
 ```
 
 ## Selectors Pattern
@@ -248,37 +225,25 @@ export const { selectAll, selectEntities, selectIds, selectTotal } =
 ### Feature Selector
 
 ```typescript
-import { createFeatureSelector } from "@ngrx/store";
+import { createFeatureSelector } from '@ngrx/store';
 
-export const selectAuthState = createFeatureSelector<AuthState>("auth");
+export const selectAuthState = createFeatureSelector<AuthState>('auth');
 ```
 
 ### Memoized Selectors
 
 ```typescript
-import { createSelector } from "@ngrx/store";
+import { createSelector } from '@ngrx/store';
 
 // Direct property access
-export const selectUser = createSelector(
-  selectAuthState,
-  (state) => state.user
-);
+export const selectUser = createSelector(selectAuthState, (state) => state.user);
 
-export const selectIsAuthenticated = createSelector(
-  selectAuthState,
-  (state) => state.isAuthenticated
-);
+export const selectIsAuthenticated = createSelector(selectAuthState, (state) => state.isAuthenticated);
 
 // Derived/computed selectors
-export const selectUserRole = createSelector(
-  selectUser,
-  (user) => user?.role || "guest"
-);
+export const selectUserRole = createSelector(selectUser, (user) => user?.role || 'guest');
 
-export const selectIsAdmin = createSelector(
-  selectUserRole,
-  (role) => role === "admin"
-);
+export const selectIsAdmin = createSelector(selectUserRole, (role) => role === 'admin');
 
 // Combining multiple selectors
 export const selectAuthStatus = createSelector(
@@ -286,7 +251,7 @@ export const selectAuthStatus = createSelector(
   selectAuthLoading,
   (isAuthenticated, loading) => ({
     isAuthenticated,
-    loading,
+    loading
   })
 );
 ```
@@ -294,24 +259,16 @@ export const selectAuthStatus = createSelector(
 ### Entity Adapter Selectors
 
 ```typescript
-import * as fromModels from "./models.reducer";
+import * as fromModels from './models.reducer';
 
 // Use adapter selectors
-export const selectAllModels = createSelector(
-  selectModelsState,
-  fromModels.selectAll
-);
+export const selectAllModels = createSelector(selectModelsState, fromModels.selectAll);
 
-export const selectModelsEntities = createSelector(
-  selectModelsState,
-  fromModels.selectEntities
-);
+export const selectModelsEntities = createSelector(selectModelsState, fromModels.selectEntities);
 
 // Select specific entity by ID
-export const selectSelectedModel = createSelector(
-  selectModelsEntities,
-  selectSelectedModelId,
-  (entities, selectedId) => (selectedId ? entities[selectedId] : null)
+export const selectSelectedModel = createSelector(selectModelsEntities, selectSelectedModelId, (entities, selectedId) =>
+  selectedId ? entities[selectedId] : null
 );
 ```
 
@@ -319,30 +276,20 @@ export const selectSelectedModel = createSelector(
 
 ```typescript
 // Client-side filtering
-export const selectFilteredModels = createSelector(
-  selectAllModels,
-  selectModelsFilters,
-  (models, filters) => {
-    return models.filter((model) => {
-      const matchesSearch =
-        !filters.search ||
-        model.name.toLowerCase().includes(filters.search.toLowerCase());
+export const selectFilteredModels = createSelector(selectAllModels, selectModelsFilters, (models, filters) => {
+  return models.filter((model) => {
+    const matchesSearch = !filters.search || model.name.toLowerCase().includes(filters.search.toLowerCase());
 
-      const matchesType =
-        !filters.modelType || model.type === filters.modelType;
+    const matchesType = !filters.modelType || model.type === filters.modelType;
 
-      const matchesTags =
-        filters.tags.length === 0 ||
-        filters.tags.some((tag) => model.tags.includes(tag));
+    const matchesTags = filters.tags.length === 0 || filters.tags.some((tag) => model.tags.includes(tag));
 
-      return matchesSearch && matchesType && matchesTags;
-    });
-  }
-);
+    return matchesSearch && matchesType && matchesTags;
+  });
+});
 
 // Parameterized selector factory
-export const selectModelById = (id: string) =>
-  createSelector(selectModelsEntities, (entities) => entities[id]);
+export const selectModelById = (id: string) => createSelector(selectModelsEntities, (entities) => entities[id]);
 ```
 
 ## Effects Pattern
@@ -350,12 +297,12 @@ export const selectModelById = (id: string) =>
 ### Basic Effect (API Call)
 
 ```typescript
-import { Injectable } from "@angular/core";
-import { Actions, createEffect, ofType } from "@ngrx/effects";
-import { of } from "rxjs";
-import { catchError, map, mergeMap } from "rxjs/operators";
-import { ModelsService } from "../../services/models.service";
-import * as ModelsActions from "./models.actions";
+import { Injectable } from '@angular/core';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { of } from 'rxjs';
+import { catchError, map, mergeMap } from 'rxjs/operators';
+import { ModelsService } from '../../services/models.service';
+import * as ModelsActions from './models.actions';
 
 @Injectable()
 export class ModelsEffects {
@@ -368,7 +315,7 @@ export class ModelsEffects {
           catchError((error) =>
             of(
               ModelsActions.loadModelsFailure({
-                error: error.message || "Failed to load models",
+                error: error.message || 'Failed to load models'
               })
             )
           )
@@ -377,17 +324,14 @@ export class ModelsEffects {
     )
   );
 
-  constructor(
-    private actions$: Actions,
-    private modelsService: ModelsService
-  ) {}
+  constructor(private actions$: Actions, private modelsService: ModelsService) {}
 }
 ```
 
 ### Effect with Router Navigation
 
 ```typescript
-import { Router } from "@angular/router";
+import { Router } from '@angular/router';
 
 @Injectable()
 export class AuthEffects {
@@ -396,7 +340,7 @@ export class AuthEffects {
       this.actions$.pipe(
         ofType(AuthActions.loginSuccess),
         tap(() => {
-          this.router.navigate(["/dashboard"]);
+          this.router.navigate(['/dashboard']);
         })
       ),
     { dispatch: false } // Non-dispatching effect
@@ -417,14 +361,14 @@ createJob$ = createEffect(() =>
         .createJob({
           jobType: action.jobType,
           parameters: action.parameters,
-          priority: action.priority,
+          priority: action.priority
         })
         .pipe(
           map((job) => JobsActions.createJobSuccess({ job })),
           catchError((error) =>
             of(
               JobsActions.createJobFailure({
-                error: error.message || "Failed to create job",
+                error: error.message || 'Failed to create job'
               })
             )
           )
@@ -439,18 +383,18 @@ createJob$ = createEffect(() =>
 ### Module Registration (`app-module.ts`)
 
 ```typescript
-import { StoreModule } from "@ngrx/store";
-import { EffectsModule } from "@ngrx/effects";
-import { StoreDevtoolsModule } from "@ngrx/store-devtools";
-import { isDevMode } from "@angular/core";
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { isDevMode } from '@angular/core';
 
 // Import reducers
-import { authReducer } from "./store/auth/auth.reducer";
-import { modelsReducer } from "./store/models/models.reducer";
+import { authReducer } from './store/auth/auth.reducer';
+import { modelsReducer } from './store/models/models.reducer';
 
 // Import effects
-import { AuthEffects } from "./store/auth/auth.effects";
-import { ModelsEffects } from "./store/models/models.effects";
+import { AuthEffects } from './store/auth/auth.effects';
+import { ModelsEffects } from './store/models/models.effects';
 
 @NgModule({
   imports: [
@@ -459,7 +403,7 @@ import { ModelsEffects } from "./store/models/models.effects";
         auth: authReducer,
         models: modelsReducer,
         datasets: datasetsReducer,
-        jobs: jobsReducer,
+        jobs: jobsReducer
       },
       {
         runtimeChecks: {
@@ -468,22 +412,17 @@ import { ModelsEffects } from "./store/models/models.effects";
           strictStateSerializability: true,
           strictActionSerializability: true,
           strictActionWithinNgZone: true,
-          strictActionTypeUniqueness: true,
-        },
+          strictActionTypeUniqueness: true
+        }
       }
     ),
-    EffectsModule.forRoot([
-      AuthEffects,
-      ModelsEffects,
-      DatasetsEffects,
-      JobsEffects,
-    ]),
+    EffectsModule.forRoot([AuthEffects, ModelsEffects, DatasetsEffects, JobsEffects]),
     StoreDevtoolsModule.instrument({
       maxAge: 25,
       logOnly: !isDevMode(),
-      autoPause: true,
-    }),
-  ],
+      autoPause: true
+    })
+  ]
 })
 export class AppModule {}
 ```
@@ -493,14 +432,14 @@ export class AppModule {}
 ### Dispatching Actions
 
 ```typescript
-import { Component } from "@angular/core";
-import { Store } from "@ngrx/store";
-import { AppState } from "./store/app.state";
-import * as AuthActions from "./store/auth/auth.actions";
+import { Component } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { AppState } from './store/app.state';
+import * as AuthActions from './store/auth/auth.actions';
 
 @Component({
-  selector: "app-login",
-  templateUrl: "./login.component.html",
+  selector: 'app-login',
+  templateUrl: './login.component.html'
 })
 export class LoginComponent {
   constructor(private store: Store<AppState>) {}
@@ -514,15 +453,15 @@ export class LoginComponent {
 ### Selecting State
 
 ```typescript
-import { Component, OnInit } from "@angular/core";
-import { Store } from "@ngrx/store";
-import { Observable } from "rxjs";
-import { AppState } from "./store/app.state";
-import * as fromAuth from "./store/auth/auth.selectors";
+import { Component, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { AppState } from './store/app.state';
+import * as fromAuth from './store/auth/auth.selectors';
 
 @Component({
-  selector: "app-header",
-  templateUrl: "./header.component.html",
+  selector: 'app-header',
+  templateUrl: './header.component.html'
 })
 export class HeaderComponent implements OnInit {
   user$!: Observable<User | null>;
@@ -557,23 +496,14 @@ export class HeaderComponent implements OnInit {
 ❌ **Bad**: Generic action
 
 ```typescript
-export const updateState = createAction(
-  "[App] Update State",
-  props<{ data: any }>()
-);
+export const updateState = createAction('[App] Update State', props<{ data: any }>());
 ```
 
 ✅ **Good**: Specific actions
 
 ```typescript
-export const login = createAction(
-  "[Auth] Login",
-  props<{ email: string; password: string }>()
-);
-export const loginSuccess = createAction(
-  "[Auth] Login Success",
-  props<{ user: User; token: string }>()
-);
+export const login = createAction('[Auth] Login', props<{ email: string; password: string }>());
+export const loginSuccess = createAction('[Auth] Login Success', props<{ user: User; token: string }>());
 ```
 
 ### 2. Immutable State Updates
@@ -593,7 +523,7 @@ on(AuthActions.loginSuccess, (state, { user }) => {
 on(AuthActions.loginSuccess, (state, { user }) => ({
   ...state,
   user,
-  isAuthenticated: true,
+  isAuthenticated: true
 }));
 ```
 
@@ -608,9 +538,7 @@ loadModels$ = createEffect(() =>
     mergeMap(() =>
       this.modelsService.getModels().pipe(
         map((models) => ModelsActions.loadModelsSuccess({ models })),
-        catchError((error) =>
-          of(ModelsActions.loadModelsFailure({ error: error.message }))
-        )
+        catchError((error) => of(ModelsActions.loadModelsFailure({ error: error.message })))
       )
     )
   )
@@ -623,10 +551,8 @@ loadModels$ = createEffect(() =>
 
 ```typescript
 // Memoized - only recalculates when dependencies change
-export const selectFilteredModels = createSelector(
-  selectAllModels,
-  selectFilters,
-  (models, filters) => models.filter(/* ... */)
+export const selectFilteredModels = createSelector(selectAllModels, selectFilters, (models, filters) =>
+  models.filter(/* ... */)
 );
 ```
 
@@ -635,16 +561,13 @@ export const selectFilteredModels = createSelector(
 ❌ **Bad**:
 
 ```typescript
-export const updateData = createAction("[App] Update", props<{ data: any }>());
+export const updateData = createAction('[App] Update', props<{ data: any }>());
 ```
 
 ✅ **Good**:
 
 ```typescript
-export const updateModel = createAction(
-  "[Models] Update",
-  props<{ id: string; changes: Partial<ModelArtifact> }>()
-);
+export const updateModel = createAction('[Models] Update', props<{ id: string; changes: Partial<ModelArtifact> }>());
 ```
 
 ### 6. Use Entity Adapters for Collections
@@ -652,10 +575,10 @@ export const updateModel = createAction(
 ✅ For arrays of entities with IDs, **always** use `@ngrx/entity`:
 
 ```typescript
-import { createEntityAdapter } from "@ngrx/entity";
+import { createEntityAdapter } from '@ngrx/entity';
 
 export const modelsAdapter = createEntityAdapter<ModelArtifact>({
-  selectId: (model) => model.id,
+  selectId: (model) => model.id
 });
 ```
 
@@ -665,16 +588,10 @@ export const modelsAdapter = createEntityAdapter<ModelArtifact>({
 
 ```typescript
 // ❌ Bad - `type` is reserved
-export const setFilter = createAction(
-  "[Models] Set Filter",
-  props<{ type: string }>()
-);
+export const setFilter = createAction('[Models] Set Filter', props<{ type: string }>());
 
 // ✅ Good - Use alternative name
-export const setFilter = createAction(
-  "[Models] Set Filter",
-  props<{ modelType: string }>()
-);
+export const setFilter = createAction('[Models] Set Filter', props<{ modelType: string }>());
 ```
 
 ## Debugging
@@ -695,12 +612,12 @@ Features:
 Add meta-reducer for logging:
 
 ```typescript
-import { ActionReducer, MetaReducer } from "@ngrx/store";
+import { ActionReducer, MetaReducer } from '@ngrx/store';
 
 export function logger(reducer: ActionReducer<any>): ActionReducer<any> {
   return (state, action) => {
-    console.log("state", state);
-    console.log("action", action);
+    console.log('state', state);
+    console.log('action', action);
     return reducer(state, action);
   };
 }
@@ -719,14 +636,14 @@ StoreModule.forRoot(reducers, { metaReducers });
 ### Testing Reducers
 
 ```typescript
-import { authReducer, initialAuthState } from "./auth.reducer";
-import * as AuthActions from "./auth.actions";
+import { authReducer, initialAuthState } from './auth.reducer';
+import * as AuthActions from './auth.actions';
 
-describe("AuthReducer", () => {
-  it("should set loading on login", () => {
+describe('AuthReducer', () => {
+  it('should set loading on login', () => {
     const action = AuthActions.login({
-      email: "test@test.com",
-      password: "123",
+      email: 'test@test.com',
+      password: '123'
     });
     const state = authReducer(initialAuthState, action);
 
@@ -734,18 +651,18 @@ describe("AuthReducer", () => {
     expect(state.error).toBe(null);
   });
 
-  it("should update user on login success", () => {
+  it('should update user on login success', () => {
     const user = {
-      id: "1",
-      email: "test@test.com",
-      username: "test",
-      role: "user",
-      createdAt: "2025-01-01",
+      id: '1',
+      email: 'test@test.com',
+      username: 'test',
+      role: 'user',
+      createdAt: '2025-01-01'
     };
     const action = AuthActions.loginSuccess({
       user,
-      token: "token",
-      refreshToken: "refresh",
+      token: 'token',
+      refreshToken: 'refresh'
     });
     const state = authReducer(initialAuthState, action);
 
@@ -759,25 +676,25 @@ describe("AuthReducer", () => {
 ### Testing Selectors
 
 ```typescript
-import * as fromAuth from "./auth.selectors";
+import * as fromAuth from './auth.selectors';
 
-describe("AuthSelectors", () => {
+describe('AuthSelectors', () => {
   const mockState = {
     auth: {
-      user: { id: "1", username: "test", role: "admin" },
+      user: { id: '1', username: 'test', role: 'admin' },
       isAuthenticated: true,
       loading: false,
-      error: null,
-    },
+      error: null
+    }
   };
 
-  it("should select user", () => {
+  it('should select user', () => {
     const result = fromAuth.selectUser.projector(mockState.auth);
     expect(result).toEqual(mockState.auth.user);
   });
 
-  it("should select isAdmin", () => {
-    const result = fromAuth.selectIsAdmin.projector("admin");
+  it('should select isAdmin', () => {
+    const result = fromAuth.selectIsAdmin.projector('admin');
     expect(result).toBe(true);
   });
 });
@@ -786,37 +703,31 @@ describe("AuthSelectors", () => {
 ### Testing Effects
 
 ```typescript
-import { TestBed } from "@angular/core/testing";
-import { provideMockActions } from "@ngrx/effects/testing";
-import { Observable, of, throwError } from "rxjs";
-import { ModelsEffects } from "./models.effects";
-import { ModelsService } from "../../services/models.service";
-import * as ModelsActions from "./models.actions";
+import { TestBed } from '@angular/core/testing';
+import { provideMockActions } from '@ngrx/effects/testing';
+import { Observable, of, throwError } from 'rxjs';
+import { ModelsEffects } from './models.effects';
+import { ModelsService } from '../../services/models.service';
+import * as ModelsActions from './models.actions';
 
-describe("ModelsEffects", () => {
+describe('ModelsEffects', () => {
   let actions$: Observable<any>;
   let effects: ModelsEffects;
   let modelsService: jasmine.SpyObj<ModelsService>;
 
   beforeEach(() => {
-    const spy = jasmine.createSpyObj("ModelsService", ["getModels"]);
+    const spy = jasmine.createSpyObj('ModelsService', ['getModels']);
 
     TestBed.configureTestingModule({
-      providers: [
-        ModelsEffects,
-        provideMockActions(() => actions$),
-        { provide: ModelsService, useValue: spy },
-      ],
+      providers: [ModelsEffects, provideMockActions(() => actions$), { provide: ModelsService, useValue: spy }]
     });
 
     effects = TestBed.inject(ModelsEffects);
-    modelsService = TestBed.inject(
-      ModelsService
-    ) as jasmine.SpyObj<ModelsService>;
+    modelsService = TestBed.inject(ModelsService) as jasmine.SpyObj<ModelsService>;
   });
 
-  it("should return loadModelsSuccess on success", (done) => {
-    const models = [{ id: "1", name: "Model 1" }];
+  it('should return loadModelsSuccess on success', (done) => {
+    const models = [{ id: '1', name: 'Model 1' }];
     modelsService.getModels.and.returnValue(of(models));
     actions$ = of(ModelsActions.loadModels());
 

@@ -2,7 +2,8 @@
 
 ## Overview
 
-Comprehensive authentication and authorization system with role-based access control (RBAC), JWT tokens, Redis session caching, and MongoDB user storage.
+Comprehensive authentication and authorization system with role-based access control (RBAC), JWT tokens, Redis session
+caching, and MongoDB user storage.
 
 **Core Features**:
 
@@ -82,8 +83,8 @@ Comprehensive authentication and authorization system with role-based access con
 
 ```typescript
 enum UserGroup {
-  USER = "user", // Basic authenticated user
-  ADMIN = "admin", // Administrator with elevated privileges
+  USER = 'user', // Basic authenticated user
+  ADMIN = 'admin' // Administrator with elevated privileges
 }
 
 // Permission inheritance
@@ -96,17 +97,17 @@ enum UserGroup {
 // Seed data for initial setup
 const defaultUsers = [
   {
-    username: "user",
-    email: "user@harmonia.local",
-    password: "user123!",
-    group: UserGroup.USER,
+    username: 'user',
+    email: 'user@harmonia.local',
+    password: 'user123!',
+    group: UserGroup.USER
   },
   {
-    username: "admin",
-    email: "admin@harmonia.local",
-    password: "admin123!",
-    group: UserGroup.ADMIN,
-  },
+    username: 'admin',
+    email: 'admin@harmonia.local',
+    password: 'admin123!',
+    group: UserGroup.ADMIN
+  }
 ];
 ```
 
@@ -207,9 +208,9 @@ pnpm add -D @types/bcrypt @types/passport-jwt
 Create `apps/backend/src/schemas/user.schema.ts`:
 
 ```typescript
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from "mongoose";
-import * as bcrypt from "bcrypt";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
+import * as bcrypt from 'bcrypt';
 
 @Schema({ timestamps: true })
 export class User extends Document {
@@ -222,7 +223,7 @@ export class User extends Document {
   @Prop({ required: true })
   password: string;
 
-  @Prop({ enum: ["user", "admin"], default: "user" })
+  @Prop({ enum: ['user', 'admin'], default: 'user' })
   role: string;
 
   @Prop()
@@ -240,8 +241,8 @@ export class User extends Document {
 export const UserSchema = SchemaFactory.createForClass(User);
 
 // Pre-save middleware for password hashing
-UserSchema.pre<User>("save", async function (next) {
-  if (!this.isModified("password")) return next();
+UserSchema.pre<User>('save', async function (next) {
+  if (!this.isModified('password')) return next();
 
   const saltRounds = 12;
   this.password = await bcrypt.hash(this.password, saltRounds);
@@ -282,14 +283,14 @@ UserSchema.pre<User>("save", async function (next) {
 // forgot-password.component.ts
 export class ForgotPasswordComponent {
   resetForm = this.fb.group({
-    email: ["", [Validators.required, Validators.email]],
+    email: ['', [Validators.required, Validators.email]]
   });
 
   onSubmit(): void {
     const email = this.resetForm.value.email;
     this.authService.requestPasswordReset(email).subscribe({
       next: () => this.showSuccessMessage(),
-      error: (error) => this.handleError(error),
+      error: (error) => this.handleError(error)
     });
   }
 }
@@ -300,9 +301,9 @@ export class ForgotPasswordComponent {
 export class ResetPasswordComponent implements OnInit {
   resetForm = this.fb.group(
     {
-      token: ["", Validators.required],
-      newPassword: ["", [Validators.required, passwordStrengthValidator]],
-      confirmPassword: ["", Validators.required],
+      token: ['', Validators.required],
+      newPassword: ['', [Validators.required, passwordStrengthValidator]],
+      confirmPassword: ['', Validators.required]
     },
     { validators: passwordMatchValidator }
   );
@@ -316,8 +317,8 @@ export class ResetPasswordComponent implements OnInit {
 
   onSubmit(): void {
     this.authService.resetPassword(this.resetForm.value).subscribe({
-      next: () => this.router.navigate(["/login"]),
-      error: (error) => this.handleError(error),
+      next: () => this.router.navigate(['/login']),
+      error: (error) => this.handleError(error)
     });
   }
 }
@@ -388,7 +389,7 @@ export class User extends Document {
   @Prop()
   twoFactorSecret?: string; // Encrypted TOTP secret
 
-  @Prop({ enum: ["totp", "sms", "email"], default: null })
+  @Prop({ enum: ['totp', 'sms', 'email'], default: null })
   twoFactorMethod?: string;
 
   @Prop()
@@ -412,13 +413,13 @@ export class EnableTwoFactorComponent {
       next: (response) => {
         this.qrCodeUrl = response.qrCodeUrl;
         this.backupCodes = response.backupCodes;
-      },
+      }
     });
   }
 
   verifyAndEnable(code: string): void {
     this.authService.verifyTOTP(code).subscribe({
-      next: () => this.showSuccess(),
+      next: () => this.showSuccess()
     });
   }
 }

@@ -2,7 +2,8 @@
 
 ## Overview
 
-Harmonia uses **Nx 22.1.3** as a monorepo orchestration tool with pnpm workspace integration. This guide covers Nx commands, workspace structure, and best practices for Phase 1 development.
+Harmonia uses **Nx 22.1.3** as a monorepo orchestration tool with pnpm workspace integration. This guide covers Nx
+commands, workspace structure, and best practices for Phase 1 development.
 
 ## Workspace Structure
 
@@ -161,10 +162,7 @@ Each project has a `project.json` file defining targets (build, serve, test, lin
         "index": "apps/frontend/src/index.html",
         "browser": "apps/frontend/src/main.ts",
         "tsConfig": "apps/frontend/tsconfig.app.json",
-        "styles": [
-          "apps/frontend/src/styles.scss",
-          "apps/frontend/src/theme.scss"
-        ]
+        "styles": ["apps/frontend/src/styles.scss", "apps/frontend/src/theme.scss"]
       }
     },
     "serve": {
@@ -286,7 +284,7 @@ NX_WS_URL=ws://localhost:3333
 Access in TypeScript:
 
 ```typescript
-const apiUrl = process.env["NX_API_URL"];
+const apiUrl = process.env['NX_API_URL'];
 ```
 
 ### Backend
@@ -302,10 +300,10 @@ JWT_SECRET=your-secret-key
 Access in NestJS:
 
 ```typescript
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [ConfigModule.forRoot()],
+  imports: [ConfigModule.forRoot()]
 })
 export class AppModule {}
 ```
@@ -356,7 +354,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-          cache: "pnpm"
+          cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
 
