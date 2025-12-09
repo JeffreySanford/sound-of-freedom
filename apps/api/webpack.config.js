@@ -1,4 +1,4 @@
-const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
+const { NxWebpackPlugin } = require('@nx/webpack');
 const { join } = require('path');
 
 module.exports = {
@@ -10,7 +10,7 @@ module.exports = {
     }),
   },
   plugins: [
-    new NxAppWebpackPlugin({
+    new NxWebpackPlugin({
       target: 'node',
       compiler: 'tsc',
       main: './src/main.ts',
