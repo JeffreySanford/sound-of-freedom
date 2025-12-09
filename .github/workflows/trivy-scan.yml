@@ -1,14 +1,6 @@
 name: 'Trivy Scan'
 
-on:
-  push:
-    branches:
-      - main
-      - master
-  pull_request:
-    branches:
-      - main
-      - master
+on: [push, pull_request]
 
 jobs:
   trivy-scan:
@@ -38,14 +30,14 @@ jobs:
       - name: Scan images with Trivy (container)
         run: |
           for image in sound-creator-frontend:latest sound-creator-api:latest sound-creator-jen1:latest sound-creator-muscgen:latest sound-creator-orchestrator:latest; do
-            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --format table --severity HIGH,CRITICAL --exit-code 1 "$image" || true
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --format table --severity HIGH,CRITICAL --exit-code 1 "${image}" || true
           done
 
       - name: Generate and upload Trivy report files
         run: |
           for image in sound-creator-frontend:latest sound-creator-api:latest sound-creator-jen1:latest sound-creator-muscgen:latest sound-creator-orchestrator:latest; do
-            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --format table --severity HIGH,CRITICAL --quiet "$image" > "/tmp/$(echo $image | tr ':' '-')-trivy.txt" || true
-          ; done
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --format table --severity HIGH,CRITICAL --quiet "${image}" > "/tmp/$(echo ${image} | tr ':' '-')-trivy.txt" || true
+          done
         continue-on-error: true
 
       - name: Upload Trivy reports
