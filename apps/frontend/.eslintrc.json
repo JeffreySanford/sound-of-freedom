@@ -1,0 +1,57 @@
+{
+  "extends": ["../../.eslintrc.json", "../../.eslintrc.base.json"],
+  "ignorePatterns": ["!**/*"],
+  "overrides": [
+    {
+      "files": ["*.ts"],
+      "extends": [
+        "plugin:@angular-eslint/recommended",
+        "plugin:@angular-eslint/template/process-inline-templates"
+      ],
+      "rules": {
+        "@angular-eslint/component-max-inline-declarations": [
+          "error",
+          { "template": 0, "styles": 0, "animations": 0 }
+        ],
+        "@angular-eslint/directive-selector": [
+          "error",
+          {
+            "type": "attribute",
+            "prefix": "harmonia",
+            "style": "camelCase"
+          }
+        ],
+        "@angular-eslint/component-selector": [
+          "error",
+          {
+            "type": "element",
+            "prefix": "harmonia",
+            "style": "kebab-case"
+          }
+        ],
+        "@angular-eslint/prefer-standalone": "off",
+        "@angular-eslint/template/prefer-control-flow": "off",
+        "max-lines": [
+          "error",
+          {
+            "max": 600,
+            "skipBlankLines": true,
+            "skipComments": true
+          }
+        ]
+      }
+    },
+    {
+      "files": ["*.html"],
+      "parser": "@angular-eslint/template-parser",
+      "extends": ["plugin:@angular-eslint/template/recommended"],
+      "rules": {
+        "@angular-eslint/template/no-inline-styles": "error",
+        "@angular-eslint/template/prefer-control-flow": "off",
+        "@typescript-eslint/ban-ts-comment": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+node_modules
+dist
+**/*.backup
+**/DOCKER_SETUP.md.backup
+**/OLLAMA.md.backup
+**/GETTING_STARTED.md.backup
+**/*.log

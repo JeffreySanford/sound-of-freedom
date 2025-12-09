@@ -1,0 +1,5 @@
+flask>=2.0
+# Add torch or the appropriate inference runtime below (use proper CUDA versions for GPU)
+# Example for CPU-only PyTorch - adjust for GPU with specific wheel indexes
+# torch
+soundfile

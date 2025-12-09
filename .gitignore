@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+.DS_Store
+coverage/
+.idea/
+.vscode/
+/.tmp
+npm-debug.log
+yarn-error.log
+package-lock.json
+**/node_modules
+**/.DS_Store
+dist/**
+logs/**
+*.log

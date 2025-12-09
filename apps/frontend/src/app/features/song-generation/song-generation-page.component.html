@@ -1,0 +1,461 @@
+<div class="song-generation-page">
+  <mat-card class="page-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>music_note</mat-icon>
+        {{ title }}
+      </mat-card-title>
+      <mat-card-subtitle>
+        Generate song metadata (title, lyrics, genre, mood) from narrative
+        descriptions
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Step 1: Narrative Input -->
+      <section class="input-section">
+        <h3 class="section-title">
+          <mat-icon>edit_note</mat-icon>
+          1. Enter Your Narrative
+        </h3>
+        <p class="section-description">
+          Describe the story, theme, or emotion you want to convey in your song.
+        </p>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Narrative Description</mat-label>
+          <textarea
+            matInput
+            [(ngModel)]="narrative"
+            placeholder="Example: A melancholic story about lost love set in a rainy city, with reflective and introspective mood"
+            rows="6"
+            [maxlength]="maxNarrativeLength"
+          ></textarea>
+          <mat-hint align="end">
+            {{ characterCount }}/{{ maxNarrativeLength }} characters
+            <span
+              *ngIf="characterCount < minNarrativeLength"
+              class="error-hint"
+            >
+              (minimum {{ minNarrativeLength }})
+            </span>
+            <span class="narrative-guidance">
+              • Recommended: ~{{ recommendedNarrativeWords }} words for
+              {{ duration }}s song
+            </span>
+          </mat-hint>
+        </mat-form-field>
+      </section>
+
+      <!-- Mode Selector -->
+      <section class="mode-selector-section">
+        <h3 class="section-title">
+          <mat-icon>swap_horiz</mat-icon>
+          Choose Generation Mode
+        </h3>
+        <p class="section-description">
+          Generate new lyrics from narrative or analyze existing lyrics with
+          annotations.
+        </p>
+
+        <mat-button-toggle-group
+          [(ngModel)]="generationMode"
+          (change)="onModeChange($event)"
+          class="mode-toggle-group"
+        >
+          <mat-button-toggle value="generate">
+            <mat-icon>auto_awesome</mat-icon>
+            Generate New
+          </mat-button-toggle>
+          <mat-button-toggle value="analyze">
+            <mat-icon>analytics</mat-icon>
+            Analyze Existing
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </section>
+
+      <!-- Step 1.5: Lyrics Analysis Input (when analyze mode) -->
+      <section
+        class="lyrics-analysis-section"
+        *ngIf="generationMode === 'analyze'"
+      >
+        <h3 class="section-title">
+          <mat-icon>lyrics</mat-icon>
+          1.5. Paste Your Lyrics
+        </h3>
+        <p class="section-description">
+          Paste lyrics with Song Annotation DSL markers: [Section],
+          (Performance), &lt;Audio Cue&gt;.
+          <a href="#" (click)="showDslHelp($event)" class="dsl-help-link"
+            >View DSL Guide</a
+          >
+        </p>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Lyrics with Annotations</mat-label>
+          <textarea
+            matInput
+            [(ngModel)]="lyricsToAnalyze"
+            placeholder="Example:
+// Title: Nightfall
+// BPM: 92
+// Key: Em
+
+[Verse 1]
+(soft spoken)
+I walk into the night...
+&lt;SFX footsteps repeat=4&gt;
+
+[Chorus]
+(full voice)
+We are fire — we are the unsung.
+&lt;SFX orchestral_swell duration=4s&gt;"
+            rows="12"
+            [maxlength]="maxLyricsLength"
+          ></textarea>
+          <mat-hint align="end">
+            {{ lyricsCharacterCount }}/{{ maxLyricsLength }} characters
+          </mat-hint>
+        </mat-form-field>
+
+        <!-- Analysis Results -->
+        <div class="analysis-results" *ngIf="analysisResult">
+          <h4 class="results-title">
+            <mat-icon>fact_check</mat-icon>
+            Analysis Results
+          </h4>
+
+          <div class="parsed-structure" *ngIf="analysisResult.song">
+            <div
+              class="song-metadata"
+              *ngIf="
+                analysisResult.song.title ||
+                analysisResult.song.bpm ||
+                analysisResult.song.key
+              "
+            >
+              <h5>Song Metadata:</h5>
+              <div class="metadata-grid">
+                <div *ngIf="analysisResult.song.title">
+                  <strong>Title:</strong> {{ analysisResult.song.title }}
+                </div>
+                <div *ngIf="analysisResult.song.bpm">
+                  <strong>BPM:</strong> {{ analysisResult.song.bpm }}
+                </div>
+                <div *ngIf="analysisResult.song.key">
+                  <strong>Key:</strong> {{ analysisResult.song.key }}
+                </div>
+              </div>
+            </div>
+
+            <div class="sections-preview">
+              <h5>Sections ({{ analysisResult.song.sections.length }}):</h5>
+              <div class="section-list">
+                <div
+                  *ngFor="let section of analysisResult.song.sections"
+                  class="section-item"
+                >
+                  <strong>{{ section.label }}</strong>
+                  <span class="section-stats">
+                    ({{ section.items.length }} items)
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="validation-errors"
+            *ngIf="analysisResult.errors && analysisResult.errors.length > 0"
+          >
+            <h5>Issues Found:</h5>
+            <div class="error-list">
+              <div
+                *ngFor="let error of analysisResult.errors"
+                class="error-item"
+                [ngClass]="error.severity"
+              >
+                <mat-icon>{{
+                  error.severity === 'error' ? 'error' : 'warning'
+                }}</mat-icon>
+                <span>Line {{ error.line }}: {{ error.message }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="analysis-actions" *ngIf="canUseAnalyzedSong()">
+            <button
+              mat-raised-button
+              color="accent"
+              (click)="useAnalyzedSong()"
+              class="use-song-button"
+            >
+              <mat-icon>play_arrow</mat-icon>
+              Use This Song
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 1.5: Genre Suggestions -->
+      <section class="genre-suggestion-section">
+        <harmonia-genre-suggestion
+          [narrative]="narrative"
+          [state]="genreSuggestionState"
+          [suggestions]="genreSuggestions"
+          [errorMessage]="genreSuggestionError"
+          (genreToggled)="onGenreToggled($event)"
+          (feedbackGiven)="onFeedbackGiven($event)"
+        ></harmonia-genre-suggestion>
+      </section>
+
+      <!-- Step 2: Duration Selection -->
+      <section class="duration-section">
+        <h3 class="section-title">
+          <mat-icon>timer</mat-icon>
+          2. Set Song Duration
+        </h3>
+        <p class="section-description">
+          Duration affects lyrics length. Singing speed: ~4.5 syllables/second
+        </p>
+
+        <div class="slider-container">
+          <label class="slider-label">
+            Duration: {{ duration }}s
+            <span class="slider-info"
+              >(Target: {{ targetSyllables }} syllables, ~{{
+                targetWords
+              }}
+              words)</span
+            >
+          </label>
+          <mat-slider
+            [min]="minDuration"
+            [max]="maxDuration"
+            [step]="5"
+            showTickMarks
+            discrete
+            class="full-width"
+          >
+            <input
+              matSliderThumb
+              [(ngModel)]="duration"
+              title="Duration slider"
+            />
+          </mat-slider>
+        </div>
+      </section>
+
+      <!-- Step 3: Generate Button -->
+      <section class="generate-section">
+        <mat-form-field appearance="outline" class="model-select">
+          <mat-label>Model (dev)</mat-label>
+          <mat-select [(ngModel)]="selectedModel">
+            <mat-option *ngFor="let m of availableModels" [value]="m">
+              {{ m }}
+            </mat-option>
+          </mat-select>
+          <mat-hint>Optional: Select a local Ollama model (dev only)</mat-hint>
+        </mat-form-field>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="generateMetadata()"
+          [disabled]="!isNarrativeValid || (isGenerating$ | async)"
+          class="generate-button"
+        >
+          <mat-icon>{{
+            (isGenerating$ | async) ? 'hourglass_empty' : 'auto_awesome'
+          }}</mat-icon>
+          {{
+            (isGenerating$ | async)
+              ? 'Generating Metadata...'
+              : 'Generate Song Metadata'
+          }}
+        </button>
+        <p class="helper-text" *ngIf="!isNarrativeValid">
+          <mat-icon class="warning-icon">warning</mat-icon>
+          Enter at least {{ minNarrativeLength }} characters to generate
+        </p>
+      </section>
+
+      <!-- Step 4: Generated Metadata (appears after generation) -->
+      <section
+        class="metadata-section"
+        *ngIf="showMetadata && (currentResult$ | async) as result"
+      >
+        <h3 class="section-title">
+          <mat-icon>library_music</mat-icon>
+          3. Review & Edit Metadata
+        </h3>
+        <p class="section-description">
+          AI-generated metadata is editable. Adjust as needed before approving.
+        </p>
+
+        <div class="metadata-form">
+          <!-- Title -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Song Title</mat-label>
+            <input
+              matInput
+              [(ngModel)]="result.metadata.title"
+              placeholder="Enter title"
+            />
+            <mat-icon matPrefix>title</mat-icon>
+          </mat-form-field>
+
+          <!-- Lyrics with Syllable Count -->
+          <mat-form-field appearance="outline" class="full-width lyrics-field">
+            <mat-label>Lyrics</mat-label>
+            <textarea
+              matInput
+              [(ngModel)]="result.metadata.lyrics"
+              (ngModelChange)="onLyricsChange()"
+              rows="10"
+              placeholder="Edit lyrics as needed"
+            ></textarea>
+            <mat-icon matPrefix>lyrics</mat-icon>
+            <mat-hint align="start">
+              <span
+                [ngClass]="{
+                  'valid-hint': validateLyrics().status === 'valid',
+                  'warning-hint': validateLyrics().status === 'warning',
+                  'error-hint': validateLyrics().status === 'error'
+                }"
+              >
+                {{ validateLyrics().message }}
+              </span>
+            </mat-hint>
+          </mat-form-field>
+
+          <!-- Genre and Mood Row -->
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Genre</mat-label>
+              <mat-select [(ngModel)]="result.metadata.genre">
+                <mat-option *ngFor="let genre of genres" [value]="genre">
+                  {{ genre | titlecase }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>category</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Mood</mat-label>
+              <mat-select [(ngModel)]="result.metadata.mood">
+                <mat-option *ngFor="let mood of moods" [value]="mood">
+                  {{ mood | titlecase }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>mood</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <!-- Musical Properties Row -->
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="third-width">
+              <mat-label>Tempo (BPM)</mat-label>
+              <input
+                matInput
+                type="number"
+                [(ngModel)]="result.metadata.bpm"
+                min="60"
+                max="200"
+                placeholder="120"
+              />
+              <mat-icon matPrefix>timer</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="third-width">
+              <mat-label>Musical Key</mat-label>
+              <input
+                matInput
+                [(ngModel)]="result.metadata.key"
+                placeholder="C major"
+              />
+              <mat-icon matPrefix>piano</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="third-width">
+              <mat-label>Instrumentation</mat-label>
+              <mat-select
+                [(ngModel)]="result.metadata.instruments"
+                multiple
+                placeholder="Select instruments"
+              >
+                <mat-option
+                  *ngFor="
+                    let instrument of [
+                      'piano',
+                      'guitar',
+                      'bass',
+                      'drums',
+                      'strings',
+                      'brass',
+                      'woodwinds',
+                      'percussion',
+                      'synth',
+                      'vocals'
+                    ]
+                  "
+                  [value]="instrument"
+                >
+                  {{ instrument | titlecase }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>library_music</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <!-- Validation Summary -->
+          <div class="validation-summary" [ngClass]="validateLyrics().status">
+            <mat-icon>
+              {{
+                validateLyrics().status === 'valid'
+                  ? 'check_circle'
+                  : validateLyrics().status === 'warning'
+                  ? 'warning'
+                  : 'error'
+              }}
+            </mat-icon>
+            <span>{{ validateLyrics().message }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 3.5: AI Palette Suggestions -->
+      <harmonia-palette-suggestion
+        [narrative]="narrative"
+        [generatedMetadata]="generatedMetadata"
+        [isVisible]="showMetadata && !!generatedMetadata"
+        (paletteAccepted)="onPaletteAccepted($event)"
+        (paletteModified)="onPaletteModified($event)"
+      ></harmonia-palette-suggestion>
+    </mat-card-content>
+
+    <!-- Step 5: Actions -->
+    <mat-card-actions
+      *ngIf="showMetadata && generatedMetadata"
+      class="card-actions"
+    >
+      <button
+        mat-button
+        color="accent"
+        (click)="regenerate()"
+        [disabled]="isGenerating$ | async"
+      >
+        <mat-icon>refresh</mat-icon>
+        Regenerate
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="approveAndContinue()"
+        [disabled]="(isGenerating$ | async) || isApproved"
+      >
+        <mat-icon>check_circle</mat-icon>
+        {{ isApproved ? 'Approved' : 'Approve & Continue to Music Generation' }}
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

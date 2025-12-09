@@ -1,0 +1,9 @@
+node_modules
+dist
+.dockerignore
+.git
+**/node_modules
+**/dist
+**/tmp
+apps/**/node_modules
+**/*.log

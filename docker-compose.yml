@@ -1,0 +1,88 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+    image: sound-creator-frontend:latest
+    ports:
+      - "4200:4200"
+    depends_on:
+      - api
+    environment:
+      - API_URL=http://api:3333
+    networks:
+      - sc-net
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    image: sound-creator-api:latest
+    ports:
+      - "3333:3333"
+    networks:
+      - sc-net
+
+  jen1:
+    build:
+      context: .
+      dockerfile: apps/jen1/Dockerfile
+    image: sound-creator-jen1:latest
+    ports:
+      - "4001:4001"
+    networks:
+      - sc-net
+
+  muscgen:
+    build:
+      context: .
+      dockerfile: apps/muscgen/Dockerfile
+    image: sound-creator-muscgen:latest
+    ports:
+      - "4002:4002"
+    networks:
+      - sc-net
+
+  redis:
+    image: redis:7.2
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - sc-net
+
+  ollama:
+    build:
+      context: .
+      dockerfile: apps/ollama/Dockerfile
+    image: sound-creator-ollama:latest
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_LISTEN_PORT=11434
+    networks:
+      - sc-net
+
+  orchestrator:
+    build:
+      context: .
+      dockerfile: apps/orchestrator/Dockerfile
+    image: sound-creator-orchestrator:latest
+    ports:
+      - "4000:4000"
+    depends_on:
+      - jen1
+      - muscgen
+      - redis
+      - ollama
+    environment:
+      - JEN1_URL=http://jen1:4001/
+      - MUSCGEN_URL=http://muscgen:4002/
+      - REDIS_URL=redis://redis:6379
+      - OLLAMA_URL=http://ollama:11434
+    networks:
+      - sc-net
+
+networks:
+  sc-net:
+    driver: bridge

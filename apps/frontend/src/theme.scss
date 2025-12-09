@@ -1,0 +1,122 @@
+/**
+ * Harmonia "Legendary" Material Design 3 Theme
+ * Custom Angular Material theme with vibrant aurora-inspired colors
+ */
+
+// Include Material theming functions
+@use '@angular/material' as mat;
+
+// Import our custom color palette
+@use './styles/colors' as colors;
+
+// Include core Material styles (required once)
+@include mat.core();
+
+// ============================================================================
+// DEFINE LIGHT THEME
+// Use simplified Material 3 theme definition
+// ============================================================================
+$harmonia-light-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$azure-palette,
+    tertiary: mat.$orange-palette,
+  ),
+  typography: (
+    brand-family: 'Inter, Roboto, "Helvetica Neue", sans-serif',
+    plain-family: 'Inter, Roboto, "Helvetica Neue", sans-serif',
+  ),
+  density: (
+    scale: 0,
+  )
+));
+
+// ============================================================================
+// APPLY THEMES
+// ============================================================================
+
+// Apply the light theme
+@include mat.all-component-themes($harmonia-light-theme);
+
+// ============================================================================
+// MATERIAL COMPONENT CUSTOMIZATIONS
+// Custom overrides for Material components to match Legendary theme
+// ============================================================================
+
+// Card customizations
+.mat-mdc-card {
+  border-radius: 12px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+// Button customizations
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button {
+  border-radius: 8px !important;
+  text-transform: none;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+// Input customizations
+.mat-mdc-form-field {
+  .mat-mdc-text-field-wrapper {
+    border-radius: 8px !important;
+  }
+}
+
+// Chip customizations
+.mat-mdc-chip {
+  border-radius: 16px !important;
+}
+
+// Dialog customizations
+.mat-mdc-dialog-container {
+  border-radius: 16px !important;
+}
+
+// Snackbar customizations
+.mat-mdc-snack-bar-container {
+  border-radius: 8px !important;
+}
+
+// Tab customizations
+.mat-mdc-tab-labels {
+  border-bottom: 1px solid colors.$color-divider;
+}
+
+// Toolbar customizations
+.mat-toolbar {
+  &.mat-primary {
+    background: colors.$gradient-aurora !important;
+  }
+}
+
+// ============================================================================
+// ELEVATION OVERRIDES
+// Use our custom shadow system
+// ============================================================================
+.mat-elevation-z1 {
+  box-shadow: colors.$shadow-1 !important;
+}
+
+.mat-elevation-z2 {
+  box-shadow: colors.$shadow-2 !important;
+}
+
+.mat-elevation-z3 {
+  box-shadow: colors.$shadow-3 !important;
+}
+
+.mat-elevation-z4 {
+  box-shadow: colors.$shadow-4 !important;
+}
+
+.mat-elevation-z5 {
+  box-shadow: colors.$shadow-5 !important;
+}

@@ -1,0 +1,91 @@
+{
+  "version": 2,
+  "projects": {
+    "frontend": {
+      "root": "apps/frontend",
+      "sourceRoot": "apps/frontend/src",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/angular:webpack-browser",
+          "options": {
+            "outputPath": "dist/apps/frontend",
+            "index": "apps/frontend/src/index.html",
+            "main": "apps/frontend/src/main.ts",
+            "polyfills": "apps/frontend/src/polyfills.ts",
+            "tsConfig": "apps/frontend/tsconfig.app.json",
+            "assets": ["apps/frontend/src/favicon.ico", "apps/frontend/src/assets"],
+            "styles": ["apps/frontend/src/styles.css"],
+            "scripts": []
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/devkit:run-commands",
+          "options": {
+            "command": "pnpm nx run frontend:build --configuration=development && pnpm exec http-server dist/apps/frontend -p 4200"
+          }
+        }
+      }
+    },
+    "api": {
+      "root": "apps/api",
+      "sourceRoot": "apps/api/src",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/node:package",
+          "options": {
+            "outputPath": "dist/apps/api",
+            "main": "apps/api/src/main.ts",
+            "tsConfig": "apps/api/tsconfig.app.json"
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/node:execute",
+          "options": {
+            "buildTarget": "api:build"
+          }
+        }
+      }
+    },
+    "jen1": {
+      "root": "apps/jen1",
+      "sourceRoot": "apps/jen1/src",
+      "projectType": "application",
+      "targets": {
+        "serve": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "node apps/jen1/src/index.js"
+          }
+        }
+      }
+    },
+    "muscgen": {
+      "root": "apps/muscgen",
+      "sourceRoot": "apps/muscgen/src",
+      "projectType": "application",
+      "targets": {
+        "serve": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "node apps/muscgen/src/index.js"
+          }
+        }
+      }
+    },
+    "orchestrator": {
+      "root": "apps/orchestrator",
+      "sourceRoot": "apps/orchestrator/src",
+      "projectType": "application",
+      "targets": {
+        "serve": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "node apps/orchestrator/src/index.js"
+          }
+        }
+      }
+    }
+  }
+}

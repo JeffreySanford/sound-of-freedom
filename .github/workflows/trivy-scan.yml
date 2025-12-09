@@ -1,0 +1,53 @@
+name: 'Trivy Scan'
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  trivy-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build images
+        run: |
+          docker build -t sound-creator-frontend:latest -f apps/frontend/Dockerfile .
+          docker build -t sound-creator-api:latest -f apps/api/Dockerfile .
+          docker build -t sound-creator-jen1:latest -f apps/jen1/Dockerfile .
+          docker build -t sound-creator-muscgen:latest -f apps/muscgen/Dockerfile .
+          docker build -t sound-creator-orchestrator:latest -f apps/orchestrator/Dockerfile .
+
+      - name: Scan images with Trivy
+        uses: aquasecurity/trivy-action@v2
+        with:
+          format: 'table'
+          image: |
+            sound-creator-frontend:latest
+            sound-creator-api:latest
+            sound-creator-jen1:latest
+            sound-creator-muscgen:latest
+            sound-creator-orchestrator:latest
+          severity: 'HIGH,CRITICAL'
+          exit-code: '1'
+
+      - name: Upload Trivy report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.txt
