@@ -16,14 +16,77 @@
 // DEFINE LIGHT THEME
 // Use simplified Material 3 theme definition
 // ============================================================================
-/*
- * Material theming block temporarily disabled until a proper palette is created
- * with `mat.define-palette` so theme functions like `mat.define-light-theme`
- * and `mat.all-component-themes` do not cause the Sass compiler to error.
- *
- * TODO: Reintroduce Material theming once custom palettes are defined using
- * `mat.define-palette` and ensure the API matches the installed @angular/material version.
- */
+// Build Material palettes from our color tokens so themes use the same variables
+$harmonia-primary-palette-map: (
+  50: colors.$primary-50,
+  100: colors.$primary-100,
+  200: colors.$primary-200,
+  300: colors.$primary-300,
+  400: colors.$primary-400,
+  500: colors.$primary-500,
+  600: colors.$primary-600,
+  700: colors.$primary-700,
+  800: colors.$primary-800,
+  900: colors.$primary-900,
+  contrast: (
+    50: colors.$primary-contrast-50,
+    100: colors.$primary-contrast-100,
+    200: colors.$primary-contrast-200,
+    300: colors.$primary-contrast-300,
+    400: colors.$primary-contrast-400,
+    500: colors.$primary-contrast-500,
+    600: colors.$primary-contrast-600,
+    700: colors.$primary-contrast-700,
+    800: colors.$primary-contrast-800,
+    900: colors.$primary-contrast-900,
+  ),
+);
+
+$harmonia-accent-palette-map: (
+  50: colors.$accent-50,
+  100: colors.$accent-100,
+  200: colors.$accent-200,
+  300: colors.$accent-300,
+  400: colors.$accent-400,
+  500: colors.$accent-500,
+  600: colors.$accent-600,
+  700: colors.$accent-700,
+  800: colors.$accent-800,
+  900: colors.$accent-900,
+  contrast: (
+    50: colors.$accent-contrast-50,
+    100: colors.$accent-contrast-100,
+    200: colors.$accent-contrast-200,
+    300: colors.$accent-contrast-300,
+    400: colors.$accent-contrast-400,
+    500: colors.$accent-contrast-500,
+    600: colors.$accent-contrast-600,
+    700: colors.$accent-contrast-700,
+    800: colors.$accent-contrast-800,
+    900: colors.$accent-contrast-900,
+  ),
+);
+
+// Create Material palette objects from the maps
+$harmonia-primary-palette: mat.define-palette($harmonia-primary-palette-map, 500);
+$harmonia-accent-palette: mat.define-palette($harmonia-accent-palette-map, 500);
+
+// Create a light theme and include component themes
+$harmonia-light-theme: mat.define-light-theme((
+  color: (
+    primary: $harmonia-primary-palette,
+    accent: $harmonia-accent-palette,
+  ),
+  typography: (
+    brand-family: 'Inter, Roboto, "Helvetica Neue", sans-serif',
+    plain-family: 'Inter, Roboto, "Helvetica Neue", sans-serif',
+  ),
+  density: (
+    scale: 0,
+  ),
+));
+
+@include mat.all-component-themes($harmonia-light-theme);
 
 // ============================================================================
 // APPLY THEMES

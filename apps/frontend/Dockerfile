@@ -4,6 +4,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY . .
 RUN corepack enable && corepack prepare pnpm@latest --activate && pnpm install --frozen-lockfile --silent || pnpm install --silent
+RUN rm -rf ./.nx || true
 RUN pnpm nx build frontend --configuration=production
 
 # Serve using nginx

@@ -12,5 +12,10 @@ package-lock.json
 **/node_modules
 **/.DS_Store
 dist/**
+/.nx/
+.angular/
+.angular/cache/
+.nx/cache/
+/.cache/
 logs/**
 *.log
