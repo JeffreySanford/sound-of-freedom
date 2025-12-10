@@ -19,23 +19,40 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build images
+      - name: Build images that have Dockerfiles
         run: |
-          docker build -t sound-creator-frontend:latest -f apps/frontend/Dockerfile .
-          docker build -t sound-creator-api:latest -f apps/api/Dockerfile .
-          docker build -t sound-creator-jen1:latest -f apps/jen1/Dockerfile .
-          docker build -t sound-creator-muscgen:latest -f apps/muscgen/Dockerfile .
-          docker build -t sound-creator-orchestrator:latest -f apps/orchestrator/Dockerfile .
+          set -e
+          IMAGES=("apps/frontend" "apps/api" "apps/jen1" "apps/muscgen" "apps/orchestrator")
+          BUILT_IMAGES=()
+          for dir in "${IMAGES[@]}"; do
+            dockerfile="$dir/Dockerfile"
+            if [ -f "$dockerfile" ]; then
+              tag="sound-creator-$(basename $dir):latest"
+              echo "Building $tag from $dockerfile"
+              docker build -t "$tag" -f "$dockerfile" .
+              BUILT_IMAGES+=("$tag")
+            else
+              echo "No Dockerfile at $dockerfile, skipping build."
+            fi
+          done
+          echo "Built images: ${BUILT_IMAGES[@]}"
+          echo "BUILT_IMAGES=${BUILT_IMAGES[*]}" >> $GITHUB_ENV
 
       - name: Scan images with Trivy (container)
         run: |
-          for image in sound-creator-frontend:latest sound-creator-api:latest sound-creator-jen1:latest sound-creator-muscgen:latest sound-creator-orchestrator:latest; do
+          set -e
+          IMAGES=( ${BUILT_IMAGES} )
+          for image in "${IMAGES[@]}"; do
+            echo "Scanning $image"
             docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --format table --severity HIGH,CRITICAL --exit-code 1 "${image}" || true
           done
 
       - name: Generate and upload Trivy report files
         run: |
-          for image in sound-creator-frontend:latest sound-creator-api:latest sound-creator-jen1:latest sound-creator-muscgen:latest sound-creator-orchestrator:latest; do
+          set -e
+          IMAGES=( ${BUILT_IMAGES} )
+          for image in "${IMAGES[@]}"; do
+            echo "Generating report for $image"
             docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --format table --severity HIGH,CRITICAL --quiet "${image}" > "/tmp/$(echo ${image} | tr ':' '-')-trivy.txt" || true
           done
         continue-on-error: true

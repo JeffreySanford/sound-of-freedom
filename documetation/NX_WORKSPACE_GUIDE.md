@@ -30,7 +30,7 @@ harmonia/
 # Serve frontend (Angular dev server on http://localhost:4200)
 nx serve frontend
 
-# Serve backend (NestJS on http://localhost:3333)
+# Serve backend (NestJS on http://localhost:3000)
 nx serve backend
 
 # Serve both frontend and backend
@@ -277,8 +277,8 @@ nx run-many --target=build --all --parallel=1
 Create `apps/frontend/.env` or `apps/frontend/.env.local`:
 
 ```env
-NX_API_URL=http://localhost:3333
-NX_WS_URL=ws://localhost:3333
+  NX_API_URL=http://localhost:3000
+  NX_WS_URL=ws://localhost:3000
 ```
 
 Access in TypeScript:
@@ -292,7 +292,7 @@ const apiUrl = process.env['NX_API_URL'];
 Create `apps/backend/.env` or `apps/backend/.env.local`:
 
 ```env
-PORT=3333
+PORT=3000
 MONGODB_URI=mongodb://localhost:27017/harmonia
 JWT_SECRET=your-secret-key
 ```

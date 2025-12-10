@@ -6,10 +6,16 @@ services:
     image: sound-creator-frontend:latest
     ports:
       - "4200:4200"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:4200/assets/health.html || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     depends_on:
       - api
     environment:
-      - API_URL=http://api:3333
+      - API_URL=http://orchestrator:4000
     networks:
       - sc-net
 
@@ -19,7 +25,13 @@ services:
       dockerfile: apps/api/Dockerfile
     image: sound-creator-api:latest
     ports:
-      - "3333:3333"
+      - "3000:3000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/__health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - sc-net
 
@@ -30,6 +42,12 @@ services:
     image: sound-creator-jen1:latest
     ports:
       - "4001:4001"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:4001/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - sc-net
 
@@ -40,6 +58,12 @@ services:
     image: sound-creator-muscgen:latest
     ports:
       - "4002:4002"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:4002/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - sc-net
 
@@ -75,6 +99,12 @@ services:
     image: sound-creator-orchestrator:latest
     ports:
       - "4000:4000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:4000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     depends_on:
       - jen1
       - muscgen
@@ -85,6 +115,8 @@ services:
       - MUSCGEN_URL=http://muscgen:4002/
       - REDIS_URL=redis://redis:6379
       - OLLAMA_URL=http://ollama:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - sc-net
 

@@ -15,7 +15,7 @@
     "start:all:docker:logs": "docker compose -f docker-compose.yml logs -f",
     "start:all:docker:local": "cross-env FORCE_LOCAL_SERVE=frontend,api node tools/scripts/start-all-docker.js",
     "build": "nx build",
-    "dev:frontend": "cross-env API_URL=http://127.0.0.1:3000 pnpm -w exec nx serve frontend --port=4201",
+    "dev:frontend": "cross-env API_URL=http://127.0.0.1:3000 pnpm -w exec nx serve frontend --port=4200",
     "dev:api": "cross-env PORT=3000 REDIS_URL=redis://127.0.0.1:6379 JEN1_URL=http://127.0.0.1:4001/ MUSCGEN_URL=http://127.0.0.1:4002/ OLLAMA_URL=http://127.0.0.1:11434 pnpm -w exec nx serve api",
     "dev:api:watch": "pnpm -w exec nx build api --watch",
     "dev:api:run": "pnpm -w exec nodemon --watch dist/apps/api --ext js --exec \"node dist/apps/api/main.js\"",

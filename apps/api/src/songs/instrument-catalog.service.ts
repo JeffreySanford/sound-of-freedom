@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import { Observable } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
 
 export interface InstrumentCatalog {
   version: string;
@@ -38,6 +39,7 @@ export class InstrumentCatalogService implements OnModuleInit {
 
   constructor() {
     this.ajv = new Ajv({ allErrors: true });
+    addFormats(this.ajv);
   }
 
   async onModuleInit() {

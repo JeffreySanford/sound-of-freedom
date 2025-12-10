@@ -639,7 +639,7 @@ export class LibraryPageComponent implements OnInit {
   <mat-toolbar class="library-toolbar">
     <!-- Filters -->
     <mat-button-toggle-group
-      [value]="(filters$ | async)?.type"
+      `[value]`="(filters$ | async)?.type"
       (change)="onFilterChange($event.value)"
       class="filter-group"
     >
@@ -657,7 +657,7 @@ export class LibraryPageComponent implements OnInit {
       <mat-label>Search</mat-label>
       <input
         matInput
-        [value]="(filters$ | async)?.search"
+        `[value]`="(filters$ | async)?.search"
         (input)="onSearchChange($event.target.value)"
         placeholder="Search by title or genre"
       />
@@ -667,7 +667,7 @@ export class LibraryPageComponent implements OnInit {
     <!-- Sort -->
     <mat-form-field appearance="outline" class="sort-field">
       <mat-label>Sort by</mat-label>
-      <mat-select [value]="(filters$ | async)?.sortBy" (selectionChange)="onSortChange($event.value)">
+      <mat-select `[value]`="(filters$ | async)?.sortBy" (selectionChange)="onSortChange($event.value)">
         <mat-option value="newest">Newest First</mat-option>
         <mat-option value="oldest">Oldest First</mat-option>
         <mat-option value="title">Title</mat-option>
@@ -676,7 +676,7 @@ export class LibraryPageComponent implements OnInit {
     </mat-form-field>
 
     <!-- View Mode Toggle -->
-    <button mat-icon-button (click)="toggleViewMode()" [matTooltip]="viewMode === 'grid' ? 'List View' : 'Grid View'">
+    <button mat-icon-button (click)="toggleViewMode()" `[matTooltip]`="viewMode === 'grid' ? 'List View' : 'Grid View'">
       <mat-icon>{{ viewMode === 'grid' ? 'view_list' : 'view_module' }}</mat-icon>
     </button>
   </mat-toolbar>
@@ -792,17 +792,17 @@ export class LibraryPageComponent implements OnInit {
   <!-- Pagination -->
   <mat-paginator
     *ngIf="(pagination$ | async) as pagination"
-    [length]="pagination.total"
-    [pageSize]="pagination.pageSize"
-    [pageIndex]="pagination.page - 1"
+    `[length]`="pagination.total"
+    `[pageSize]`="pagination.pageSize"
+    `[pageIndex]`="pagination.page - 1"
     (page)="onPageChange($event.pageIndex + 1)"
-    [pageSizeOptions]="[10, 20, 50, 100]"
+    `[pageSizeOptions]`="[10, 20, 50, 100]"
   ></mat-paginator>
 
   <!-- Audio Player (Fixed Bottom) -->
   <div *ngIf="selectedItem$ | async as item" class="audio-player-container">
     <harmonia-audio-player
-      [item]="item"
+      `[item]`="item"
       (close)="store.dispatch(LibraryActions.deselectLibraryItem())"
     ></harmonia-audio-player>
   </div>
@@ -925,7 +925,7 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
 
     <div class="time-display">{{ formatTime(currentTime) }}</div>
 
-    <mat-slider [min]="0" [max]="duration" [value]="currentTime" (input)="seek($event)" class="progress-slider">
+    <mat-slider `[min]`="0" `[max]`="duration" `[value]`="currentTime" (input)="seek($event)" class="progress-slider">
       <input matSliderThumb />
     </mat-slider>
 
@@ -935,7 +935,7 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
       <mat-icon>{{ isMuted ? 'volume_off' : 'volume_up' }}</mat-icon>
     </button>
 
-    <mat-slider [min]="0" [max]="1" [step]="0.01" [value]="volume" (input)="setVolume($event)" class="volume-slider">
+    <mat-slider `[min]`="0" `[max]`="1" `[step]`="0.01" `[value]`="volume" (input)="setVolume($event)" class="volume-slider">
       <input matSliderThumb />
     </mat-slider>
   </div>
@@ -1153,7 +1153,7 @@ const routes: Routes = [
   {
     path: '',
     component: LibraryPageComponent,
-    canActivate: [authGuard] // Requires authentication
+    canActivate: `[authGuard]` // Requires authentication
   }
 ];
 

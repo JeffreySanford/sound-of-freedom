@@ -116,7 +116,7 @@ services:
     container_name: harmonia-backend
     restart: unless-stopped
     ports:
-      - '${BACKEND_PORT:-3333}:3333'
+      - '${BACKEND_PORT:-3000}:3000'
     environment:
       - NODE_ENV=production
       - MONGODB_URI=${MONGODB_URI}
@@ -137,8 +137,8 @@ services:
       - ./models:/app/models
 
   # MongoDB Service
-  mongodb:
-    image: mongo:7
+      ports:
+        - '${BACKEND_PORT:-3000}:3000'
     container_name: harmonia-mongodb
     restart: unless-stopped
     ports:

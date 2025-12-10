@@ -183,7 +183,7 @@ export const selectLibrarySongs = createSelector(selectAllSongs, (songs) =>
 );
 
 // Selector for detail view (returns full data)
-export const selectSongById = (id: string) => createSelector(selectSongsEntities, (entities) => entities[id]);
+export const selectSongById = (id: string) => createSelector(selectSongsEntities, (entities) => entities`[id]`);
 ```
 
 **Result**:
@@ -308,7 +308,7 @@ Don't load all library data upfront - load on-demand.
 {
   path: 'library',
   loadChildren: () => import('./features/library/library.module').then(m => m.LibraryModule),
-  canActivate: [authGuard],
+  canActivate: `[authGuard]`,
   // Data loaded ONLY when user navigates to /library
 }
 
@@ -352,7 +352,7 @@ query {
 @Get('library')
 async getLibrary(@Query('fields') fields?: string) {
   const projection = fields ? fields.split(',').reduce((acc, field) => {
-    acc[field] = 1;
+    acc`[field]` = 1;
     return acc;
   }, {}) : {};
 
@@ -607,7 +607,7 @@ export const selectLibrarySongs = createSelector(selectAllSongs, (songs) =>
 );
 
 // Selector for detail view (returns full object)
-export const selectSongById = (id: string) => createSelector(selectSongsEntities, (entities) => entities[id]);
+export const selectSongById = (id: string) => createSelector(selectSongsEntities, (entities) => entities`[id]`);
 
 // Check if full details are loaded
 export const selectIsSongFullyLoaded = (id: string) =>
@@ -671,7 +671,7 @@ export class SongDetailPageComponent implements OnInit {
       .pipe(
         withLatestFrom(this.isFullyLoaded$),
         filter(([id, isLoaded]) => !isLoaded), // Only load if not already loaded
-        tap(([id]) => this.store.dispatch(loadSongDetails({ id })))
+        tap((`[id]`) => this.store.dispatch(loadSongDetails({ id })))
       )
       .subscribe();
   }
@@ -701,7 +701,7 @@ export class SongsController {
 
   private parseFieldsToProjection(fields: string): any {
     return fields.split(',').reduce((acc, field) => {
-      acc[field] = 1;
+      acc`[field]` = 1;
       return acc;
     }, {});
   }
@@ -838,12 +838,12 @@ If you split state into multiple slices, how do you keep them in sync?
 // How does library view know to update?
 
 // With your approach:
-// 1. Update songDetails.entities[id].title
+// 1. Update songDetails.entities`[id]`.title
 // 2. Also update library.items.find(i => i.id === id).title
 // 3. Risk: Race conditions, forgotten updates, inconsistency
 
 // With standard NGRX:
-// 1. Update songs.entities[id].title (one place)
+// 1. Update songs.entities`[id]`.title (one place)
 // 2. All selectors automatically reflect change (memoization)
 ```
 

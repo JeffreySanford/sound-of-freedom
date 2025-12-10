@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Instrument Catalog",
+  "type": "object",
+  "required": ["version", "generated_at", "description", "categories", "instruments"],
+  "properties": {
+    "version": { "type": "string" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "description": { "type": "string" },
+    "categories": { "type": "array", "items": { "type": "string" } },
+    "instruments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "category", "presets"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "category": { "type": "string" },
+          "presets": { "type": "array", "items": { "type": "string" } },
+          "fallback_rules": { "type": "array", "items": { "type": "string" } },
+          "sample_references": { "type": "array", "items": { "type": "string" } },
+          "polyphony_limit": { "type": "integer" },
+          "range": { "type": "string" }
+        }
+      }
+    }
+  }
+}

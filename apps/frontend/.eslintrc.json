@@ -9,6 +9,7 @@
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
       "rules": {
+          "@typescript-eslint/no-explicit-any": "warn",
         "@angular-eslint/component-max-inline-declarations": [
           "error",
           { "template": 0, "styles": 0, "animations": 0 }
@@ -41,6 +42,17 @@
         ]
       }
     },
+    {
+      "files": ["src/setup-jasmine.js"],
+      "env": {
+        "jest": true,
+        "node": true
+      },
+      "rules": {
+        "no-undef": "off"
+      }
+    }
+    ,
     {
       "files": ["*.html"],
       "parser": "@angular-eslint/template-parser",

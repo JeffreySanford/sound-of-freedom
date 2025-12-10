@@ -1,0 +1,28 @@
+{
+  "version": "0.1.0",
+  "generated_at": "2025-12-09T00:00:00Z",
+  "description": "Minimal sample instrument catalog",
+  "categories": ["keys", "synth", "drums"],
+  "instruments": [
+    {
+      "id": "piano",
+      "name": "Acoustic Piano",
+      "category": "keys",
+      "presets": ["grand", "bright"],
+      "fallback_rules": [],
+      "sample_references": [],
+      "polyphony_limit": 16,
+      "range": "A0-C8"
+    },
+    {
+      "id": "synth-pad",
+      "name": "Synth Pad",
+      "category": "synth",
+      "presets": ["warm", "ambient"],
+      "fallback_rules": [],
+      "sample_references": [],
+      "polyphony_limit": 8,
+      "range": "C2-C6"
+    }
+  ]
+}

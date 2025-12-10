@@ -3,8 +3,11 @@
  * Custom Angular Material theme with vibrant aurora-inspired colors
  */
 
-// Include Material theming functions
+// Include Material theming functions (Material 19 M2 theming)
+// Import the main Angular Material module for mixins (core, all-component-themes)
 @use '@angular/material' as mat;
+// Use the M2 theming API exported by the top-level package under the m2- prefix.
+// The deep import paths are blocked by package exports, so we reference m2 via mat.m2-*
 
 // Import our custom color palette
 @use './styles/colors' as colors;
@@ -68,11 +71,13 @@ $harmonia-accent-palette-map: (
 );
 
 // Create Material palette objects from the maps
-$harmonia-primary-palette: mat.define-palette($harmonia-primary-palette-map, 500);
-$harmonia-accent-palette: mat.define-palette($harmonia-accent-palette-map, 500);
+// NOTE: M2 theming APIs are exposed from the package with the 'm2-' prefix, e.g.,
+// mat.m2-define-palette and mat.m2-define-light-theme.
+$harmonia-primary-palette: mat.m2-define-palette($harmonia-primary-palette-map, 500);
+$harmonia-accent-palette: mat.m2-define-palette($harmonia-accent-palette-map, 500);
 
 // Create a light theme and include component themes
-$harmonia-light-theme: mat.define-light-theme((
+$harmonia-light-theme: mat.m2-define-light-theme((
   color: (
     primary: $harmonia-primary-palette,
     accent: $harmonia-accent-palette,

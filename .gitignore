@@ -15,7 +15,8 @@ dist/**
 /.nx/
 .angular/
 .angular/cache/
-.nx/cache/
+.nx/cache
+.nx/workspace-data/
 /.cache/
 logs/**
 *.log

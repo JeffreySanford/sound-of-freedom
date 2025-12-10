@@ -14,42 +14,7 @@
   background-color: colors.$background;
 }
 
-.app-header {
-  @include mixins.flex-between;
-  width: 100%;
-  height: 64px;
-  padding: 0 mixins.spacing(3);
-  background: linear-gradient(135deg, colors.$primary-500, colors.$primary-700);
-  color: colors.$white;
-  box-shadow: colors.$elevation-4;
-  z-index: 100;
-
-  .app-title {
-    @include typography.heading-5;
-    margin: 0;
-    font-weight: 700;
-    letter-spacing: 1px;
-  }
-
-  .app-nav {
-    @include mixins.flex-align-center;
-    gap: mixins.spacing(2);
-
-    .auth-button {
-      color: colors.$white;
-      display: flex;
-      align-items: center;
-      gap: mixins.spacing(0.5);
-      font-weight: 500;
-
-      mat-icon {
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
-      }
-    }
-  }
-}
+.app-header { /* moved to global styles */ }
 
   .app-content {
   display: flex; // Keep bare flex for layout (row by default)
@@ -57,53 +22,7 @@
   overflow: hidden;
 }
 
-.app-sidebar {
-  width: 240px;
-  background-color: colors.$surface;
-  border-right: 1px solid colors.$border;
-  padding: mixins.spacing(1);
-  overflow-y: auto;
-
-  .sidebar-nav {
-    display: flex;
-    flex-direction: column;
-    gap: mixins.spacing(0.5);
-  }
-
-  .nav-item {
-    @include mixins.flex-align-center;
-    gap: mixins.spacing(1.5);
-    padding: mixins.spacing(1.5) mixins.spacing(2);
-    border-radius: 8px;
-    color: colors.$text-primary;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    cursor: pointer;
-
-    &:hover {
-      background-color: colors.$primary-50;
-      color: colors.$primary-700;
-    }
-
-    &.active {
-      background-color: colors.$primary-100;
-      color: colors.$primary-700;
-      font-weight: 600;
-      box-shadow: colors.$elevation-1;
-    }
-
-    .nav-icon {
-      font-size: 24px;
-      width: 32px;
-      text-align: center;
-    }
-
-    .nav-label {
-      @include typography.body-1;
-      flex: 1;
-    }
-  }
-}
+.app-sidebar { /* moved to global styles */ }
 
 .main-stage {
   flex: 1;
@@ -112,19 +31,7 @@
   padding: mixins.spacing(3);
 }
 
-  .app-footer {
-  width: 100%;
-  height: 48px;
-  @include mixins.flex-center;
-  background-color: colors.$surface;
-  border-top: 1px solid colors.$border;
-  color: colors.$text-secondary;
-
-  .footer-text {
-    @include typography.body-2;
-    margin: 0;
-  }
-}
+.app-footer { /* moved to global styles */ }
 
 // Responsive adjustments
 @media (max-width: 768px) {

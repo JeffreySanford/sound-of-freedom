@@ -247,13 +247,13 @@ Copy/paste and adapt paths / JSON catalog as needed.
 
       // utility: fetch+decode -> AudioBuffer
       async function loadBuffer(instrument) {
-        if (buffers[instrument.id]) return buffers[instrument.id].buffer;
+        if (buffers`[instrument.id]`) return buffers`[instrument.id]`.buffer;
         ensureAudioContext();
         const url = instrument.previews.mp3;
         const res = await fetch(url, { cache: 'force-cache' });
         const arrayBuffer = await res.arrayBuffer();
         const audioBuffer = await AUDIO_CTX_STATE.ctx.decodeAudioData(arrayBuffer);
-        buffers[instrument.id] = { buffer: audioBuffer, fetchedAt: Date.now() };
+        buffers`[instrument.id]` = { buffer: audioBuffer, fetchedAt: Date.now() };
         return audioBuffer;
       }
 

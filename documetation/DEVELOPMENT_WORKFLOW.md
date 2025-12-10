@@ -34,7 +34,7 @@ pnpm dev
 # Start frontend only (http://localhost:4200)
 pnpm dev:frontend
 
-# Start backend only (http://localhost:3333)
+# Start backend only (http://localhost:3000)
 pnpm dev:backend
 ```
 
@@ -676,8 +676,8 @@ describe('SongsService', () => {
 # Kill process on port 4200 (frontend)
 npx kill-port 4200
 
-# Kill process on port 3333 (backend)
-npx kill-port 3333
+# Kill process on port 3000 (backend)
+npx kill-port 3000
 ```
 
 ### Issue: Node Modules Out of Sync

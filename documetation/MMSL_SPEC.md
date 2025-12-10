@@ -436,7 +436,7 @@ type Item struct {
   Text     string                 `json:"text,omitempty"`
   Name     string                 `json:"name,omitempty"`
   Category string                 `json:"category,omitempty"`
-  Params   map[string]interface{} `json:"params,omitempty"`
+  Params   map`[string]`interface{} `json:"params,omitempty"`
 }
 
 type Section struct {
@@ -476,10 +476,10 @@ func toBeats(val string, bpm int, beatsPerBar int) float64 {
   return n
 }
 
-func parseCue(body string, bpm int, beatsPerBar int) (string, map[string]interface{}) {
+func parseCue(body string, bpm int, beatsPerBar int) (string, map`[string]`interface{}) {
   // crude split by space, ignoring quotes for brevity
   parts := strings.Fields(body)
-  params := make(map[string]interface{})
+  params := make(map`[string]`interface{})
   var name string
   if len(parts) > 0 {
     name = parts[0]

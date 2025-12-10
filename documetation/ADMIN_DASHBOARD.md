@@ -552,7 +552,7 @@ export class AdminUsersComponent implements OnInit {
       <mat-label>Search Users</mat-label>
       <input
         matInput
-        [value]="(filters$ | async)?.search"
+        `[value]`="(filters$ | async)?.search"
         (input)="onSearchChange($any($event.target).value)"
         placeholder="Username or email"
       />
@@ -561,7 +561,7 @@ export class AdminUsersComponent implements OnInit {
 
     <mat-form-field appearance="outline">
       <mat-label>Filter by Group</mat-label>
-      <mat-select [value]="(filters$ | async)?.group" (selectionChange)="onGroupFilterChange($event.value)">
+      <mat-select `[value]`="(filters$ | async)?.group" (selectionChange)="onGroupFilterChange($event.value)">
         <mat-option value="all">All Groups</mat-option>
         <mat-option value="user">User</mat-option>
         <mat-option value="admin">Admin</mat-option>
@@ -577,7 +577,7 @@ export class AdminUsersComponent implements OnInit {
   </div>
 
   <div class="table-container">
-    <table mat-table [dataSource]="users$ | async" class="users-table">
+    <table mat-table `[dataSource]`="users$ | async" class="users-table">
       <!-- Username Column -->
       <ng-container matColumnDef="username">
         <th mat-header-cell *matHeaderCellDef>Username</th>
@@ -600,7 +600,7 @@ export class AdminUsersComponent implements OnInit {
         <th mat-header-cell *matHeaderCellDef>Groups</th>
         <td mat-cell *matCellDef="let user">
           <mat-chip-set>
-            <mat-chip *ngFor="let group of user.groups" [color]="group === 'admin' ? 'accent' : 'primary'">
+            <mat-chip *ngFor="let group of user.groups" `[color]`="group === 'admin' ? 'accent' : 'primary'">
               {{ group }}
             </mat-chip>
           </mat-chip-set>
@@ -611,7 +611,7 @@ export class AdminUsersComponent implements OnInit {
       <ng-container matColumnDef="isActive">
         <th mat-header-cell *matHeaderCellDef>Status</th>
         <td mat-cell *matCellDef="let user">
-          <mat-slide-toggle [checked]="user.isActive" (change)="onToggleUserActive(user)" [color]="'primary'">
+          <mat-slide-toggle `[checked]`="user.isActive" (change)="onToggleUserActive(user)" `[color]`="'primary'">
             {{ user.isActive ? 'Active' : 'Inactive' }}
           </mat-slide-toggle>
         </td>

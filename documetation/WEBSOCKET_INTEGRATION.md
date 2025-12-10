@@ -201,7 +201,7 @@ export class WebSocketService {
   connect(token: string): void {
     if (this.socket?.connected) return;
 
-    this.socket = io('http://localhost:3333', {
+    this.socket = io('http://localhost:3000', {
       auth: { token },
       transports: ['websocket'],
       reconnection: true,
@@ -322,7 +322,7 @@ export class WebSocketService {
   selector: 'app-generation-progress',
   template: `
     <div class="progress-container">
-      <mat-progress-bar [value]="progress" [mode]="progress < 100 ? 'indeterminate' : 'determinate'">
+      <mat-progress-bar `[value]`="progress" `[mode]`="progress < 100 ? 'indeterminate' : 'determinate'">
       </mat-progress-bar>
 
       <div class="progress-info">
@@ -638,7 +638,7 @@ export const songGenerationReducer = createReducer(
     activeGenerations: {
       ...state.activeGenerations,
       [event.generationId]: {
-        ...state.activeGenerations[event.generationId],
+        ...state.activeGenerations`[event.generationId]`,
         progress: event.progress,
         status: event.status,
         currentStep: event.currentStep
@@ -651,7 +651,7 @@ export const songGenerationReducer = createReducer(
     activeGenerations: {
       ...state.activeGenerations,
       [event.generationId]: {
-        ...state.activeGenerations[event.generationId],
+        ...state.activeGenerations`[event.generationId]`,
         stage: 'metadata-complete',
         progress: 100,
         status: 'Metadata generation complete',
@@ -665,7 +665,7 @@ export const songGenerationReducer = createReducer(
     activeGenerations: {
       ...state.activeGenerations,
       [event.generationId]: {
-        ...state.activeGenerations[event.generationId],
+        ...state.activeGenerations`[event.generationId]`,
         stage: 'audio',
         progress: 0,
         status: 'Starting audio generation...',
@@ -679,7 +679,7 @@ export const songGenerationReducer = createReducer(
     activeGenerations: {
       ...state.activeGenerations,
       [event.generationId]: {
-        ...state.activeGenerations[event.generationId],
+        ...state.activeGenerations`[event.generationId]`,
         progress: event.progress,
         status: event.status,
         currentInstrument: event.currentInstrument,
@@ -938,7 +938,7 @@ describe('Song Generation WebSocket Integration', () => {
   beforeEach((done) => {
     // Setup test server and client
     server = new Server();
-    clientSocket = io('http://localhost:3333');
+    clientSocket = io('http://localhost:3000');
 
     clientSocket.on('connect', () => {
       done();
@@ -1062,7 +1062,7 @@ export class WebSocketService {
       return;
     }
 
-    this.socket = io('http://localhost:3333', {
+    this.socket = io('http://localhost:3000', {
       auth: { token },
       transports: ['websocket'],
       reconnection: true,
@@ -1522,7 +1522,7 @@ export class JobsGateway {
 ### Sending Token from Frontend
 
 ```typescript
-this.socket = io('http://localhost:3333', {
+this.socket = io('http://localhost:3000', {
   auth: { token: this.authToken },
   transports: ['websocket']
 });
@@ -1542,7 +1542,7 @@ this.socket.on('connect_error', (error) => {
 ### Reconnection Strategy
 
 ```typescript
-this.socket = io('http://localhost:3333', {
+this.socket = io('http://localhost:3000', {
   reconnection: true,
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
@@ -1616,14 +1616,14 @@ export class JobDetailComponent implements OnInit, OnDestroy {
   <p>Status: {{ job.status }}</p>
 
   <div *ngIf="job.progress">
-    <mat-progress-bar mode="determinate" [value]="job.progress.percentage"> </mat-progress-bar>
+    <mat-progress-bar mode="determinate" `[value]`="job.progress.percentage"> </mat-progress-bar>
     <p>{{ job.progress.message }}</p>
     <p>{{ job.progress.current }} / {{ job.progress.total }}</p>
   </div>
 
   <div *ngIf="job.status === 'completed'">
     <p>✓ Job completed successfully!</p>
-    <a [href]="job.result?.outputPath">Download Result</a>
+    <a `[href]`="job.result?.outputPath">Download Result</a>
   </div>
 
   <div *ngIf="job.status === 'failed'" class="error">
@@ -1682,9 +1682,9 @@ describe('JobsGateway', () => {
     }).compile();
 
     app = module.createNestApplication();
-    await app.listen(3333);
+    await app.listen(3000);
 
-    client = io('http://localhost:3333', {
+    client = io('http://localhost:3000', {
       auth: { token: 'test-token' }
     });
   });

@@ -1,0 +1,14 @@
+{
+  "name": "orchestrator",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/orchestrator/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "command": "node apps/orchestrator/src/index.js"
+      }
+    }
+  }
+}

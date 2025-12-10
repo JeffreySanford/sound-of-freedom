@@ -267,7 +267,7 @@ export class SidebarComponent {
 ```html
 <!-- sidebar.component.html -->
 <nav class="sidebar-nav">
-  <a *ngFor="let item of navItems" [routerLink]="item.route" routerLinkActive="active" class="nav-item">
+  <a *ngFor="let item of navItems" `[routerLink]`="item.route" routerLinkActive="active" class="nav-item">
     <span class="nav-icon">{{ item.icon }}</span>
     <span class="nav-label">{{ item.label }}</span>
   </a>
@@ -525,7 +525,7 @@ export class SongGenerationMaterialModule {}
   </mat-card-header>
 
   <mat-card-content>
-    <form [formGroup]="songForm" (ngSubmit)="onSubmit()">
+    <form `[formGroup]`="songForm" (ngSubmit)="onSubmit()">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Song Title</mat-label>
         <input matInput formControlName="title" placeholder="Enter title" />

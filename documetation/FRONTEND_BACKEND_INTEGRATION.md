@@ -700,7 +700,7 @@ private getFieldLabel(field: string): string {
     username: 'Username',
     password: 'Password'
   };
-  return labels[field] || field;
+  return labels`[field]` || field;
 }
 ```
 

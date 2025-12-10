@@ -1,0 +1,14 @@
+{
+  "name": "muscgen",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/muscgen/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "command": "node apps/muscgen/src/index.js"
+      }
+    }
+  }
+}

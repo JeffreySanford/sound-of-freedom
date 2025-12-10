@@ -296,10 +296,10 @@ export class UserCard {
 
 ```html
 <!-- ❌ Error: Type 'null' is not assignable to type 'User' -->
-<app-user-card [user]="null"></app-user-card>
+<app-user-card `[user]`="null"></app-user-card>
 
 <!-- ✅ Correct: -->
-<app-user-card [user]="currentUser"></app-user-card>
+<app-user-card `[user]`="currentUser"></app-user-card>
 ```
 
 **Strict Output Types:**

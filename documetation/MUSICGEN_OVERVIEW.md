@@ -15,7 +15,7 @@ Preferred OS & runtime
 - GPU: NVIDIA with appropriate CUDA toolkit and drivers (CUDA 11.8 or 12.x depending on the PyTorch version). Use the
   NVIDIA container runtime and images like `nvidia/cuda:12.1-runtime-ubuntu22.04` when GPU acceleration is required.
 
-- Python: 3.10 or 3.11 recommended (use `python:3.11-slim-bullseye` as a base in Docker if a Python build is necessary).
+- Python: 3.10 or 3.11 recommended (use `python:3.11-slim-bookworm` as a base in Docker if a Python build is necessary).
 
 Model / artifacts
 

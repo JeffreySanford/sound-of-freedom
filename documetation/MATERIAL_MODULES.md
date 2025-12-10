@@ -509,7 +509,7 @@ Users only download Material components for routes they visit:
 **Video Generation Feature** includes an enhanced Material slider:
 
 ```html
-<mat-slider min="5" max="60" step="5" showTickMarks discrete [displayWith]="formatDurationLabel">
+<mat-slider min="5" max="60" step="5" showTickMarks discrete `[displayWith]`="formatDurationLabel">
   <input matSliderThumb [(value)]="duration" (valueChange)="onDurationChange($event)" />
 </mat-slider>
 ```
@@ -532,7 +532,7 @@ private readonly processingRatios = {
 };
 
 private calculateEstimatedTime(): void {
-  const ratio = this.processingRatios[this.selectedResolution];
+  const ratio = this.processingRatios`[this.selectedResolution]`;
   const totalSeconds = this.duration * ratio;
   // Add ±20% uncertainty range
   const minTime = Math.floor(totalSeconds * 0.8);
@@ -642,8 +642,8 @@ Before adding Material components, consider:
    ```html
    <mat-form-field>
      <mat-label>Choose a date</mat-label>
-     <input matInput [matDatepicker]="picker" />
-     <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+     <input matInput `[matDatepicker]`="picker" />
+     <mat-datepicker-toggle matSuffix `[for]`="picker"></mat-datepicker-toggle>
      <mat-datepicker #picker></mat-datepicker>
    </mat-form-field>
    ```

@@ -306,7 +306,7 @@ function mapDeepSeekResponse(raw: any): SongMetadata {
     title: raw.title,
     lyrics: Array.isArray(raw.lyrics) ? raw.lyrics.join('\n') : raw.lyrics,
     genre: raw.genre,
-    mood: Array.isArray(raw.mood) ? raw.mood : [raw.mood],
+    mood: Array.isArray(raw.mood) ? raw.mood : `[raw.mood]`,
     syllableCount: raw.syllableCount || 0
   };
 }

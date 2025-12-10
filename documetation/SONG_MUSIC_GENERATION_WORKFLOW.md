@@ -337,7 +337,7 @@ function countSyllables(text: string): number {
     if (word.length === 0) return count;
 
     // Count vowel groups
-    const vowelGroups = word.match(/[aeiouy]+/g);
+    const vowelGroups = word.match(/`[aeiouy]`+/g);
     let syllables = vowelGroups ? vowelGroups.length : 0;
 
     // Adjust for silent 'e'

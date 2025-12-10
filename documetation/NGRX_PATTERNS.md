@@ -268,7 +268,7 @@ export const selectModelsEntities = createSelector(selectModelsState, fromModels
 
 // Select specific entity by ID
 export const selectSelectedModel = createSelector(selectModelsEntities, selectSelectedModelId, (entities, selectedId) =>
-  selectedId ? entities[selectedId] : null
+  selectedId ? entities`[selectedId]` : null
 );
 ```
 
@@ -289,7 +289,7 @@ export const selectFilteredModels = createSelector(selectAllModels, selectModels
 });
 
 // Parameterized selector factory
-export const selectModelById = (id: string) => createSelector(selectModelsEntities, (entities) => entities[id]);
+export const selectModelById = (id: string) => createSelector(selectModelsEntities, (entities) => entities`[id]`);
 ```
 
 ## Effects Pattern
@@ -622,7 +622,7 @@ export function logger(reducer: ActionReducer<any>): ActionReducer<any> {
   };
 }
 
-export const metaReducers: MetaReducer<any>[] = [logger];
+export const metaReducers: MetaReducer<any>[] = `[logger]`;
 ```
 
 Register in `StoreModule.forRoot`:

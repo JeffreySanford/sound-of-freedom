@@ -186,10 +186,8 @@ Port ${p} appears to be in use on the host. This will cause docker compose to fa
     if (composeFinalServices.length > 0) {
       runSync('docker', ['compose', '-f', COMPOSE_FILE, 'up', '-d', ...composeFinalServices]);
     }
-    // If any requested dockerIncludes didn't have Dockerfiles, add them to local serve list so they still run.
-    if (fallbackToLocal.length) {
-      for (const s of fallbackToLocal) if (!nxToServe.includes(s)) nxToServe.push(s);
-    }
+    // If any requested dockerIncludes didn't have Dockerfiles, we'll add them to local serve
+    // list after we compute which services are provided by Docker.
 
     // Determine which services are in the compose file
     const r = spawnSync('docker', ['compose', '-f', COMPOSE_FILE, 'config', '--services'], { encoding: 'utf8' });
@@ -256,6 +254,13 @@ Port ${p} appears to be in use on the host. This will cause docker compose to fa
       nxToServe = [];
     }
 
+    // If any requested dockerIncludes didn't have Dockerfiles (and then were removed from compose up), add them to local serve list.
+    if (typeof fallbackToLocal !== 'undefined' && fallbackToLocal.length) {
+      for (const s of fallbackToLocal) {
+        if (!nxToServe.includes(s)) nxToServe.push(s);
+      }
+    }
+
     if (nxToServe.length === 0) {
       console.log('All projects are provided by docker compose. Nothing to serve locally.');
       console.log('You can view frontend at http://localhost:4200 and api at http://localhost:3000 (if present).');
@@ -300,11 +305,13 @@ Port ${p} appears to be in use on the host. This will cause docker compose to fa
     const pnpmAvailable = pnpmCheck.status === 0;
     const npmAvailable = npmCheck.status === 0;
     let pnpmExecCmd = 'pnpm';
-    let pnpmExecArgsPrefix = [];
+    // Use workspace-aware pnpm execution so `nx` resolves to the workspace root
+    let pnpmExecArgsPrefix = ['-w', 'exec', '--'];
     if (!pnpmAvailable && npmAvailable) {
       console.warn('pnpm not found, falling back to `npm exec -- pnpm`');
       pnpmExecCmd = 'npm';
-      pnpmExecArgsPrefix = ['exec', '--', 'pnpm'];
+      // Fallback: use `npm exec -- nx` which should run a local nx if available.
+      pnpmExecArgsPrefix = ['exec', '--'];
     }
     if (!pnpmAvailable) {
       console.warn('pnpm not found in PATH for spawning local serves; local frontend/api will not be started.');

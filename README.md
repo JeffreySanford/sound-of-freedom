@@ -19,17 +19,35 @@ microservices (jen1, muscgen, orchestrator) packaged in Docker containers.
 pnpm install
 ```
 
-1. Start services locally with docker-compose:
+1. Start infra services locally with docker-compose:
+
+  By default, `start:all:docker` starts the microservices and orchestrator but
+  does not start the frontend and backend containers, so you can run the
+  frontend/backend locally with HMR and faster iteration.
 
 ```bash
 docker-compose up --build
 ```
 
-- Frontend will be accessible at <http://localhost:4200>
-- API at <http://localhost:3333>
-- Orchestrator at <http://localhost:4000>
-- jen1 at <http://localhost:4001>
-- muscgen at <http://localhost:4002>
+ - Frontend will be accessible at <http://localhost:4200>
+ - API at <http://localhost:3000>
+ - Orchestrator at <http://localhost:4000>
+ - jen1 at <http://localhost:4001>
+ - muscgen at <http://localhost:4002>
+
+Note: The `start:all:docker` convenience script intentionally does not start the
+frontend or backend containers so you can run them locally for faster HMR and
+iterative development. Use `pnpm start:all` to run the frontend and backend
+locally after `start:all:docker`.
+
+The orchestrator container will wait for both frontend and backend to become
+reachable (either as containers by name, or as host services via
+`host.docker.internal`) before it starts. This ensures orchestrator only begins
+processing when backend and frontend are available for integration tests.
+
+If you run `pnpm start:all` inside a container rather than on your host, make
+sure that container is joined to the same Docker network (e.g. `sc-net`) so the
+orchestrator can reach `api` and `frontend` by their container names.
 
 ## Development without Docker (quick start)
 
