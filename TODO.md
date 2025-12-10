@@ -6,6 +6,12 @@ TODO / Backlog
   - Split heavy Material imports into feature-specific Material modules and only import into the app root the modules used by the layout.
   - Review feature module sizes using Webpack stats and consider further lazy-loading to reduce initial JS.
   - Ownership: frontend team; Priority: Medium; Notes: follow up with `stats.json` analysis and file a PR for each feature split.
+- [ ] Dev workflow: run frontend & backend in separate terminals
+  - Terminal A (infra): `docker compose -f docker-compose.yml up -d jen1 muscgen redis ollama orchestrator`
+  - Terminal B (api watch): `pnpm run dev:api:watch`  # builds api to dist in watch mode
+  - Terminal C (api run): `pnpm run dev:api:run`      # runs the compiled dist with nodemon
+  - Terminal D (frontend): `pnpm run dev:frontend -- --port=4201`
+  - Ownership: Frontend/Infra; Priority: High; Notes: `dev:api` uses a watch+run pattern to avoid nx executor binary path issues.
 
   - [ ] Serve / Start (dev) fixes:
     - Resolve `nx` executor "Cannot find module 'nx'" error and ensure `pnpm install` is run in workspace root.
