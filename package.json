@@ -76,6 +76,12 @@
       "pnpm exec prettier --write",
       "git add"
     ]
+    ,
+    "*.{js,ts,jsx,tsx,json,css,scss}": [
+      "pnpm exec prettier --write",
+      "pnpm exec eslint --fix --ext .ts,.tsx,.js,.jsx || true",
+      "git add"
+    ]
   },
   "dependencies": {
     "@angular/compiler": "^19.2.17",
