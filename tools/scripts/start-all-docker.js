@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
 const { spawnSync, spawn } = require('child_process');
+const fs = require('fs');
 const net = require('net');
 const path = require('path');
 
@@ -153,8 +154,42 @@ Port ${p} appears to be in use on the host. This will cause docker compose to fa
     const defaultServices = ['jen1', 'muscgen', 'redis', 'ollama', 'orchestrator'];
     const dockerIncludes = args.dockerInclude ? args.dockerInclude.split(',').map((s) => s.trim()) : [];
     const composeServicesToStart = Array.from(new Set(defaultServices.concat(dockerIncludes.filter(Boolean))));
+    // Filter composeServicesToStart to those that actually have a Dockerfile path if they are expected to be built.
+    // For services without a Dockerfile, fall back to local serve (they're added to nxToServe later).
+    const serviceDockerfileMap = {
+      frontend: 'apps/frontend/Dockerfile',
+      api: 'apps/api/Dockerfile',
+      jen1: 'apps/jen1/Dockerfile',
+      muscgen: 'apps/muscgen/Dockerfile',
+      orchestrator: 'apps/orchestrator/Dockerfile',
+      ollama: 'apps/ollama/Dockerfile',
+    };
+    const validatedComposeServices = [];
+    const fallbackToLocal = [];
+    for (const svc of composeServicesToStart) {
+      const dockerfile = serviceDockerfileMap[svc];
+      if (!dockerfile) {
+        // Unknown service, keep in compose list
+        validatedComposeServices.push(svc);
+        continue;
+      }
+      if (fs.existsSync(path.join(process.cwd(), dockerfile))) {
+        validatedComposeServices.push(svc);
+      } else {
+        console.warn(`Dockerfile for service '${svc}' not found at ${dockerfile}, will fall back to local serve`);
+        fallbackToLocal.push(svc);
+      }
+    }
+    // Any services that we planned to include in docker but do not have Dockerfiles should be removed from compose up.
+    const composeFinalServices = validatedComposeServices;
     console.log('Starting docker compose stack for infra (including any docker-include values):', composeServicesToStart.join(', '));
-    runSync('docker', ['compose', '-f', COMPOSE_FILE, 'up', '-d', ...composeServicesToStart]);
+    if (composeFinalServices.length > 0) {
+      runSync('docker', ['compose', '-f', COMPOSE_FILE, 'up', '-d', ...composeFinalServices]);
+    }
+    // If any requested dockerIncludes didn't have Dockerfiles, add them to local serve list so they still run.
+    if (fallbackToLocal.length) {
+      for (const s of fallbackToLocal) if (!nxToServe.includes(s)) nxToServe.push(s);
+    }
 
     // Determine which services are in the compose file
     const r = spawnSync('docker', ['compose', '-f', COMPOSE_FILE, 'config', '--services'], { encoding: 'utf8' });
