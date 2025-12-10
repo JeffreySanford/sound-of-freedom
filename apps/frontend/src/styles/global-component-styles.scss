@@ -1,0 +1,184 @@
+@use './colors';
+@use './mixins';
+@use './typography';
+
+/* Global shared component styles to reduce per-component SCSS size */
+
+.analysis-results {
+  margin-top: 0.75rem; /* spacing(3) */
+  padding: 1rem; /* spacing(2) */
+  background-color: colors.$surface-variant;
+  border-radius: 8px;
+
+  .results-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem; /* spacing(2) */
+    color: colors.$primary-700;
+    font-weight: 500;
+  }
+
+  .song-metadata {
+    margin-bottom: 0.5rem;
+
+    h5 { margin-bottom: 0.25rem; color: colors.$text-primary; }
+
+    .metadata-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.5rem;
+
+      div {
+        padding: 0.5rem;
+        background-color: colors.$surface;
+        border-radius: 4px;
+        font-size: 0.9em;
+      }
+    }
+  }
+
+  .sections-preview {
+    margin-bottom: 0.5rem;
+
+    h5 { margin-bottom: 0.25rem; color: colors.$text-primary; }
+
+    .section-list {
+      .section-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem;
+        background-color: colors.$surface;
+        border-radius: 4px;
+        margin-bottom: 0.25rem;
+
+        .section-stats { font-size: 0.9em; color: colors.$text-secondary; }
+      }
+    }
+  }
+
+  .validation-errors {
+    h5 { margin-bottom: 0.25rem; color: colors.$warn-700; }
+
+    .error-list {
+      .error-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        border-radius: 4px;
+        margin-bottom: 0.25rem;
+
+        &.error { background-color: rgba(colors.$warn-500, 0.1); border-left: 3px solid colors.$warn-500; }
+        &.warning { background-color: rgba(colors.$accent-500, 0.1); border-left: 3px solid colors.$accent-500; }
+
+        mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+      }
+    }
+  }
+}
+
+/* Intro/Outro section shared style */
+.intro-outro-section {
+  margin-top: 0.75rem;
+  padding: 1rem;
+  background-color: colors.$surface-variant;
+  border-radius: 8px;
+
+  h4 { margin-bottom: 0.5rem; color: colors.$primary-700; font-weight: 500; }
+
+  .structure-item { margin-bottom: 0.5rem; }
+}
+
+/* Generation form shared utilities */
+.generation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Generic form utilities */
+.full-width { width: 100%; padding: 0 1em; }
+.form-row { display: flex; gap: 0.5rem; width: 100%; }
+.form-row .half-width, .form-row .third-width { flex: 1; min-width: 0; }
+.lyrics-field { margin: 0.5rem 0; }
+
+/* Mat card action global alignment */
+.page-card mat-card-actions { padding: 1rem; display: flex; justify-content: flex-end; }
+.page-card mat-card-actions button { display: flex; align-items: center; gap: 0.25rem; }
+
+/* User header shared styles */
+.user-info-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 1rem 0 1rem;
+  background-color: colors.$primary-50;
+  pointer-events: none;
+}
+
+.role-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.role-badge-admin { background-color: colors.$primary-100; color: colors.$primary-700; }
+.role-badge-user { background-color: colors.$surface; color: colors.$text-secondary; }
+
+/* App layout (header/sidebar/footer) shared styles */
+.app-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 64px;
+  padding: 0 1.5rem;
+  background: linear-gradient(135deg, colors.$primary-500, colors.$primary-700);
+  color: colors.$white;
+  box-shadow: colors.$elevation-4;
+  z-index: 100;
+
+  .app-title { @include typography.heading-5; margin: 0; font-weight: 700; letter-spacing: 1px; }
+  .app-nav { display: flex; gap: 0.5rem; align-items: center; }
+}
+
+.app-sidebar {
+  width: 240px; background-color: colors.$surface; border-right: 1px solid colors.$border; padding: 1rem; overflow-y: auto;
+  .sidebar-nav { display: flex; flex-direction: column; gap: 0.5rem; }
+  .nav-item { display:flex; align-items:center; gap:1rem; padding:0.75rem 1rem; border-radius:8px; color: colors.$text-primary; text-decoration:none; cursor:pointer; transition: all 0.2s ease; }
+  .nav-item:hover { background-color: colors.$primary-50; color: colors.$primary-700; }
+  .nav-item.active { background-color: colors.$primary-100; color: colors.$primary-700; font-weight:600; }
+}
+
+.app-footer { width:100%; height:48px; display:flex; align-items:center; justify-content:center; background-color: colors.$surface; border-top: 1px solid colors.$border; color: colors.$text-secondary; }
+
+/* Mode selector shared style */
+.mode-selector-section {
+  margin: 0.75rem 0;
+
+  .mode-toggle-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Lyrics analysis shared styles */
+.lyrics-analysis-section {
+  margin: 0.75rem 0;
+
+  .dsl-help-link { color: colors.$primary-600; text-decoration: none; font-weight: 500; }
+  .dsl-help-link:hover { text-decoration: underline; }
+
+  .analysis-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    align-items: center;
+
+    .analyze-button, .validate-button, .use-song-button { display: flex; align-items: center; gap: 0.5rem; }
+  }
+}

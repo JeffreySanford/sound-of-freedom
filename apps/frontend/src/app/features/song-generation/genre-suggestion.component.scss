@@ -163,17 +163,17 @@
 }
 
 // Genre Chips
-.genre-chips-container {
-  margin-bottom: 1.5rem;
+  .genre-chips-container {
+    margin-bottom: 1.5rem;
 
-  .genre-chips-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-  }
+    .genre-chips-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
 
-  .genre-chip-button {
+    .genre-chip-button {
     background: rgba(255, 255, 255, 0.9);
     border: 1px solid rgba(103, 80, 164, 0.2);
     border-radius: 16px;
@@ -308,11 +308,7 @@
     padding: 1rem;
   }
 
-  .genre-chips-container {
-    ::ng-deep .mat-mdc-chip-set {
-      justify-content: flex-start;
-    }
-  }
+  /* Use global .mat-mdc-chip-set overrides instead of per-component styles */
 
   .feedback-buttons {
     gap: 12px;

@@ -4,6 +4,10 @@ import { LibraryRoutingModule } from './library-routing.module';
 import { LibraryComponent } from './library.component';
 import { UploadDialogComponent } from './upload-dialog/upload-dialog.component';
 import { LibraryMaterialModule } from './library-material.module';
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
+import { libraryReducer } from '../../store/library/library.state';
+import { LibraryEffects } from '../../store/library/library.effects';
 
 /**
  * Library Feature Module
@@ -21,6 +25,12 @@ import { LibraryMaterialModule } from './library-material.module';
  */
 @NgModule({
   declarations: [LibraryComponent, UploadDialogComponent],
-  imports: [CommonModule, LibraryRoutingModule, LibraryMaterialModule],
+  imports: [
+    CommonModule,
+    LibraryRoutingModule,
+    LibraryMaterialModule,
+    StoreModule.forFeature('library', libraryReducer),
+    EffectsModule.forFeature([LibraryEffects]),
+  ],
 })
 export class LibraryModule {}

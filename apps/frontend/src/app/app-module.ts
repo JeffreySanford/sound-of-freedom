@@ -6,6 +6,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { environment } from '../environments/environment';
 import { App } from './app';
 import { appRoutes } from './app.routes';
 import { AppMaterialModule } from './app-material.module';
@@ -17,18 +18,15 @@ import { authReducer } from './store/auth/auth.reducer';
 import { modelsReducer } from './store/models/models.reducer';
 import { datasetsReducer } from './store/datasets/datasets.reducer';
 import { jobsReducer } from './store/jobs/jobs.reducer';
-import { libraryReducer } from './store/library/library.state';
 import { profileReducer } from './store/profile/profile.state';
-import { songGenerationReducer } from './store/song-generation/song-generation.reducer';
 
 // Effects
 import { AuthEffects } from './store/auth/auth.effects';
 import { ModelsEffects } from './store/models/models.effects';
 import { DatasetsEffects } from './store/datasets/datasets.effects';
 import { JobsEffects } from './store/jobs/jobs.effects';
-import { LibraryEffects } from './store/library/library.effects';
 import { ProfileEffects } from './store/profile/profile.effects';
-import { SongGenerationEffects } from './store/song-generation/song-generation.effects';
+// Song generation reducer/effects moved to the lazy-loaded feature module
 
 @NgModule({
   declarations: [App],
@@ -45,9 +43,7 @@ import { SongGenerationEffects } from './store/song-generation/song-generation.e
         models: modelsReducer,
         datasets: datasetsReducer,
         jobs: jobsReducer,
-        library: libraryReducer,
         profile: profileReducer,
-        songGeneration: songGenerationReducer,
       },
       {
         runtimeChecks: {
@@ -65,17 +61,25 @@ import { SongGenerationEffects } from './store/song-generation/song-generation.e
       ModelsEffects,
       DatasetsEffects,
       JobsEffects,
-      LibraryEffects,
+      // library: libraryReducer, // registered in lazy-loaded LibraryModule
+      // LibraryEffects registered in lazy-loaded LibraryModule
       ProfileEffects,
-      SongGenerationEffects,
+      // SongGenerationEffects is registered in the lazy-loaded feature
     ]),
-    StoreDevtoolsModule.instrument({
-      maxAge: 25,
-      logOnly: false,
-      autoPause: true,
-      trace: false,
-      traceLimit: 75,
-    }),
+    // Only enable Store DevTools in development builds to keep the runtime and
+    // main bundle small for production. Use the `environment.production` flag
+    // with Angular file replacements so this is a compile-time constant for AOT.
+    ...(!environment.production
+      ? [
+          StoreDevtoolsModule.instrument({
+            maxAge: 25,
+            logOnly: false,
+            autoPause: true,
+            trace: false,
+            traceLimit: 75,
+          }),
+        ]
+      : []),
   ],
   providers: [
     {

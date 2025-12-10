@@ -94,11 +94,7 @@
         align-items: center;
         gap: 12px;
 
-        ::ng-deep .mat-mdc-progress-bar {
-          height: 8px;
-          border-radius: 4px;
-          width: 200px;
-        }
+        /* Use global .mat-mdc-progress-bar overrides instead of per-component styles */
 
         .confidence-text {
           font-weight: 500;

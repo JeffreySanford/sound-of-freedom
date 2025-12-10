@@ -14,8 +14,8 @@
     // Production optimizations
     "removeComments": true,
     "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
+    "declaration": false,
+    "declarationMap": false,
     
     // Type safety
     "noUnusedLocals": true,
