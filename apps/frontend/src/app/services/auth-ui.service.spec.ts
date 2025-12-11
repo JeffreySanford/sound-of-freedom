@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatDialog, type MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
 import { AuthUiService } from './auth-ui.service';
@@ -15,6 +16,7 @@ describe('AuthUiService', () => {
     } as unknown as jest.Mocked<MatDialog>;
 
     TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
       providers: [AuthUiService, { provide: MatDialog, useValue: dialogSpy }],
     });
 

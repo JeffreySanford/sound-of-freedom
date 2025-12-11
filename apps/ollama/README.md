@@ -16,9 +16,9 @@ Models & distribution
 
 Common large LLMs and distributions to consider:
 
-  - LLama 2 / 3 (Meta) via compatible open-source runtimes and vendors
-  - Mistral, Llama-alikes, and other open weights hosted on Hugging Face
-  - Hugging Face Hub: <https://huggingface.co>
+- LLama 2 / 3 (Meta) via compatible open-source runtimes and vendors
+- Mistral, Llama-alikes, and other open weights hosted on Hugging Face
+- Hugging Face Hub: <https://huggingface.co>
 
 Operational notes
 
@@ -28,7 +28,33 @@ Operational notes
 
 Usage
 
-- This folder contains a placeholder `entrypoint.sh` and Dockerfile. You should replace the placeholder with instructions for installing and launching your chosen LLM binary/service.
+- This folder contains a placeholder `entrypoint.sh` and `Dockerfile`. Replace these placeholders with
+  your organization's instructions for installing and launching your chosen LLM binary/service.
+- To run a real Ollama binary inside the container, place the Ollama binary at `/opt/ollama/bin/ollama`
+  inside the image or mount it at runtime. The entrypoint will attempt to run
+  `/opt/ollama/bin/ollama serve --port 11434` if it finds the binary.
+
+Example (bind-mount a local binary into the container):
+
+```bash
+docker run --rm -it --name ollama -v "$(pwd)/ollama-bin:/opt/ollama/bin" -p 11434:11434 ollama:dev
+```
+
+Optional automatic model pulls
+
+- The `entrypoint.sh` supports an optional automatic model pull step. To enable it, set `OLLAMA_AUTO_PULL=1`
+  and provide a comma-separated list of models in `OLLAMA_PULL_MODELS` (for example,
+  `mistral3:6.5b,deepseek-coder:6.7b,mistral:7b`).
+- If a requested model is already present (under the default Ollama models path), the entrypoint will skip
+  pulling it. If not present and `OLLAMA_AUTO_PULL` is set, the entrypoint attempts `ollama pull <model>` on
+  startup and logs warnings on failure.
+
+Example enabling auto-pull when running the container (use with caution on limited disk/network):
+
+```bash
+docker run --rm -e OLLAMA_AUTO_PULL=1 -e OLLAMA_PULL_MODELS="minstral3,deepseek-coder:6.7b,mistral:7b" \
+  -v "$(pwd)/ollama-bin:/opt/ollama/bin" -p 11434:11434 ollama:dev
+```
 
 Security & scale
 
@@ -37,7 +63,8 @@ Security & scale
 
 Notes
 
-- This setup intentionally contains a placeholder entrypoint because distributing or packaging particular LLM binaries may be subject to licensing restrictions. Follow your organization's compliance and licensing policy when packaging the model.
+- This setup intentionally contains a placeholder entrypoint because distributing or packaging particular LLM binaries can be subject to licensing restrictions.
+  Follow your organization's compliance and licensing policy when packaging or distributing models.
 
 See also
 

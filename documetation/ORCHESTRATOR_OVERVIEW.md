@@ -46,5 +46,19 @@ Security
 
 - Protect endpoints with adequate authentication and rate limiting
 - Ensure Redis connections are secured behind VPC or using TLS
+- Require JWT for user-facing endpoints and optionally for worker reporting.
+
+  `POST /jobs/report` should be called with an `Authorization: Bearer <token>`
+  from orchestrator workers. Use a service account with role `orchestrator` and
+  a long-lived JWT for production.
+
+- Example: create a service user with role `orchestrator` and generate a token via the `AuthService` or `POST /auth/login`.
+  Set the token as `ORCHESTRATOR_TOKEN` in your environment (or in docker-compose).
+  The orchestrator worker will attach the `Authorization: Bearer <token>` header when posting job reports.
+
+- The orchestrator worker will now propagate a `X-Request-Id` header for all outgoing requests.
+  This includes calls to `jen1` and `POST /jobs/report` to the API.
+  If a job record already contains a `requestId`, the worker will use that.
+  Otherwise it will generate and persist a `requestId` on the job for improved end-to-end correlation.
 
 \*\*\* End Orchestrator Overview

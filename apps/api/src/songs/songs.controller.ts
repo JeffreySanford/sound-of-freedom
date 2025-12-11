@@ -1,4 +1,5 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Request } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ConfigService } from '@nestjs/config';
 import {
   ApiTags,
@@ -11,6 +12,8 @@ import * as path from 'path';
 import { GenerateMetadataDto } from './dto/generate-metadata.dto';
 import { AnalyzeLyricsDto } from './dto/analyze-lyrics.dto';
 import { OllamaService } from '../llm/ollama.service';
+import { JobsService } from '../jobs/jobs.service';
+import { OrchestratorService } from '../orchestrator/orchestrator.service';
 import { MmslParserService } from './mmsl-parser.service';
 import { StemExportService, StemExportOptions } from './stem-export.service';
 import { SongDslParserService } from './song-dsl-parser.service';
@@ -23,6 +26,7 @@ import { PaletteSuggestionService } from './palette-suggestion.service';
 export class SongsController {
   constructor(
     private readonly ollama: OllamaService,
+    private readonly orchestrator: OrchestratorService,
     private readonly configService: ConfigService,
     private readonly mmslParser: MmslParserService,
     private readonly stemExport: StemExportService,
@@ -30,6 +34,8 @@ export class SongsController {
     private readonly instrumentCatalog: InstrumentCatalogService,
     private readonly lyricAnalysis: LyricAnalysisService,
     private readonly paletteSuggestion: PaletteSuggestionService
+    ,
+    private readonly jobsService: JobsService,
   ) {}
 
   @Post('generate-metadata')
@@ -64,12 +70,37 @@ export class SongsController {
     description: 'Missing or invalid authentication',
   })
   @ApiResponse({ status: 503, description: 'AI service unavailable' })
-  generateMetadata(@Body() body: GenerateMetadataDto) {
+  @UseGuards(JwtAuthGuard)
+  async generateMetadata(@Request() req: any, @Body() body: GenerateMetadataDto) {
     // Allow per-request override of model via `model` in the DTO
     const defaultModel =
-      this.configService.get<string>('OLLAMA_MODEL') || 'deepseek';
+      this.configService.get<string>('OLLAMA_MODEL') || 'minstral3';
     const model = body.model || defaultModel;
-    return this.ollama.generateMetadata(body.narrative, body.duration, model);
+    // If the request explicitly specifies generator 'jen1', route via orchestrator
+    if ((body.generator || '').toLowerCase() === 'jen1') {
+      if (body.async) {
+        // Submit to orchestrator as a background job
+        const resp = await this.orchestrator.submitJob({ narrative: body.narrative, duration: body.duration, options: body.options || {} }, (req as any).requestId);
+        if (resp && resp.jobId) {
+          // Persist initial job record in DB
+          await this.jobsService.createJob({
+            id: resp.jobId,
+            narrative: body.narrative,
+            duration: body.duration,
+            generator: 'jen1',
+            options: body.options || {},
+            status: 'queued',
+          // attach job owner
+          userId: (req.user && (req.user as any).userId) || undefined,
+          });
+        }
+        return resp;
+      }
+      // Synchronous composer call
+      return this.orchestrator.generateSong({ narrative: body.narrative, duration: body.duration }, (req as any).requestId);
+    }
+
+    return this.ollama.generateMetadata(body.narrative, body.duration, model, (req as any).requestId);
   }
 
   @Post('generate-song')
@@ -143,12 +174,38 @@ export class SongsController {
     description: 'Missing or invalid authentication',
   })
   @ApiResponse({ status: 503, description: 'AI service unavailable' })
-  generateSong(@Body() body: GenerateMetadataDto) {
+  @UseGuards(JwtAuthGuard)
+  async generateSong(
+    @Request() req: any,
+    @Body() body: GenerateMetadataDto & { async?: boolean; options?: Record<string, any> },
+  ) {
     // Allow per-request override of model via `model` in the DTO
     const defaultModel =
-      this.configService.get<string>('OLLAMA_MODEL') || 'deepseek';
+      this.configService.get<string>('OLLAMA_MODEL') || 'minstral3';
     const model = body.model || defaultModel;
-    return this.ollama.generateSong(body.narrative, body.duration, model);
+    // If request explicitly requests jen1 model, route to orchestrator instead
+    if ((body.model || '').toLowerCase() === 'jen1') {
+      // If async flag present, submit job to orchestrator and return job id
+      if (body.async) {
+        const resp = await this.orchestrator.submitJob({ narrative: body.narrative, duration: body.duration, options: body.options || {} }, (req as any).requestId);
+        if (resp && resp.jobId) {
+          await this.jobsService.createJob({
+            id: resp.jobId,
+            narrative: body.narrative,
+            duration: body.duration,
+            generator: 'jen1',
+            options: body.options || {},
+            status: 'queued',
+          // attach job owner
+          userId: (req.user && (req.user as any).userId) || undefined,
+          });
+        }
+        return { jobId: resp.jobId };
+      }
+      // Synchronous path: orchestrator compose
+      return this.orchestrator.generateSong({ narrative: body.narrative, duration: body.duration }, (req as any).requestId);
+    }
+    return this.ollama.generateSong(body.narrative, body.duration, model, (req as any).requestId);
   }
 
   @Post('suggest-genres')
@@ -176,7 +233,7 @@ export class SongsController {
   })
   suggestGenres(@Body() body: { narrative: string; model?: string }) {
     const defaultModel =
-      this.configService.get<string>('OLLAMA_MODEL') || 'deepseek';
+      this.configService.get<string>('OLLAMA_MODEL') || 'minstral3';
     const model = body.model || defaultModel;
     return this.ollama.suggestGenres(body.narrative, model);
   }

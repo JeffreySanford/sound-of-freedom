@@ -61,4 +61,5 @@ coverage/
 .cache
 .serverless
 /.history
+tmp/e2e/
 

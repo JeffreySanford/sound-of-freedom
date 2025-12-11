@@ -18,7 +18,7 @@ it requires careful implementation considering browser autoplay policies, perfor
 accessibility standards, and content licensing.
 
 **Integration with Project's AI Ecosystem:** This feature aligns with Harmonia's broader AI-driven approach, where LLMs
-like Mistral3 and DeepSeek generate song metadata and genre suggestions (as documented in `docs/OLLAMA.md` and
+like Minstral3 and DeepSeek generate song metadata and genre suggestions (as documented in `docs/OLLAMA.md` and
 `docs/SONG_MUSIC_GENERATION_WORKFLOW.md`). Audio previews complement AI instrument selection (detailed in
 `docs/INSTRUMENT_SELECTION_EXPAND_FEATURE.md`) by providing immediate auditory feedback, reducing reliance on text
 descriptions alone. Similar to prompting patterns in `docs/SONG_ANNOTATION_DSL.md` that guide AI for cue mapping, this

@@ -18,11 +18,15 @@ describe('OllamaService', () => {
   async function createServiceWithModel(model?: string) {
     const old = process.env.OLLAMA_MODEL;
     if (model) process.env.OLLAMA_MODEL = model;
+    // Ensure that the availability probe resolves and sets available=true during init
+    mockedAxios.get.mockResolvedValueOnce({ data: { models: [{ name: model || 'minstral3' }] } });
     const module: TestingModule = await Test.createTestingModule({
       imports: [ConfigModule.forRoot({ isGlobal: true })],
       providers: [OllamaService, LyricAnalysisService],
     }).compile();
     const created = module.get<OllamaService>(OllamaService);
+    // Ensure available flag is set for tests so mocked axios.post path is used
+    (created as any).available = true;
     // restore env
     if (old === undefined) delete process.env.OLLAMA_MODEL;
     else process.env.OLLAMA_MODEL = old;
@@ -49,7 +53,7 @@ describe('OllamaService', () => {
       data: {
         choices: [
           {
-            text: '{"title":"D","lyrics":"a b","genre":"rock","mood":"happy"}',
+            text: '{"title":"D","lyrics":"a b\\nc d\\ne f","genre":"rock","mood":"happy"}',
           },
         ],
       },
@@ -67,7 +71,7 @@ describe('OllamaService', () => {
       data: {
         choices: [
           {
-            text: '{"song":{"name":"M","lyrics":["line1","line2"]},"genres":["indie","folk"],"mood":"reflective"}',
+            text: '{"song":{"name":"M","lyrics":["line1","line2","line3"]},"genres":["indie","folk"],"mood":"reflective"}',
           },
         ],
       },
@@ -85,7 +89,7 @@ describe('OllamaService', () => {
       data: {
         choices: [
           {
-            text: '{"song":{"name":"M","lyrics":["o1","o2"]},"genres":["indie"],"mood":"calm"}',
+            text: '{"song":{"name":"M","lyrics":["o1","o2","o3"]},"genres":["indie"],"mood":"calm"}',
           },
         ],
       },
@@ -104,14 +108,14 @@ describe('OllamaService', () => {
       data: {
         choices: [
           {
-            text: '{"title":"Test Song","lyrics":"Verse 1\\nChorus","genre":"pop","mood":"happy","melody":"Upbeat melody","tempo":120,"key":"C major","instrumentation":["piano","drums","bass"]}',
+            text: '{"title":"Test Song","lyrics":"Verse 1\\nChorus\\nBridge","genre":"pop","mood":"happy","melody":"Upbeat melody","tempo":120,"key":"C major","instrumentation":["piano","drums","bass"]}',
           },
         ],
       },
     });
     const res = await firstValueFrom(service.generateSong('happy story', 180));
     expect(res.title).toBe('Test Song');
-    expect(res.lyrics).toBe('Verse 1\nChorus');
+    expect(res.lyrics).toBe('Verse 1\nChorus\nBridge');
     expect(res.genre).toBe('pop');
     expect(res.mood).toBe('happy');
     expect(res.melody).toBe('Upbeat melody');

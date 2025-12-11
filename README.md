@@ -29,16 +29,70 @@ pnpm install
 docker-compose up --build
 ```
 
- - Frontend will be accessible at <http://localhost:4200>
- - API at <http://localhost:3000>
- - Orchestrator at <http://localhost:4000>
- - jen1 at <http://localhost:4001>
- - muscgen at <http://localhost:4002>
+- Frontend will be accessible at <http://localhost:4200>
+- API at <http://localhost:3000>
+- Orchestrator at <http://localhost:4000>
+- jen1 at <http://localhost:4001>
+- muscgen at <http://localhost:4002>
 
 Note: The `start:all:docker` convenience script intentionally does not start the
 frontend or backend containers so you can run them locally for faster HMR and
 iterative development. Use `pnpm start:all` to run the frontend and backend
 locally after `start:all:docker`.
+
+### Debug mode and CLI options
+
+- `--debug` — When passed to the `start-all-docker.js` script, sets
+  `API_DEBUG_COMMANDS=1` for local servers and for docker compose runs. When
+  enabled, the API prints request/response debug logs (truncated and sanitized).
+- `--compose-file=<file>` — Override which docker compose file the script uses.
+- `--require-ollama` — Force API to require Ollama and fail startup if Ollama is unreachable. Use for production-like testing where Ollama must be present.
+
+Example (local NX serve + debug):
+
+```bash
+node tools/scripts/start-all-docker.js --include=frontend,api --debug
+```
+
+Or with the package script (forwarding flags):
+
+```bash
+pnpm start:all -- --debug
+```
+
+Example (compose file override with debug):
+
+```bash
+node tools/scripts/start-all-docker.js --compose-file=docker-compose.dev.yml --debug
+```
+
+Force Ollama requirement via CLI:
+
+```bash
+node tools/scripts/start-all-docker.js --require-ollama
+```
+
+If you run `--debug`, the script creates a temporary `.env.debug` file with the
+`API_DEBUG_COMMANDS=1` environment variable set and passes it to `docker compose`
+so your API container can get the same debug behavior when the compose file
+exposes the env var in the service definition (see below).
+
+Docker-compose example (enable debug inside the container):
+
+```yaml
+services:
+  api:
+    build: ./apps/api
+    environment:
+      - API_DEBUG_COMMANDS=${API_DEBUG_COMMANDS}
+      - API_DEBUG_MAX_BODY_LEN=${API_DEBUG_MAX_BODY_LEN:-2000}
+```
+
+Sample `curl` to test debug logging after server is started (watch server logs):
+
+```bash
+curl -X POST http://localhost:3000/api/__health -H 'Content-Type: application/json' -d '{}'
+```
 
 The orchestrator container will wait for both frontend and backend to become
 reachable (either as containers by name, or as host services via
@@ -84,7 +138,27 @@ These create richer, fully configured Nx projects if you prefer to re-generate t
 
 - Each app has a Dockerfile in `apps/<app>/Dockerfile` and the root `docker-compose.yml` builds all containers.
 
----
+## End-to-End (E2E) Tests
+
+- `test:e2e`: Runs an E2E script that spins up a local mock Ollama and starts the API locally when possible for a quick, host-based E2E run.
+- `test:e2e:ci`: Runs a Docker-compose based E2E runner using
+  `docker-compose.e2e.yml` to run a deterministic set of infra services
+  (MongoDB, Redis, Ollama mock, and API built in-container). This runner
+  uses the repo `.env` if present so credentials and database settings
+  are available.
+- `test:e2e:ci:debug`: Same as `test:e2e:ci` but also captures logs into `tmp/e2e/` (compose logs and any local spawned stdout/stderr).
+
+To run the CI/Containerized E2E runner:
+
+```bash
+pnpm test:e2e:ci
+```
+
+To run the CI/Containerized E2E runner with debug logs:
+
+```bash
+pnpm test:e2e:ci:debug
+```
 
 This repo was scaffolded to help accelerate development of audio-generation flows and orchestration. Feel free to extend
 and integrate with audio-processing libraries.
@@ -93,6 +167,10 @@ and integrate with audio-processing libraries.
 
 To initialize the repository and make a first commit locally:
 
+  By default, `start:all:docker` starts the microservices and orchestrator but
+  does not start the frontend and backend containers, so you can run the
+  frontend/backend locally with HMR and faster iteration.
+
 ```bash
 ./scripts/init-repo.sh
 ```
@@ -100,9 +178,7 @@ To initialize the repository and make a first commit locally:
 If you prefer to do this manually:
 
 ```bash
-git init
-git add .
-git commit -m "Initial scaffold of sound-creator Nx workspace"
+# (Manually follow steps shown above or run scripts individually)
 ```
 
 ## Next Steps

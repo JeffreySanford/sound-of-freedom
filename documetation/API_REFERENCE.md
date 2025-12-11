@@ -39,6 +39,41 @@ API endpoints are rate-limited to prevent abuse. Current limits:
 
 ---
 
+### Debugging: Request and Response Logging
+
+For development and troubleshooting, the API supports a debug mode which logs
+incoming requests and outgoing responses (with redaction and truncation).
+
+- Environment variable: `API_DEBUG_COMMANDS=1` — when set, the API logs request
+  method, path, headers (authorization and cookies are redacted), and a
+  truncated payload if present. Responses are captured by overriding `res.send`
+  and similarly truncated.
+- Use `API_DEBUG_MAX_BODY_LEN` to control the maximum number of characters logged
+  for request/response bodies. Default: `2000`.
+- How to enable for local development: Pass `--debug` to
+  `tools/scripts/start-all-docker.js` (e.g. `node tools/scripts/start-all-docker.js --include=frontend,api --debug`).
+- How to enable in Docker compose: expose the env var in your compose file
+  (example below) and use the script with `--debug` (script writes a temporary
+  `.env.debug` file and passes it to `docker compose`):
+
+```yaml
+services:
+  api:
+    build: ./apps/api
+    environment:
+      - API_DEBUG_COMMANDS=${API_DEBUG_COMMANDS}
+      - API_DEBUG_MAX_BODY_LEN=${API_DEBUG_MAX_BODY_LEN:-2000}
+```
+
+**Warning:** Debug mode logs contain request/response content (though truncated and some headers redacted);
+never enable it in production or for public builds. Ensure your logs are retained carefully and tokens or secrets are not leaked.
+
+Example: Trigger a request and observe the `API-DEBUG` logs in stdout
+
+```bash
+curl -X POST http://localhost:3000/api/__health -H 'Content-Type: application/json' -d '{}'
+```
+
 ## Authentication Endpoints
 
 ### POST /auth/register
@@ -304,6 +339,35 @@ Authorization: Bearer <access_token>
 ```
 
 **Request Body**:
+
+## Job Reporting and Orchestration
+
+### POST /jobs/report
+
+This endpoint accepts job status updates from orchestrator workers and should be called by the orchestrator or worker processes.
+
+**Headers**:
+
+```http
+Authorization: Bearer <orchestrator_token>
+X-Request-Id: <request_id> (optional, recommended for tracing)
+```
+
+**Request Body**:
+
+```json
+{
+  "jobId": "<jobId>",
+  "type": "completed|failed|progress|status",
+  "payload": { ... }
+}
+```
+
+**Behavior**:
+
+- If a `X-Request-Id` header is provided, the API will persist it on the job record for correlation.
+- The endpoint verifies an orchestrator token if present; enforcement depends on `REQUIRE_ORCHESTRATOR_JWT`.
+- The endpoint notifies job status via WebSocket to listening clients and persists updates to the DB.
 
 ```json
 {

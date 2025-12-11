@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "tmp\\logs\\start-all-docker\\.f44172015826206baa066118cb38bca99fc56f66-audit.json",
+    "files": [
+        {
+            "date": 1765414803114,
+            "name": "tmp\\logs\\start-all-docker\\start-all-docker-2025-12-10.log",
+            "hash": "bfe9e8d1ccee86b8219ceea1f6ddef9f7c6550edb9e6cb883755535ed7dee2a0"
+        }
+    ],
+    "hashType": "sha256"
+}

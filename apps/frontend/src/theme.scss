@@ -6,6 +6,7 @@
 // Include Material theming functions (Material 19 M2 theming)
 // Import the main Angular Material module for mixins (core, all-component-themes)
 @use '@angular/material' as mat;
+@use 'sass:meta';
 // Use the M2 theming API exported by the top-level package under the m2- prefix.
 // The deep import paths are blocked by package exports, so we reference m2 via mat.m2-*
 
@@ -70,28 +71,41 @@ $harmonia-accent-palette-map: (
   ),
 );
 
-// Create Material palette objects from the maps
-// NOTE: M2 theming APIs are exposed from the package with the 'm2-' prefix, e.g.,
-// mat.m2-define-palette and mat.m2-define-light-theme.
-$harmonia-primary-palette: mat.m2-define-palette($harmonia-primary-palette-map, 500);
-$harmonia-accent-palette: mat.m2-define-palette($harmonia-accent-palette-map, 500);
-
-// Create a light theme and include component themes
-$harmonia-light-theme: mat.m2-define-light-theme((
-  color: (
-    primary: $harmonia-primary-palette,
-    accent: $harmonia-accent-palette,
-  ),
-  typography: (
-    brand-family: 'Inter, Roboto, "Helvetica Neue", sans-serif',
-    plain-family: 'Inter, Roboto, "Helvetica Neue", sans-serif',
-  ),
-  density: (
-    scale: 0,
-  ),
-));
-
-@include mat.all-component-themes($harmonia-light-theme);
+// If the Angular Material theming functions are available, use them to create
+// official Material palettes and a light theme; otherwise fall back to CSS variables.
+@if meta.function-exists('mat.define-palette') and meta.function-exists('mat.define-light-theme') {
+  $harmonia-primary-palette: mat.define-palette($harmonia-primary-palette-map, 500);
+  $harmonia-accent-palette: mat.define-palette($harmonia-accent-palette-map, 500);
+  $harmonia-light-theme: mat.define-light-theme((
+    color: (
+      primary: $harmonia-primary-palette,
+      accent: $harmonia-accent-palette,
+    ),
+    typography: (
+      brand-family: 'Inter, Roboto, "Helvetica Neue", sans-serif',
+      plain-family: 'Inter, Roboto, "Helvetica Neue", sans-serif',
+    ),
+    density: (
+      scale: 0,
+    ),
+  ));
+  @include mat.all-component-themes($harmonia-light-theme);
+} @else {
+  :root {
+    --harmonia-primary-50: #{colors.$primary-50};
+    --harmonia-primary-100: #{colors.$primary-100};
+    --harmonia-primary-200: #{colors.$primary-200};
+    --harmonia-primary-300: #{colors.$primary-300};
+    --harmonia-primary-400: #{colors.$primary-400};
+    --harmonia-primary-500: #{colors.$primary-500};
+    --harmonia-primary-600: #{colors.$primary-600};
+    --harmonia-primary-700: #{colors.$primary-700};
+    --harmonia-primary-800: #{colors.$primary-800};
+    --harmonia-primary-900: #{colors.$primary-900};
+    --harmonia-primary-contrast-500: #{colors.$primary-contrast-500};
+    --harmonia-accent-500: #{colors.$accent-500};
+  }
+}
 
 // ============================================================================
 // APPLY THEMES

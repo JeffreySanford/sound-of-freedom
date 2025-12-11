@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD-SHELL", "mongo --eval \"db.adminCommand('ping')\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.2
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ollama-mock:
+    build:
+      context: ./apps/ollama/docker
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - LOG_DIR=/var/log/harmonia/ollama-mock
+      - MONGO_LOG_URI=mongodb://mongodb:27017/harmonia
+    volumes:
+      - ./tmp/logs/ollama-mock:/var/log/harmonia/ollama-mock
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:11434/api/tags || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.e2e
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - OLLAMA_URL=${OLLAMA_URL:-http://ollama-mock:11434}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongodb:27017/harmonia}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - LOG_DIR=/var/log/harmonia/api
+      - MONGO_LOG_URI=${MONGO_LOG_URI:-mongodb://mongodb:27017/harmonia}
+    volumes:
+      - ./tmp/logs/api:/var/log/harmonia/api
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Removed invalid root-level env_file property
+    depends_on:
+      - mongodb
+      - redis
+      - ollama-mock
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3000/api/__health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+# Provide local .env to compose to honor user-configured settings, like MONGODB credentials
+    env_file:
+      - .envS
+
+networks:
+  default:
+    driver: bridge

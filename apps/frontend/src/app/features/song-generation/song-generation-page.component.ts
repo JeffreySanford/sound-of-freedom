@@ -1,5 +1,8 @@
+import { LoggerService } from '../../services/logger.service';
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { WebSocketService } from '../../services/websocket.service';
+import { UserSettingsService } from '../../services/user-settings.service';
 import { Store } from '@ngrx/store';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -79,9 +82,12 @@ interface GenreSuggestion {
   styleUrls: ['./song-generation-page.component.scss'],
 })
 export class SongGenerationPageComponent implements OnInit, OnDestroy {
+    private logger = inject(LoggerService);
   private readonly router = inject(Router);
   private readonly store = inject(Store);
   private readonly destroy$ = new Subject<void>();
+  private readonly websocket = inject(WebSocketService);
+  private readonly userSettings = inject(UserSettingsService);
 
   title = 'Song Generation';
 
@@ -96,8 +102,14 @@ export class SongGenerationPageComponent implements OnInit, OnDestroy {
   readonly maxDuration = 120;
 
   // Model options for Ollama (optional)
-  readonly availableModels = ['deepseek-coder:6.7b', 'deepseek', 'minstral3'];
+  // Offer a curated set of three models for user convenience: default, structured, and robust
+  readonly availableModels = ['minstral3', 'deepseek-coder:6.7b', 'mistral:7b'];
   selectedModel: string | undefined = undefined;
+
+  // Generator selection
+  generator: string = 'ollama';
+  useAsync: boolean = false;
+  jen1Options = { lyricsFirst: true, melodyOnly: false };
 
   // UI states
   isApproved = false;
@@ -136,6 +148,13 @@ export class SongGenerationPageComponent implements OnInit, OnDestroy {
       this.duration = formData.duration;
       this.selectedModel = formData.model;
     });
+    const storedGenerator = this.userSettings.getGenerator();
+    if (storedGenerator) this.generator = storedGenerator;
+  }
+
+  setGenerator(value: string): void {
+    this.generator = value;
+    this.userSettings.setGenerator(value);
   }
 
   ngOnDestroy(): void {
@@ -321,6 +340,9 @@ export class SongGenerationPageComponent implements OnInit, OnDestroy {
         narrative: this.narrative,
         duration: this.duration,
         model: this.selectedModel || 'deepseek',
+        generator: this.generator,
+        async: this.useAsync,
+        options: this.generator === 'jen1' ? this.jen1Options : {},
       })
     );
   }
@@ -405,12 +427,7 @@ export class SongGenerationPageComponent implements OnInit, OnDestroy {
    */
   onFeedbackGiven(feedback: 'positive' | 'negative'): void {
     // Store feedback for future improvement
-    console.log(
-      'User feedback:',
-      feedback,
-      'for suggestions:',
-      this.genreSuggestions
-    );
+    this.logger.info('User feedback', { feedback, suggestions: this.genreSuggestions });
 
     // In production, send to backend for analytics
     // this.http.post('/api/feedback/genre-suggestions', { feedback, suggestions: this.genreSuggestions });
@@ -502,7 +519,7 @@ export class SongGenerationPageComponent implements OnInit, OnDestroy {
   onPaletteAccepted(palette: any): void {
     // Store the accepted palette for use in music generation
     this.acceptedPalette = palette;
-    console.log('Palette accepted:', palette);
+    this.logger.info('Palette accepted', { palette });
     // TODO: Store in NGRX state or pass to music generation workflow
   }
 
@@ -510,7 +527,7 @@ export class SongGenerationPageComponent implements OnInit, OnDestroy {
    * Handle palette modifications
    */
   onPaletteModified(modifications: any[]): void {
-    console.log('Palette modified:', modifications);
+    this.logger.info('Palette modified', { modifications });
     // TODO: Update local state or NGRX store with modifications
   }
 }

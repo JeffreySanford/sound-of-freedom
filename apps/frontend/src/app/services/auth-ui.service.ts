@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { LoggerService } from './logger.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { LoginModalComponent } from '../features/auth/login-modal/login-modal.component';
 
@@ -30,6 +31,7 @@ import { LoginModalComponent } from '../features/auth/login-modal/login-modal.co
 })
 export class AuthUiService {
   private dialog = inject(MatDialog);
+  private logger = inject(LoggerService);
 
   /**
    * Open login/register modal dialog
@@ -53,7 +55,7 @@ export class AuthUiService {
     if (dialogRef.componentInstance) {
       dialogRef.componentInstance.mode = mode;
       try {
-        console.log('AuthUiService: opened login modal', { mode });
+        this.logger.info('AuthUiService: opened login modal', { mode });
         (window as any).localStorage.setItem(
           'e2e_login_modal_open',
           Date.now().toString()

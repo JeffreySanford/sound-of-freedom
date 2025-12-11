@@ -3,13 +3,17 @@ import { Router } from '@angular/router';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { App } from './app';
 import { RouterTestingModule } from '@angular/router/testing';
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { appRoutes } from './app.routes';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule.withRoutes(appRoutes)],
+      imports: [RouterTestingModule.withRoutes(appRoutes), StoreModule.forRoot({}), EffectsModule.forRoot([]), HttpClientTestingModule, NoopAnimationsModule],
       declarations: [App],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       providers: [

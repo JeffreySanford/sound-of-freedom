@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { LoggerService } from '../../services/logger.service';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -27,6 +28,7 @@ import { UploadDialogComponent } from './upload-dialog/upload-dialog.component';
 })
 export class LibraryComponent implements OnInit, OnDestroy {
   private readonly store = inject(Store<AppState>);
+  private readonly logger = inject(LoggerService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroy$ = new Subject<void>();
@@ -129,7 +131,7 @@ export class LibraryComponent implements OnInit, OnDestroy {
 
   onItemClick(item: LibraryItem): void {
     // TODO: Open item details or play audio
-    console.log('Item clicked:', item);
+    this.logger.info('Item clicked', { item });
   }
 
   onDeleteItem(item: LibraryItem): void {

@@ -9,6 +9,7 @@ import {
   HttpStatus,
   Delete,
   Param,
+  Logger,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -57,6 +58,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
   constructor(private authService: AuthService) {}
 
   /**
@@ -102,7 +104,7 @@ export class AuthController {
       process.env.NODE_ENV === 'test'
     ) {
       const safe = { email: registerDto.email, username: registerDto.username };
-      console.debug('[AuthController.register] register payload:', safe);
+      this.logger.debug('[AuthController.register] register payload:', safe);
     }
     return this.authService.register(registerDto);
   }
@@ -147,7 +149,7 @@ export class AuthController {
       process.env.NODE_ENV === 'test'
     ) {
       const safe = { emailOrUsername: loginDto.emailOrUsername };
-      console.debug('[AuthController.login] login payload:', safe);
+      this.logger.debug('[AuthController.login] login payload:', safe);
     }
     return this.authService.login(loginDto);
   }

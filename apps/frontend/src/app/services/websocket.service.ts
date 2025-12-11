@@ -11,6 +11,7 @@ import { takeUntil } from 'rxjs/operators';
 import { AppState } from '../store/app.state';
 import { Job, JobStatus, JobProgress } from '../store/jobs/jobs.state';
 import * as JobsActions from '../store/jobs/jobs.actions';
+import { LoggerService } from './logger.service';
 
 export interface JobStatusEvent {
   id: string;
@@ -37,6 +38,7 @@ export interface JobFailedEvent {
 export class WebSocketService {
   private readonly store = inject(Store<AppState>);
   private readonly ngZone = inject(NgZone);
+  private readonly logger = inject(LoggerService);
 
   private socket: Socket | null = null;
   private destroy$ = new Subject<void>();
@@ -56,21 +58,18 @@ export class WebSocketService {
     });
 
     this.socket.on('connect', () => {
-      /* eslint-disable-next-line no-console */
-      console.log('WebSocket connected');
+      this.logger.info('WebSocket connected');
       this.ngZone.run(() => {
         this.store.dispatch(JobsActions.realTimeConnectionEstablished());
       });
     });
 
     this.socket.on('disconnect', (reason) => {
-      /* eslint-disable-next-line no-console */
-      console.log('WebSocket disconnected:', reason);
+      this.logger.info('WebSocket disconnected', { reason });
     });
 
     this.socket.on('connect_error', (error) => {
-      /* eslint-disable-next-line no-console */
-      console.error('WebSocket connection error:', error);
+      this.logger.error('WebSocket connection error', { error: error && error.message ? error.message : error });
       this.ngZone.run(() => {
         this.store.dispatch(
           JobsActions.realTimeConnectionLost({ error: error.message })

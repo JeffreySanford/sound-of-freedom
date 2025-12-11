@@ -1,5 +1,7 @@
 const express = require('express');
 const app = express();
+const { createNodeLogger } = require('../../../tools/logging/node-logger');
+const logger = createNodeLogger({ serviceName: 'muscgen', logDir: process.env.LOG_DIR || 'tmp/logs/muscgen' });
 const port = process.env.PORT || 4002;
 
 app.get('/', (req, res) => {
@@ -8,4 +10,4 @@ app.get('/', (req, res) => {
 
 app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
 
-app.listen(port, () => console.log(`muscgen listening on ${port}`));
+app.listen(port, () => logger.info(`muscgen listening on ${port}`));

@@ -1,0 +1,17 @@
+# Use slim to keep development small; for GPU use a CUDA-capable base or a PyTorch binary
+FROM python:3.11-slim
+# Use this Dockerfile if you plan to run PyTorch/CUDA-based models in jen1.
+# For GPU-enabled images, use official nvidia/cuda base images and install appropriate dependencies.
+
+WORKDIR /app
+COPY apps/jen1/requirements.txt ./
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && pip install --no-cache-dir -r requirements.txt \
+    && apt-get purge -y --auto-remove build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY apps/jen1 /app
+EXPOSE 4001
+CMD ["uvicorn", "src.server:app", "--host", "0.0.0.0", "--port", "4001"]

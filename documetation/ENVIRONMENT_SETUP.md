@@ -45,13 +45,47 @@ node tools/scripts/start-all-docker.js --include=frontend
 pnpm start:env -- --include=frontend
 ```
 
+### Debug mode and compose file override
+
+You can enable API request/response debug logs by passing `--debug`. This sets
+`API_DEBUG_COMMANDS=1` for both local `nx` serves and the docker compose runs:
+
+```bash
+node tools/scripts/start-all-docker.js --include=frontend,api --debug
+```
+
+If you want to override the compose file the script uses, pass `--compose-file`:
+
+```bash
+node tools/scripts/start-all-docker.js \
+  --compose-file=docker-compose.dev.yml \
+  --debug
+```
+
+When using `--debug` the script creates a temporary `.env.debug` file and passes
+it to `docker compose` so your container can read `API_DEBUG_COMMANDS` from the
+compose-defined env fields.
+
+To force the API startup to require Ollama and fail if unavailable, pass `--require-ollama` to the script or define `REQUIRE_OLLAMA=1` in your environment. Example:
+
+```bash
+node tools/scripts/start-all-docker.js --require-ollama
+```
+
+### Requiring Ollama
+
+If you want to fail the API startup when Ollama is not available, set `REQUIRE_OLLAMA=1` in your `.env`/compose envs.
+This is useful in production where the Ollama dependency is mandatory:
+
+```bash
+REQUIRE_OLLAMA=1 node tools/scripts/start-all-docker.js --compose-file=docker-compose.yml --debug
+```
+
+If `REQUIRE_OLLAMA` is not set, the API will start and fall back to sample metadata whenever Ollama is unavailable.
+
 > Note: `--` is used to forward flags to the underlying node script when invoked through `pnpm`.
 
 ## Health checks
-
-- Frontend exposes a static `assets/health.html` available at `/assets/health.html` (used by docker compose health check).
-- API provides `GET /__health`.
-- Orchestrator and other services expose `/health` endpoints.
 
 ## Troubleshooting and tips
 

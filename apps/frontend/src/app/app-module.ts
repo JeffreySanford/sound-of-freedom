@@ -12,6 +12,7 @@ import { appRoutes } from './app.routes';
 import { AppMaterialModule } from './app-material.module';
 import { AuthModule } from './features/auth/auth.module';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { LoggingInterceptor } from './interceptors/logging.interceptor';
 
 // Reducers
 import { authReducer } from './store/auth/auth.reducer';
@@ -85,6 +86,11 @@ import { ProfileEffects } from './store/profile/profile.effects';
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: LoggingInterceptor,
       multi: true,
     },
   ],

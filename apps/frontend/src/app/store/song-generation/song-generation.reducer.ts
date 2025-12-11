@@ -10,6 +10,8 @@ import {
   generateMetadata,
   generateMetadataSuccess,
   generateMetadataFailure,
+  enqueueJobSuccess,
+  enqueueJobFailure,
   generateSong,
   generateSongSuccess,
   generateSongFailure,
@@ -72,6 +74,28 @@ export const songGenerationReducer = createReducer(
       stage: 'error',
       progress: 0,
       message: `Failed to generate metadata: ${error}`,
+    } as GenerationProgress,
+  })),
+
+  on(enqueueJobSuccess, (state: SongGenerationState, { jobId }: { jobId: string }) => ({
+    ...state,
+    loading: false,
+    lastJobId: jobId,
+    progress: {
+      stage: 'generating-metadata',
+      progress: 0,
+      message: 'Job queued',
+    } as GenerationProgress,
+  })),
+
+  on(enqueueJobFailure, (state: SongGenerationState, { error }: { error: string }) => ({
+    ...state,
+    loading: false,
+    error,
+    progress: {
+      stage: 'error',
+      progress: 0,
+      message: `Failed to enqueue job: ${error}`,
     } as GenerationProgress,
   })),
 

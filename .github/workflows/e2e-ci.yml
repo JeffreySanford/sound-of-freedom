@@ -1,0 +1,58 @@
+name: E2E CI (Docker)
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      # Ensure NODE_ENV=test so the API test cleanup endpoints are allowed
+      NODE_ENV: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: corepack enable && corepack prepare pnpm@8.7.0 --activate
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run containerized E2E (with debug logs)
+        id: run_e2e
+        run: |
+          # Run with --debug to ensure logs are captured into tmp/e2e
+          # Pass compose file explicitly so workflow can control which compose config is used
+          pnpm test:e2e:ci:debug -- --compose-file=docker-compose.e2e.yml || echo "E2E_FAILED=1" > /tmp/e2e_failed
+        # Allow the step to "fail" logically so we always run the upload step next
+        continue-on-error: true
+
+      - name: Collect docker-compose logs (fallback)
+        if: always()
+        run: |
+          mkdir -p tmp/e2e
+          docker compose -f docker-compose.e2e.yml logs --no-color > tmp/e2e/docker-compose.logs || true
+          docker ps -a --format '{{.Names}}' | xargs -r -n1 -I {} sh -c 'docker logs {} > tmp/e2e/docker-logs-{} 2>&1 || true'
+
+      - name: Upload E2E logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-logs
+          path: tmp/e2e/**
+
+      - name: Fail if E2E step failed
+        if: steps.run_e2e.outcome != 'success'
+        run: |
+          echo "E2E tests failed. See uploaded artifacts for logs."
+          exit 1

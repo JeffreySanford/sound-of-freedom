@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as path from 'path';
 import * as fs from 'fs';
 import { Observable, from } from 'rxjs';
@@ -25,6 +25,7 @@ export interface StemExportResult {
 
 @Injectable()
 export class StemExportService {
+  private readonly logger = new Logger(StemExportService.name);
   constructor(private readonly instrumentCatalog: InstrumentCatalogService) {}
   /**
    * Export per-instrument stems in the specified format
@@ -154,10 +155,7 @@ export class StemExportService {
     try {
       return await this.generateMusicGenAudio(instrument);
     } catch (error) {
-      console.warn(
-        `MusicGen generation failed for ${instrument}, using basic instrument audio:`,
-        error
-      );
+      this.logger.warn(`MusicGen generation failed for ${instrument}, using basic instrument audio:`, error);
       return this.generateBasicInstrumentAudio(instrument);
     }
   }
@@ -167,9 +165,7 @@ export class StemExportService {
    */
   private generateMusicGenAudio(instrument: string): Promise<Buffer> {
     // Call the MusicGen Docker container to generate real audio
-    console.log(
-      `Generating audio for ${instrument} using MusicGen Docker container...`
-    );
+    this.logger.log(`Generating audio for ${instrument} using MusicGen Docker container...`);
 
     const { spawn } = require('child_process');
     const outputPath = `/tmp/${instrument.replace(/[^a-zA-Z0-9]/g, '_')}.wav`;
@@ -210,7 +206,7 @@ export class StemExportService {
       dockerCmd.stdout.on('data', (data: Buffer) => {
         const dataStr = data.toString();
         stdout += dataStr;
-        console.log(`MusicGen stdout: ${dataStr.trim()}`);
+        this.logger.debug(`MusicGen stdout: ${dataStr.trim()}`);
 
         // Write to debug log file
         fs.appendFileSync(
@@ -222,7 +218,7 @@ export class StemExportService {
       dockerCmd.stderr.on('data', (data: Buffer) => {
         const dataStr = data.toString();
         stderr += dataStr;
-        console.error(`MusicGen stderr: ${dataStr.trim()}`);
+        this.logger.error(`MusicGen stderr: ${dataStr.trim()}`);
 
         // Write to debug log file
         fs.appendFileSync(
@@ -234,10 +230,10 @@ export class StemExportService {
       dockerCmd.on('close', (code: number | null) => {
         const logMessage = `[${new Date().toISOString()}] PROCESS EXIT: code=${code}\n`;
         fs.appendFileSync(debugLogPath, logMessage);
-        console.log(`MusicGen process exited with code: ${code}`);
+        this.logger.log(`MusicGen process exited with code: ${code}`);
 
         if (code === 0) {
-          console.log(`MusicGen generation successful for ${instrument}`);
+          this.logger.log(`MusicGen generation successful for ${instrument}`);
           // Read the generated file from the container
           const { spawn: spawn2 } = require('child_process');
           const catCmd = spawn2(
@@ -258,13 +254,11 @@ export class StemExportService {
             fs.appendFileSync(debugLogPath, catLogMessage);
 
             if (catCode === 0 && audioBuffer.length > 0) {
-              console.log(
-                `Successfully read ${audioBuffer.length} bytes of audio data for ${instrument}`
-              );
+              this.logger.log(`Successfully read ${audioBuffer.length} bytes of audio data for ${instrument}`);
               resolve(audioBuffer);
             } else {
               const errorMsg = `Failed to read generated audio file (cat exit code: ${catCode}, buffer size: ${audioBuffer.length})`;
-              console.warn(errorMsg);
+              this.logger.warn(errorMsg);
               fs.appendFileSync(
                 debugLogPath,
                 `[${new Date().toISOString()}] ERROR: ${errorMsg}\n`
@@ -275,7 +269,7 @@ export class StemExportService {
 
           catCmd.stderr.on('data', (data: Buffer) => {
             const errorData = data.toString();
-            console.error(`Cat stderr: ${errorData}`);
+            this.logger.error(`Cat stderr: ${errorData}`);
             fs.appendFileSync(
               debugLogPath,
               `[${new Date().toISOString()}] CAT STDERR: ${errorData}`
@@ -283,9 +277,7 @@ export class StemExportService {
           });
         } else {
           const errorMsg = `MusicGen generation failed with code ${code}`;
-          console.warn(
-            `${errorMsg}, using basic instrument audio. Stderr: ${stderr}`
-          );
+          this.logger.warn(`${errorMsg}, using basic instrument audio. Stderr: ${stderr}`);
           fs.appendFileSync(
             debugLogPath,
             `[${new Date().toISOString()}] ERROR: ${errorMsg}\nSTDERR: ${stderr}\n`
@@ -296,7 +288,7 @@ export class StemExportService {
 
       dockerCmd.on('error', (error: Error) => {
         const errorMsg = `Failed to start MusicGen Docker command: ${error.message}`;
-        console.error(errorMsg);
+        this.logger.error(errorMsg);
         fs.appendFileSync(
           debugLogPath,
           `[${new Date().toISOString()}] FATAL ERROR: ${errorMsg}\n`

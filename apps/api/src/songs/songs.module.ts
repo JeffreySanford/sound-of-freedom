@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { JobsModule } from '../jobs/jobs.module';
 import { OllamaService } from '../llm/ollama.service';
+import { OrchestratorService } from '../orchestrator/orchestrator.service';
 import { SongsController } from './songs.controller';
 import { MmslParserService } from './mmsl-parser.service';
 import { StemExportService } from './stem-export.service';
@@ -10,10 +12,11 @@ import { LyricAnalysisService } from './lyric-analysis.service';
 import { PaletteSuggestionService } from './palette-suggestion.service';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, JobsModule],
   controllers: [SongsController],
   providers: [
     OllamaService,
+    OrchestratorService,
     MmslParserService,
     StemExportService,
     SongDslParserService,
@@ -23,6 +26,7 @@ import { PaletteSuggestionService } from './palette-suggestion.service';
   ],
   exports: [
     OllamaService,
+    OrchestratorService,
     MmslParserService,
     StemExportService,
     SongDslParserService,

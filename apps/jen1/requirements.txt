@@ -1,0 +1,5 @@
+fastapi==0.100.0
+uvicorn[standard]==0.22.0
+pydantic==2.5.1
+# Optional dependencies for model runtimes (not installed by default in PoC)
+# For GPU builds, use the GPU-specific requirements file (requirements.gpu.txt)

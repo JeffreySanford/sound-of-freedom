@@ -1,8 +1,8 @@
 {
-  "version": "0.1.0",
+  "version": "1.0.0",
   "generated_at": "2025-12-09T00:00:00Z",
   "description": "Minimal sample instrument catalog",
-  "categories": ["keys", "synth", "drums"],
+  "categories": ["keys", "synth", "drums", "strings", "percussion", "brass"],
   "instruments": [
     {
       "id": "piano",
@@ -23,6 +23,26 @@
       "sample_references": [],
       "polyphony_limit": 8,
       "range": "C2-C6"
+    },
+    {
+      "id": "guitar_acoustic",
+      "name": "Acoustic Guitar",
+      "category": "strings",
+      "presets": ["strum", "fingerpicking"],
+      "fallback_rules": [],
+      "sample_references": [],
+      "polyphony_limit": 6,
+      "range": "E2-E6"
+    },
+    {
+      "id": "violin",
+      "name": "Violin",
+      "category": "strings",
+      "presets": ["solo", "legato"],
+      "fallback_rules": [],
+      "sample_references": [],
+      "polyphony_limit": 1,
+      "range": "G3-A7"
     }
   ]
 }

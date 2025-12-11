@@ -1,7 +1,6 @@
 # Ollama Integration Guide
 
-**Version**: 2.0 **Last Updated**: December 4, 2025 **Status**: Active **Models**: deepseek-coder:6.7b (current),
-minstral3 (upcoming)
+**Version**: 2.3 **Last Updated**: today **Status**: Active **Models**: minstral3 (preferred), deepseek-coder:6.7b, mistral:7b
 
 ## Overview
 
@@ -24,8 +23,19 @@ handling, and production-ready guardrails.
 
 Ollama enables side-by-side model execution with per-request switching:
 
-- **deepseek-coder:6.7b**: Current production model for structured JSON generation
-- **minstral3**: Upcoming model for enhanced quality and consistency
+Recommended models for dev and testing (choose one):
+
+- **minstral3** — Preferred default for lyric quality and JSON instruction-following (new preference, recommend using this model if available).
+- **deepseek-coder:6.7b** — Strong structural JSON output and schema compliance; often used for initial drafts.
+- **mistral:7b** — Robust larger model for improved contextual reasoning when available.
+
+Note: The example compose and mock advertise these models, but to use them in a real Ollama container you must pull them (e.g., `ollama pull minstral3` or
+`ollama pull mistral:7b`) or provide a prebuilt image that already has the models installed.
+Optional auto-pull on startup
+
+- For convenience in dev, the `apps/ollama/entrypoint.sh` supports an optional auto-pull step controlled by `OLLAMA_AUTO_PULL=1` and `OLLAMA_PULL_MODELS`
+(comma-separated). This will attempt `ollama pull <model>` for each model listed when the container starts (only if the Ollama binary is present in `/opt/ollama/bin`).
+Use with care (it downloads large models).
 - **Model Registry**: Response mappers normalize outputs across different models
 
 ## Models
@@ -138,8 +148,8 @@ interface GenerateAnnotationsResponse {
 ### Environment Variables
 
 ```bash
-OLLAMA_URL=http://localhost:11434     # Ollama server URL
-OLLAMA_MODEL=deepseek-coder:6.7b      # Default model
+OLLAMA_URL=http://ollama:11434     # Ollama server URL (use the compose service name when running via Docker compose)
+OLLAMA_MODEL=minstral3      # Default model
 USE_OLLAMA=true                       # Enable/disable AI features
 ```
 
@@ -173,7 +183,30 @@ SYSTEM "You are a creative songwriter specializing in structured lyrics."
 3. **Pull Models**: `ollama pull deepseek-coder:6.7b`
 4. **Verify**: `curl http://localhost:11434/api/models`
 
-### Start via Nx infra
+### Start via Docker Compose (recommended for dev)
+
+We provide a `docker-compose.dev.example.yml` that includes an `ollama` service and a lightweight `ollama-mock` build that can be used when an official Ollama
+binary/image is not available (e.g., in CI or contributor machines without GPUs).
+Example usage:
+
+```bash
+# Use the real Ollama image (if available and desired)
+docker compose -f docker-compose.dev.example.yml up -d ollama
+
+# Or run the mock (CI-friendly, no GPU required):
+docker compose -f docker-compose.dev.example.yml up -d ollama-mock
+
+# Check health
+curl -fsS http://localhost:11434/api/tags   # real image
+curl -fsS http://localhost:11435/api/tags   # mock (ports differ in example)
+```
+
+We also provide convenience scripts in `scripts/docker/`:
+
+- `start-ollama-only.sh` — starts `ollama` via the example compose and waits for `/api/tags` to respond
+- `check-ollama.sh` — simple curl-based checker
+
+In CI we use the `ollama-mock` to avoid requiring a GPU or a proprietary binary; local development should prefer the real image when you have appropriate resources.
 
 You can start a local Ollama server via the Nx-managed infra which includes an `ollama` service in Docker compose:
 

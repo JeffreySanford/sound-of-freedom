@@ -4,6 +4,7 @@
  */
 
 import { Injectable, inject, NgZone } from '@angular/core';
+import { LoggerService } from '../../services/logger.service';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
@@ -17,6 +18,7 @@ export class AuthEffects {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly ngZone = inject(NgZone);
+  private readonly logger = inject(LoggerService);
 
   login$ = createEffect(
     () =>
@@ -64,18 +66,11 @@ export class AuthEffects {
           // Emit debug logs in development/test to help e2e debugging
           if (typeof window !== 'undefined') {
             try {
-              const tokenInfo = token
-                ? `${token.slice(0, 8)}...(${token.length})`
-                : null;
-              const refreshTokenInfo = refreshToken
-                ? `${refreshToken.slice(0, 8)}...(${refreshToken.length})`
-                : null;
-              console.debug('[AuthEffects.loginSuccess] tokens:', {
-                token: tokenInfo,
-                refreshToken: refreshTokenInfo,
-              });
+              const tokenInfo = token ? `${token.slice(0, 8)}...(${token.length})` : null;
+              const refreshTokenInfo = refreshToken ? `${refreshToken.slice(0, 8)}...(${refreshToken.length})` : null;
+              this.logger.debug('[AuthEffects.loginSuccess] tokens:', { token: tokenInfo, refreshToken: refreshTokenInfo });
             } catch {
-              // no-op for loggiP$sjkfhasdjfng
+              // no-op
             }
           }
           try {
@@ -94,19 +89,11 @@ export class AuthEffects {
           // Confirm saved tokens exist in localStorage (for debug)
           if (typeof window !== 'undefined') {
             try {
-              const savedToken = (window as any).localStorage.getItem(
-                'auth_token'
-              );
-              const savedRefresh = (window as any).localStorage.getItem(
-                'refresh_token'
-              );
-              console.debug('[AuthEffects.loginSuccess] saved tokens exist:', {
-                savedToken: savedToken
-                  ? `${savedToken.slice(0, 8)}...(${savedToken.length})`
-                  : null,
-                savedRefresh: savedRefresh
-                  ? `${savedRefresh.slice(0, 8)}...(${savedRefresh.length})`
-                  : null,
+              const savedToken = (window as any).localStorage.getItem('auth_token');
+              const savedRefresh = (window as any).localStorage.getItem('refresh_token');
+              this.logger.debug('[AuthEffects.loginSuccess] saved tokens exist:', {
+                savedToken: savedToken ? `${savedToken.slice(0, 8)}...(${savedToken.length})` : null,
+                savedRefresh: savedRefresh ? `${savedRefresh.slice(0, 8)}...(${savedRefresh.length})` : null,
               });
             } catch {
               // ignore
@@ -172,16 +159,9 @@ export class AuthEffects {
         tap(({ token, refreshToken }) => {
           if (typeof window !== 'undefined') {
             try {
-              const tokenInfo = token
-                ? `${token.slice(0, 8)}...(${token.length})`
-                : null;
-              const refreshTokenInfo = refreshToken
-                ? `${refreshToken.slice(0, 8)}...(${refreshToken.length})`
-                : null;
-              console.debug('[AuthEffects.registerSuccess] tokens:', {
-                token: tokenInfo,
-                refreshToken: refreshTokenInfo,
-              });
+              const tokenInfo = token ? `${token.slice(0, 8)}...(${token.length})` : null;
+              const refreshTokenInfo = refreshToken ? `${refreshToken.slice(0, 8)}...(${refreshToken.length})` : null;
+              this.logger.debug('[AuthEffects.registerSuccess] tokens:', { token: tokenInfo, refreshToken: refreshTokenInfo });
             } catch {
               // no-op
             }
@@ -202,23 +182,12 @@ export class AuthEffects {
           // Confirm saved tokens exist in localStorage (for debug)
           if (typeof window !== 'undefined') {
             try {
-              const savedToken = (window as any).localStorage.getItem(
-                'auth_token'
-              );
-              const savedRefresh = (window as any).localStorage.getItem(
-                'refresh_token'
-              );
-              console.debug(
-                '[AuthEffects.registerSuccess] saved tokens exist:',
-                {
-                  savedToken: savedToken
-                    ? `${savedToken.slice(0, 8)}...(${savedToken.length})`
-                    : null,
-                  savedRefresh: savedRefresh
-                    ? `${savedRefresh.slice(0, 8)}...(${savedRefresh.length})`
-                    : null,
-                }
-              );
+              const savedToken = (window as any).localStorage.getItem('auth_token');
+              const savedRefresh = (window as any).localStorage.getItem('refresh_token');
+              this.logger.debug('[AuthEffects.registerSuccess] saved tokens exist:', {
+                savedToken: savedToken ? `${savedToken.slice(0, 8)}...(${savedToken.length})` : null,
+                savedRefresh: savedRefresh ? `${savedRefresh.slice(0, 8)}...(${savedRefresh.length})` : null,
+              });
             } catch {
               // ignore
             }

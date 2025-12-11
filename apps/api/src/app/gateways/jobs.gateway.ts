@@ -12,7 +12,12 @@ import {
   OnGatewayDisconnect,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { JwtService } from '@nestjs/jwt';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User, UserDocument } from '../../schemas/user.schema';
 import { Server, Socket } from 'socket.io';
+import { JobsService } from '../../jobs/jobs.service';
 import { Logger } from '@nestjs/common';
 
 interface JobSubscribePayload {
@@ -57,8 +62,14 @@ export class JobsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(JobsGateway.name);
   private userSockets = new Map<string, Socket>();
 
-  handleConnection(client: Socket): void {
-    const token = client.handshake.auth.token;
+  constructor(
+    private readonly jwtService: JwtService,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private readonly jobsService: JobsService,
+  ) {}
+
+  async handleConnection(client: Socket): Promise<void> {
+    const token = client.handshake.auth?.token;
 
     if (!token) {
       this.logger.warn(`Client ${client.id} connected without token`);
@@ -66,18 +77,31 @@ export class JobsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
 
-    // TODO: Validate JWT token and extract userId
-    // For now, using a mock userId
-    const userId = this.extractUserIdFromToken(token);
+    try {
+      const payload: any = this.jwtService.verify(token);
+      const userId = payload?.sub;
+      if (!userId) {
+        this.logger.warn(`Client ${client.id} token missing subject`);
+        client.disconnect();
+        return;
+      }
 
-    if (!userId) {
-      this.logger.warn(`Client ${client.id} has invalid token`);
+      // Validate user session / presence
+      const user = await this.userModel.findById(userId).lean();
+      if (!user) {
+        this.logger.warn(`Client ${client.id} has invalid user in token: ${userId}`);
+        client.disconnect();
+        return;
+      }
+
+      this.userSockets.set(userId, client);
+      this.logger.log(`Client ${client.id} connected (user: ${userId})`);
+    } catch (err: any) {
+      const message = (err && (err as any).message) || String(err);
+      this.logger.warn(`Invalid token for client ${client.id}: ${message}`);
       client.disconnect();
       return;
     }
-
-    this.userSockets.set(userId, client);
-    this.logger.log(`Client ${client.id} connected (user: ${userId})`);
   }
 
   handleDisconnect(client: Socket): void {
@@ -97,6 +121,32 @@ export class JobsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket
   ): void {
     const room = `job:${data.jobId}`;
+    // optional: ensure client is job owner (or admin) before joining
+    try {
+      const token = client.handshake.auth?.token;
+      const userId = this.extractUserIdFromToken(token);
+      if (userId) {
+        this.jobsService.findJobById(data.jobId).then((job) => {
+          if (!job) {
+            client.emit('job:error', { message: 'Job not found' });
+            return;
+          }
+          if (job.userId && job.userId !== userId) {
+            client.emit('job:error', { message: 'Unauthorized to subscribe to this job' });
+            return;
+          }
+          client.join(room);
+          this.logger.log(`Client ${client.id} subscribed to job ${data.jobId}`);
+        }).catch((err: any) => {
+          const msg = (err && err.message) || String(err);
+          this.logger.warn(`Error lookup job ${data.jobId}: ${msg}`);
+          client.emit('job:error', { message: 'Error looking up job' });
+        });
+        return;
+      }
+    } catch (err) {
+      // fallback to join
+    }
     client.join(room);
     this.logger.log(
       `Client ${client.id} subscribed to job ${data.jobId}`
@@ -117,7 +167,7 @@ export class JobsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('jobs:subscribe:user')
   handleSubscribeToUserJobs(@ConnectedSocket() client: Socket): void {
-    const token = client.handshake.auth.token;
+    const token = client.handshake.auth?.token;
     const userId = this.extractUserIdFromToken(token);
 
     if (userId) {
@@ -129,7 +179,7 @@ export class JobsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('jobs:unsubscribe:user')
   handleUnsubscribeFromUserJobs(@ConnectedSocket() client: Socket): void {
-    const token = client.handshake.auth.token;
+    const token = client.handshake.auth?.token;
     const userId = this.extractUserIdFromToken(token);
 
     if (userId) {
@@ -192,9 +242,15 @@ export class JobsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   // Helper method to extract userId from JWT token
-  private extractUserIdFromToken(_token: string): string | null {
-    // TODO: Implement proper JWT validation
-    // For now, return a mock userId
-    return 'mock-user-id';
+  private extractUserIdFromToken(token: string): string | null {
+    if (!token) return null;
+    try {
+      const payload: any = this.jwtService.verify(token);
+      return payload?.sub || null;
+    } catch (err: any) {
+      const message = (err && err.message) || String(err);
+      this.logger.warn(`Failed to extract userId from token: ${message}`);
+      return null;
+    }
   }
 }

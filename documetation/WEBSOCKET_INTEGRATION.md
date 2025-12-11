@@ -391,6 +391,17 @@ export class GenerationProgressComponent implements OnInit, OnDestroy {
 
 ## Backend Implementation
 
+### Authentication and security
+
+The backend requires a valid JWT token in the socket handshake to authenticate and authorize the client. The client should pass the token in the `auth` field:
+
+```ts
+const socket = io('http://localhost:3000', { auth: { token: 'Bearer <token>' } });
+```
+
+On the server side, the gateway uses `JwtService.verify(token)` to decode and validate the JWT and will disconnect the client if the token is invalid or the user
+cannot be found. For job subscriptions, the server validates that the authenticated user matches the job owner (or is an admin).
+
 ### Song Generation Gateway
 
 ```typescript

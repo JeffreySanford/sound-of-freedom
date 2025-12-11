@@ -104,6 +104,21 @@ Open browser to:
 - **Frontend**: [http://localhost:4200](http://localhost:4200)
 - **Backend API**: [http://localhost:3000/api/health](http://localhost:3000/api/health)
 
+### Enable API Debug Logs
+
+To enable request/response logging for the API in development, use the `--debug`
+flag when running the start script; this will set `API_DEBUG_COMMANDS=1` for
+local dev servers and Docker compose runs:
+
+```bash
+node tools/scripts/start-all-docker.js --include=frontend,api --debug
+```
+
+If you use a custom compose file, pass it via `--compose-file`, for example
+`--compose-file=docker-compose.dev.yml`. The script creates a temporary
+`.env.debug` file and passes it to `docker compose`, so ensure your compose
+exposes `API_DEBUG_COMMANDS` as an environment variable for the `api` service.
+
 ## Detailed Setup
 
 ### Python Setup (For ML Development)
@@ -309,7 +324,8 @@ JWT_SECRET=your_jwt_secret
 API_BASE_URL=http://localhost:3000/api
 
 # AI/ML (Optional)
-OLLAMA_URL=http://localhost:11434
+// When running via Docker Compose, prefer the compose service name 'ollama'
+OLLAMA_URL=http://ollama:11434
 USE_OLLAMA=true
 ```
 

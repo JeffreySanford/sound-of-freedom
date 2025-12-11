@@ -5,6 +5,7 @@ Small helper scripts to simplify local development with Docker Compose for the s
 ## Scripts
 
 - `compose-up.sh` — Start the stack.
+  - `start-ollama-only.sh` — Start the Ollama service only and check for availability.
 - `compose-down.sh` — Stop the stack via `docker compose down`.
 - `compose-cleanup.sh` — Remove local containers and images created by the stack (use with caution).
 
@@ -31,4 +32,5 @@ export OLLAMA_HOST_MAPPING=11434:11434
 ## Notes
 
 - `compose-up.sh` runs `compose-cleanup.sh` by default; set `SKIP_CLEANUP=1` to skip.
+  - When using the example compose `docker-compose.dev.example.yml`, prefer the `start-ollama-only.sh` for test-only Ollama startup.
 - If a non-docker process binds the chosen host port, `compose-up.sh` will abort and print process info so you can free the port.

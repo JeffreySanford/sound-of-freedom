@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7.2
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ollama:
+    # By default try to run the OSS or official container. If you prefer to run a local
+    # binary-mount or a different image, override via environment or compose file used.
+    image: ollama/ollama:latest
+    # or build: ./apps/ollama/docker
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_MODEL=minstral3
+      - OLLAMA_AUTO_PULL=0    # Set to 1 if you want the container to try to pull models on startup
+      - OLLAMA_PULL_MODELS=minstral3,deepseek-coder:6.7b,mistral:7b
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:11434/api/tags || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ollama-mock:
+    build:
+      context: ./apps/ollama/docker
+    ports:
+      - "11435:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:11434/api/tags || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  jen1:
+    build:
+      context: ./apps/jen1
+      dockerfile: Dockerfile.gpu
+    ports:
+      - "4001:4001"
+
+  orchestrator:
+    build:
+      context: ./apps/orchestrator
+    ports:
+      - "4000:4000"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - JEN1_URL=http://jen1:4001
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_AUTO_PULL=0
+      - OLLAMA_PULL_MODELS=minstral3,deepseek-coder:6.7b,mistral:7b
+      - OLLAMA_MODEL=minstral3
+
+  # Optional: include api and frontend here for full docker compose dev workflow
+  # api:
+  #   build:
+  #     context: ./apps/api
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - MONGODB_URI=mongodb://mongodb:27017/harmonia
+  #     - REDIS_URL=redis://redis:6379
+  #     - OLLAMA_URL=http://ollama:11434
+  #     - OLLAMA_MODEL=mistral3:6.5b
+  # frontend:
+  #   build:
+  #     context: ./apps/frontend
+  #   ports:
+  #     - "4200:4200"
+
+# Add networks or volumes as needed
+networks:
+  default:
+    driver: bridge

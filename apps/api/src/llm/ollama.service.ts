@@ -36,61 +36,184 @@ export interface GeneratedSong {
 @Injectable()
 export class OllamaService implements OnModuleInit {
   private readonly logger = new Logger(OllamaService.name);
+  private available = false;
+  private availableModels: string[] = [];
+  private requireOllama: boolean;
   constructor(
     private readonly configService: ConfigService,
     private readonly lyricAnalysis: LyricAnalysisService
   ) {}
 
+  // After construction we can initialize runtime-configured fields
+  private initRuntime() {
+    this.requireOllama = !!this.configService.get('REQUIRE_OLLAMA');
+  }
+
   async onModuleInit() {
+    this.initRuntime();
     // Check if Ollama is available during startup
     // Force restart trigger
-    try {
-      this.logger.log(`Checking Ollama availability at ${this.ollamaUrl}...`);
-      const response = await axios.get(`${this.ollamaUrl}/api/tags`, {
-        timeout: 5000,
-      });
-      const models = response.data?.models || [];
-      const availableModels = models.map((m: any) => m.name);
-      this.logger.log(
-        `Ollama is available with models: ${availableModels.join(', ')}`
-      );
-
-      // Check if our configured model is available
-      if (!availableModels.includes(this.model)) {
-        this.logger.warn(
-          `Configured model '${
-            this.model
-          }' not found in available models: ${availableModels.join(', ')}`
+    const maxAttempts = 3;
+    let attempt = 0;
+    while (attempt < maxAttempts) {
+      attempt++;
+      try {
+        this.logger.log(`Checking Ollama availability at ${this.ollamaUrl}...`);
+        const response = await axios.get(`${this.ollamaUrl}/api/tags`, {
+          timeout: 5000,
+        });
+        const models = response.data?.models || [];
+        this.availableModels = models.map((m: any) => m.name).filter(Boolean);
+        const availableModels = models.map((m: any) => m.name);
+        this.logger.log(
+          `Ollama is available with models: ${availableModels.join(', ')}`
         );
+        this.available = true;
+
+        // Check if our configured model is available
+        if (!availableModels.includes(this.model)) {
+          this.logger.warn(
+            `Configured model '${this.model}' not found in available models: ${availableModels.join(', ')}`
+          );
+          this.logger.warn('Song generation will fall back to sample metadata');
+          this.logger.warn(`Check your OLLAMA_URL and docker compose setup; expected Ollama at ${this.ollamaUrl}`);
+        }
+        break; // success
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        // For clarity in logs: reduce the noise for intermediate attempts; only
+        // emit a warn or error at the final attempt. Keep `requireOllama` behavior.
+        if (attempt < maxAttempts) {
+          // Debug-level log for transient connectivity issues
+          this.logger.debug(
+            `Ollama connectivity attempt ${attempt}/${maxAttempts} failed at ${this.ollamaUrl}: ${errorMessage}`
+          );
+        } else {
+          // final attempt - surface warning or error depending on requireOllama
+          const logMsg = `Ollama is not available at ${this.ollamaUrl} (attempt ${attempt}/${maxAttempts}): ${errorMessage}`;
+          if (this.requireOllama) {
+            this.logger.error(logMsg);
+          } else {
+            this.logger.warn(logMsg);
+          }
+        }
+        if (attempt < maxAttempts) {
+          // small backoff
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise((res) => setTimeout(res, 2000));
+          continue;
+        }
+        // we've exhausted attempts; mark as unavailable and possibly abort
+        this.available = false;
         this.logger.warn('Song generation will fall back to sample metadata');
+        if (this.requireOllama) {
+          throw new Error(`Ollama is required but unavailable at ${this.ollamaUrl}. Startup halted.`);
+        }
       }
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      this.logger.error(
-        `Ollama is not available at ${this.ollamaUrl}: ${errorMessage}`
-      );
-      this.logger.warn('Song generation will fall back to sample metadata');
-      // Don't throw error - allow app to start with degraded functionality
+    }
+  }
+
+  async probe(): Promise<{ ok: boolean; url: string; message?: string }> {
+    const url = this.ollamaUrl;
+    try {
+      const resp = await axios.get(`${url}/api/tags`, { timeout: 4000 });
+      this.availableModels = resp.data?.models?.map((m: any) => m.name).filter(Boolean) || [];
+      if (resp && resp.data) return { ok: true, url, message: 'OK' };
+      return { ok: false, url, message: 'No data' };
+    } catch (err: any) {
+      const msg = err instanceof Error ? err.message : String(err);
+      return { ok: false, url, message: msg };
     }
   }
 
   private get ollamaUrl(): string {
+    // In Docker compose, the Ollama container is reachable at 'http://ollama:11434'
     return (
-      this.configService.get<string>('OLLAMA_URL') || 'http://localhost:11434'
+      this.configService.get<string>('OLLAMA_URL') || 'http://ollama:11434'
     );
   }
 
   private get model(): string {
+    // Prefer a model that is likely installed in dev infra. Default to 'mistral:7b'
     return this.configService.get<string>('OLLAMA_MODEL') || 'mistral:7b';
+  }
+
+  private get fallbackModel(): string {
+    // If a fallback model is not explicitly configured, prefer the robust Mistral 7B model
+    return this.configService.get<string>('OLLAMA_FALLBACK_MODEL') || 'mistral:7b';
+  }
+
+  /**
+   * Choose the best available model from a preferred list. Falls back to fallbackModel.
+   */
+  private chooseAvailableModel(preferred?: string): string {
+    const prefs = [] as string[];
+    if (preferred) prefs.push(preferred);
+    // repository-preferred order
+    prefs.push('mistral:7b');
+    prefs.push('deepseek-coder:6.7b');
+    prefs.push('minstral3');
+    prefs.push(this.fallbackModel);
+    for (const p of prefs) {
+      if (this.isModelAvailable(p)) return p;
+    }
+    return this.fallbackModel;
+  }
+
+  private isModelAvailable(model: string): boolean {
+    if (!model) return false;
+    const lower = model.toLowerCase();
+    for (const m of this.availableModels) {
+      if (!m) continue;
+      if (m.toLowerCase() === lower) return true;
+      if (m.toLowerCase().startsWith(lower) || lower.startsWith(m.toLowerCase())) return true;
+    }
+    return false;
+  }
+
+  private cleanLyrics(lyrics: string, maxLines: number): string {
+    if (!lyrics) return lyrics;
+    const lines = lyrics
+      .split(/\r?\n/)
+      .map((l) => (l || '').trim())
+      .filter(Boolean);
+    const cleaned: string[] = [];
+    const seenCounts = new Map<string, number>();
+    for (const line of lines) {
+      const count = seenCounts.get(line) || 0;
+      // Allow up to 2 repeats of any identical line (for chorus/intentional repeats)
+      if (count < 2) {
+        // Keep order and avoid adjacent exact duplicates
+        if (cleaned.length === 0 || cleaned[cleaned.length - 1] !== line) {
+          cleaned.push(line);
+          seenCounts.set(line, count + 1);
+        } else if (count === 0) {
+          // If immediate duplicate but we've not seen it before, allow once
+          cleaned.push(line);
+          seenCounts.set(line, count + 1);
+        }
+      }
+      if (cleaned.length >= maxLines) break;
+    }
+    return cleaned.slice(0, maxLines).join('\n');
   }
 
   generateMetadata(
     narrative: string,
     durationSeconds: number,
-    modelOverride?: string
+    modelOverride?: string,
+    requestId?: string
   ): Observable<GeneratedMetadata> {
-    const model = modelOverride || this.model;
+    // Attempt to call the model provider regardless of availability probe; tests
+    // and environments may mock the runtime or respond without an availability
+    // probe being run. Any network or parse errors will fall back below.
+    let model = modelOverride || this.model;
+    // If the Ollama tag list is available and selected model is not present, choose the best available model
+    if (this.available && !this.isModelAvailable(model)) {
+      const chosen = this.chooseAvailableModel(modelOverride || model);
+      this.logger.warn(`Configured model '${model}' not in available models ${this.availableModels.join(', ')}; selecting best available model: ${chosen}`);
+      model = chosen;
+    }
     // Guard: limit narrative length
     const maxLen = 1000;
     if (narrative.length > maxLen) {
@@ -121,28 +244,81 @@ The output must be valid JSON only; no explanatory text.`;
       },
     };
 
+    const axiosOpts: any = { timeout: 20_000 };
+    if (requestId) axiosOpts.headers = { 'X-Request-Id': requestId };
     return from(
-      axios.post(`${this.ollamaUrl}/api/generate`, body, { timeout: 20_000 })
+      axios.post(`${this.ollamaUrl}/api/generate`, body, axiosOpts)
     ).pipe(
       map((resp) => {
-        const text = resp.data?.response || '';
+        const text = resp.data?.choices?.[0]?.text || resp.data?.text || resp.data?.response || '';
+        // debug: raw text is inspected in tests when needed
         // Try to extract JSON from the resulting text
         const json = this.extractJson(text);
+        this.logger.debug(`OllamaService parsed JSON: ${JSON.stringify(json)}`);
         if (!json) {
           throw new Error('Unable to parse JSON from model response');
         }
         const normalized = mapResponseForModel(model, json);
+        this.logger.debug(`OllamaService normalized metadata: ${JSON.stringify(normalized)}`);
+        // normalize and clean lyrics to avoid silly repetition
+        const cleanedLyrics = this.cleanLyrics(normalized.lyrics || '', optimalLineCount);
+        // If the output has very low diversity (e.g., repeating the same line),
+        // treat it as low-quality and trigger a retry path.
+        const uniqueLines = new Set(cleanedLyrics.split('\n').filter(Boolean));
+        if (uniqueLines.size < Math.min(3, optimalLineCount)) {
+          throw new Error('LowQualityLyrics');
+        }
         const metadata: GeneratedMetadata = {
           title: normalized.title || 'Untitled',
-          lyrics: normalized.lyrics || '',
+          lyrics: cleanedLyrics || '',
           genre: normalized.genre || 'pop',
           mood: normalized.mood || 'calm',
         };
         metadata.syllableCount = this.estimateSyllables(metadata.lyrics);
+        this.logger.debug(`OllamaService returning metadata: ${JSON.stringify(metadata)}`);
         return metadata;
       }),
       catchError((err) => {
         const msg = err instanceof Error ? err.message : String(err);
+        // Log HTTP details if present
+        if ((err as any).response) {
+          const r = (err as any).response;
+          this.logger.warn(
+            `Ollama model call returned ${r.status} ${r.statusText}: ${JSON.stringify(r.data)}`
+          );
+          // If we get a 404, attempt a secondary call with a fallback model and different options
+          if (r.status === 404) {
+            this.logger.warn('Ollama returned 404 - attempting fallback model call before using sample metadata');
+            const fallbackBody = { ...body, model: this.fallbackModel, options: { temperature: 0.25, num_predict: 300 } };
+            const fallbackOpts: any = { timeout: 20_000 };
+            if (requestId) fallbackOpts.headers = { 'X-Request-Id': requestId };
+            return from(axios.post(`${this.ollamaUrl}/api/generate`, fallbackBody, fallbackOpts)).pipe(
+              map((resp2) => {
+                  const text2 = resp2.data?.response || '';
+                  this.logger.debug(`OllamaService generateMetadata fallback raw text: ${String(text2)}`);
+                const json2 = this.extractJson(text2);
+                if (!json2) {
+                  throw new Error('Unable to parse JSON from fallback model response');
+                }
+                const normalized2 = mapResponseForModel(this.fallbackModel, json2);
+                const cleanedLyrics2 = this.cleanLyrics(normalized2.lyrics || '', optimalLineCount);
+                const metadata2: GeneratedMetadata = {
+                  title: normalized2.title || 'Untitled',
+                  lyrics: cleanedLyrics2 || '',
+                  genre: normalized2.genre || 'pop',
+                  mood: normalized2.mood || 'calm',
+                };
+                metadata2.syllableCount = this.estimateSyllables(metadata2.lyrics);
+                return metadata2;
+              }),
+              catchError(() => from([this.generateSample(narrative, durationSeconds)]))
+            );
+          }
+        }
+        // If the model produced low-quality lyrics, we log and fall back to sample metadata.
+        if (msg === 'LowQualityLyrics' || msg.includes('LowQualityLyrics')) {
+          this.logger.warn('Detected low-quality lyrics from model; falling back to sample metadata');
+        }
         this.logger.warn(
           'Ollama model call failed, falling back to sample metadata: ' + msg
         );
@@ -155,7 +331,8 @@ The output must be valid JSON only; no explanatory text.`;
 
   suggestGenres(
     narrative: string,
-    modelOverride?: string
+    modelOverride?: string,
+    requestId?: string
   ): Observable<string[]> {
     const model = modelOverride || this.model;
     // Guard: limit narrative length
@@ -175,8 +352,11 @@ Output must be valid JSON array only; no explanatory text.`;
       max_tokens: 200,
     };
 
+    // Always attempt genre suggestion; fallback handled on error
+    const axiosOpts2: any = { timeout: 15_000 };
+    if (requestId) axiosOpts2.headers = { 'X-Request-Id': requestId };
     return from(
-      axios.post(`${this.ollamaUrl}/v1/completions`, body, { timeout: 15_000 })
+      axios.post(`${this.ollamaUrl}/v1/completions`, body, axiosOpts2)
     ).pipe(
       map((resp) => {
         const text = resp.data?.choices?.[0]?.text || resp.data?.text || '';
@@ -202,6 +382,7 @@ Output must be valid JSON array only; no explanatory text.`;
     narrative: string,
     durationSeconds: number,
     modelOverride?: string
+    , requestId?: string
   ): Observable<GeneratedSong> {
     const model = modelOverride || this.model;
     // Guard: limit narrative length
@@ -267,11 +448,15 @@ Important: Include chord progressions that fit the key and genre. Structure the 
       },
     };
 
+    // Model call follows below; fallback to metadata is handled in catch
+    
+    const axiosOpts3: any = { timeout: 25_000 };
+    if (requestId) axiosOpts3.headers = { 'X-Request-Id': requestId };
     return from(
-      axios.post(`${this.ollamaUrl}/api/generate`, body, { timeout: 25_000 })
+      axios.post(`${this.ollamaUrl}/api/generate`, body, axiosOpts3)
     ).pipe(
       map((resp) => {
-        const text = resp.data?.response || '';
+        const text = resp.data?.choices?.[0]?.text || resp.data?.text || resp.data?.response || '';
         this.logger.debug(`Ollama raw response: ${text}`);
         const json = this.extractJson(text);
         if (!json) {
@@ -291,12 +476,20 @@ Important: Include chord progressions that fit the key and genre. Structure the 
           instrumentation: Array.isArray(json.instrumentation)
             ? json.instrumentation
             : ['piano', 'guitar', 'drums', 'male_voice'],
+          melody: json.melody || (normalized as any).melody,
         };
 
-        // Convert structured sections to flat lyrics
+        // Convert structured sections or top-level lyrics to flat lyrics
         const sections = ['verse_1', 'verse_2', 'chorus', 'bridge', 'outro'];
         let allLyrics = '';
         let totalSyllables = 0;
+
+        // If the model returned a top-level `lyrics` field, prefer it
+        if (json.lyrics) {
+          const ltext = Array.isArray(json.lyrics) ? json.lyrics.join('\n') : json.lyrics;
+          allLyrics += ltext + '\n\n';
+          totalSyllables += this.estimateSyllables(ltext);
+        }
 
         sections.forEach((section) => {
           if (json[section]) {
@@ -313,6 +506,7 @@ Important: Include chord progressions that fit the key and genre. Structure the 
 
         song.syllableCount = totalSyllables;
         song.wordCount = allLyrics.split(/\s+/).length;
+        song.lyrics = allLyrics.trim();
 
         return song;
       }),
@@ -432,14 +626,27 @@ Important: Include chord progressions that fit the key and genre. Structure the 
     const first = (narrative && narrative.split(/\.|,|\n/)[0]) || '';
     const title = (first && first.slice(0, 40)) || 'Untitled';
     // Keep the lyrics length roughly aligned with duration via repeats
-    let lyrics =
-      'Walking through the rain\nYour shadow by my side\nEchoes of goodbye';
+    const sampleLines = [
+      'Walking through the sun, the city hums all day',
+      'Sunny rooftops shine and children laugh then play',
+      'Bright reflection sparkles off the glass and tree',
+      "Your hand in mine as we dance through the streets",
+      'Catchy chorus repeats, and the chorus lifts us high',
+      "Verse unfolds with varied lines and the skyline sighs",
+      'A chorus hook that’s short and earworm-y by design',
+      'Bridge brings a hint of longing then we return to rhyme',
+    ];
+    let lyrics = sampleLines.join('\n');
     // We don't use durationSeconds heavily here but use it to repeat verses if longer
-    const targetWords = Math.round(((durationSeconds || 30) * 4.5) / 4);
+    // Extend the sample lyrics to approximately the target word count with varied lines
+    const targetWords = Math.round(((durationSeconds || 30) * 4.5) / 4) * 4;
     let currentWords = lyrics.split(/\s+/).length;
+    let idx = 0;
     while (currentWords < targetWords) {
-      lyrics += '\n' + 'Walking through the rain';
+      lyrics += '\n' + sampleLines[idx % sampleLines.length];
+      idx++;
       currentWords = lyrics.split(/\s+/).length;
+      if (idx > 50) break; // safety cap
     }
     const genre = 'pop';
     const mood = 'melancholic';

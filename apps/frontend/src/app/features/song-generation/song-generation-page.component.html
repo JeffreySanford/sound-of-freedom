@@ -257,6 +257,20 @@ We are fire — we are the unsung.
           </mat-select>
           <mat-hint>Optional: Select a local Ollama model (dev only)</mat-hint>
         </mat-form-field>
+        <div *ngIf="generator === 'jen1'" class="generator-options">
+          <h4 class="subsection-title">Jen1 Options</h4>
+          <mat-checkbox [(ngModel)]="jen1Options.lyricsFirst">Lyrics-first</mat-checkbox>
+          <mat-checkbox [(ngModel)]="jen1Options.melodyOnly">Melody-only</mat-checkbox>
+        </div>
+        <mat-form-field appearance="outline" class="model-select">
+          <mat-label>Generator</mat-label>
+          <mat-select [(ngModel)]="generator" (ngModelChange)="setGenerator($event)">
+            <mat-option value="ollama">Ollama (LLM)</mat-option>
+            <mat-option value="jen1">Jen1 (PoC)</mat-option>
+          </mat-select>
+          <mat-hint>Select generator for metadata (and later song generation)</mat-hint>
+        </mat-form-field>
+        <mat-checkbox [(ngModel)]="useAsync">Submit as background job (async)</mat-checkbox>
         <button
           mat-raised-button
           color="primary"
@@ -277,6 +291,12 @@ We are fire — we are the unsung.
           <mat-icon class="warning-icon">warning</mat-icon>
           Enter at least {{ minNarrativeLength }} characters to generate
         </p>
+      </section>
+
+      <section class="job-section" *ngIf="(currentResult$ | async) === null && (isGenerating$ | async) === false">
+        <div *ngIf="(progress$ | async)?.stage === 'generating-metadata' && (progress$ | async)?.message === 'Job queued'">
+          <p>Background job submitted. Look for progress updates or open Jobs view.</p>
+        </div>
       </section>
 
       <!-- Step 4: Generated Metadata (appears after generation) -->

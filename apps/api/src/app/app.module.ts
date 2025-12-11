@@ -6,7 +6,13 @@ import * as path from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { JobsGateway } from './gateways/jobs.gateway';
+import { JobsController } from './jobs.controller';
+// JobsService is provided by JobsModule; do not import directly as a provider here
+import { JobsModule } from '../jobs/jobs.module';
+import { User, UserSchema } from '../schemas/user.schema';
 import { HealthController } from '../health/health.controller';
+import { LogsController } from '../internal/logs.controller';
+import { LogsService } from '../internal/logs.service';
 import { AuthModule } from '../auth/auth.module';
 import { SongsModule } from '../songs/songs.module';
 import { LibraryModule } from '../library/library.module';
@@ -56,8 +62,10 @@ import { ProfileModule } from '../profile/profile.module';
     SongsModule,
     LibraryModule,
     ProfileModule,
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    JobsModule,
   ],
-  controllers: [AppController, HealthController],
-  providers: [AppService, JobsGateway],
+  controllers: [AppController, HealthController, JobsController, LogsController],
+  providers: [AppService, JobsGateway, LogsService],
 })
 export class AppModule {}

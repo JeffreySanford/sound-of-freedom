@@ -7,6 +7,7 @@ import {
   NgZone,
 } from '@angular/core';
 import { HealthService } from '../../../services/health.service';
+import { LoggerService } from '../../../services/logger.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
@@ -48,6 +49,7 @@ export class LoginModalComponent implements OnInit, AfterViewInit, OnDestroy {
   private dialogRef = inject(MatDialogRef<LoginModalComponent>);
   private ngZone = inject(NgZone);
   private healthService: HealthService = inject(HealthService);
+  private logger: LoggerService = inject(LoggerService);
   isLocalhost =
     typeof window !== 'undefined' &&
     (window.location.hostname === 'localhost' ||
@@ -139,10 +141,7 @@ export class LoginModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
       // Defensive check - ensure values exist
       if (!emailOrUsername || !password) {
-        console.error('Login form values missing:', {
-          emailOrUsername,
-          password,
-        });
+        this.logger.error('Login form values missing:', { emailOrUsername, password });
         return;
       }
 

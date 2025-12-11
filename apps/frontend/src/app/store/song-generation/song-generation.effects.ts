@@ -10,11 +10,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { map, mergeMap, catchError, switchMap } from 'rxjs/operators';
 import { SongGenerationService } from '../../services/song-generation.service';
-import {
-  SongMetadata,
-  SongGenerationResult,
-  GenerationProgress,
-} from './song-generation.state';
+import { SongGenerationResult, GenerationProgress } from './song-generation.state';
 import {
   generateMetadata,
   generateMetadataSuccess,
@@ -24,6 +20,7 @@ import {
   generateSongFailure,
   updateProgress,
   addToHistory,
+  enqueueJobSuccess,
 } from './song-generation.actions';
 
 @Injectable()
@@ -38,13 +35,18 @@ export class SongGenerationEffects {
   generateMetadata$ = createEffect(() =>
     this.actions$.pipe(
       ofType(generateMetadata),
-      mergeMap(({ narrative, duration, model }) =>
+      mergeMap(({ narrative, duration, model, async, options }) =>
         this.songGenerationService
-          .generateMetadata(narrative, duration, model)
+          .generateMetadata(narrative, duration, model, async, options)
           .pipe(
-            map((metadata: SongMetadata) =>
-              generateMetadataSuccess({ metadata })
-            ),
+            mergeMap((response: any) => {
+              // If async returns jobId then enqueue was successful
+              if (response?.jobId) {
+                return of(enqueueJobSuccess({ jobId: response.jobId }));
+              }
+              // Otherwise assume metadata response
+              return of(generateMetadataSuccess({ metadata: response }));
+            }),
             catchError((error) =>
               of(
                 generateMetadataFailure({

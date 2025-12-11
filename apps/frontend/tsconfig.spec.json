@@ -4,12 +4,16 @@
     "outDir": "../../dist/out-tsc",
     "module": "ES2022",
     "target": "ES2022",
-    "types": ["jest", "node", "jasmine"],
+    "types": ["jest", "jasmine", "node"],
     "moduleResolution": "bundler",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "isolatedModules": false
+  },
+  "angularCompilerOptions": {
+    "enableIvy": true,
+    "strictTemplates": true
   },
   "files": ["src/test-setup.ts"],
   "include": [

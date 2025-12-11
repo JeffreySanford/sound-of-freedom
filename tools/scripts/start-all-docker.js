@@ -4,12 +4,21 @@ const { spawnSync, spawn } = require('child_process');
 const fs = require('fs');
 const net = require('net');
 const path = require('path');
+const { createNodeLogger } = require('../logging/node-logger');
+const logger = createNodeLogger({ serviceName: 'start-all-docker', logDir: process.env.LOG_DIR || 'tmp/logs/start-all-docker' });
 
-const COMPOSE_FILE = 'docker-compose.yml';
-const COMPOSE_CMD = `docker compose -f ${COMPOSE_FILE}`;
+// Allow specifying a compose file via env or CLI. If missing, skip docker and fall back to NX local serves.
+let COMPOSE_FILE = 'docker-compose.yml';
+// Support overriding via env variable
+if (process.env.COMPOSE_FILE && process.env.COMPOSE_FILE.trim()) {
+  COMPOSE_FILE = process.env.COMPOSE_FILE.trim();
+}
+// We'll validate compose file exists after parsing CLI args so overrides are respected
+// COMPOSE_CMD removed (use wrappers). Keep COMPOSE_FILE and COMPOSE_EXISTS
+let COMPOSE_EXISTS = false;
 
 function runSync(cmd, args) {
-  console.log(`> ${cmd} ${args.join(' ')}`);
+  logger.info(`> ${cmd} ${args.join(' ')}`);
   const r = spawnSync(cmd, args, { stdio: 'inherit' });
   if (r.error) throw r.error;
   if (r.status !== 0) {
@@ -18,10 +27,10 @@ function runSync(cmd, args) {
 }
 
 function runDetached(cmd, args, env) {
-  console.log(`> ${cmd} ${args.join(' ')}`);
+  logger.info(`> ${cmd} ${args.join(' ')}`);
   const child = spawn(cmd, args, { stdio: 'inherit', env: { ...process.env, ...(env || {}) } });
   child.on('exit', (code) => {
-    console.log(`${cmd} ${args.join(' ')} exited with ${code}`);
+    logger.info(`${cmd} ${args.join(' ')} exited with ${code}`);
   });
   return child;
 }
@@ -54,6 +63,7 @@ function waitForPort(host, port, timeoutMs = 30000) {
 
 function getHostPortForService(service, containerPort) {
   // Use `docker compose port` to map container port to host
+  if (!COMPOSE_EXISTS) return null;
   try {
     const r = spawnSync('docker', ['compose', '-f', COMPOSE_FILE, 'port', service, String(containerPort)], { encoding: 'utf8' });
     if (r.status !== 0) return null;
@@ -65,6 +75,59 @@ function getHostPortForService(service, containerPort) {
   } catch (err) {
     return null;
   }
+}
+
+function runDockerComposeSync(argsArr) {
+  if (!COMPOSE_EXISTS) {
+    logger.warn(`Skipping docker compose command because compose file not found: docker compose ${argsArr.join(' ')}`);
+    return null;
+  }
+  // If API_DEBUG_COMMANDS is enabled in the current shell, create a temporary env file for compose
+  const envFilePath = COMPOSE_EXISTS && (process.env.API_DEBUG_COMMANDS === '1' || process.env.REQUIRE_OLLAMA === '1') ? path.join(process.cwd(), '.env.debug') : null;
+  if (envFilePath) {
+    try {
+      let envBody = '';
+      if (process.env.API_DEBUG_COMMANDS === '1') envBody += `API_DEBUG_COMMANDS=1\nAPI_DEBUG_MAX_BODY_LEN=${process.env.API_DEBUG_MAX_BODY_LEN || '2000'}\n`;
+      if (process.env.REQUIRE_OLLAMA === '1') envBody += `REQUIRE_OLLAMA=1\n`;
+      // Ensure containers use the 'ollama' compose service by default if not set
+      if (!process.env.OLLAMA_URL) envBody += `OLLAMA_URL=http://ollama:11434\n`;
+      // Prefer Minstral3 as the default model for dev; allow override through env
+      if (!process.env.OLLAMA_MODEL) envBody += `OLLAMA_MODEL=minstral3\n`;
+      fs.writeFileSync(envFilePath, envBody);
+    } catch (e) {
+      logger.warn('Could not create .env.debug file for docker compose debug mode', { message: e.message });
+    }
+  }
+  const argsForCmd = envFilePath ? ['--env-file', envFilePath, '-f', COMPOSE_FILE, ...argsArr] : ['-f', COMPOSE_FILE, ...argsArr];
+  const result = runSync('docker', ['compose', ...argsForCmd]);
+  if (envFilePath) {
+    try { fs.unlinkSync(envFilePath); } catch (e) { /* ignore */ }
+  }
+  return result;
+}
+
+function runDockerComposeCapture(argsArr) {
+  if (!COMPOSE_EXISTS) {
+    logger.warn(`Skipping docker compose command (capture) because compose file not found: docker compose ${argsArr.join(' ')}`);
+    return null;
+  }
+  logger.info(`> docker compose -f ${COMPOSE_FILE} ${argsArr.join(' ')}`);
+  const envFilePath = (process.env.API_DEBUG_COMMANDS === '1' || process.env.REQUIRE_OLLAMA === '1') ? path.join(process.cwd(), '.env.debug') : null;
+  if (envFilePath) {
+    try {
+      let envBody = '';
+      if (process.env.API_DEBUG_COMMANDS === '1') envBody += `API_DEBUG_COMMANDS=1\nAPI_DEBUG_MAX_BODY_LEN=${process.env.API_DEBUG_MAX_BODY_LEN || '2000'}\n`;
+      if (process.env.REQUIRE_OLLAMA === '1') envBody += `REQUIRE_OLLAMA=1\n`;
+      fs.writeFileSync(envFilePath, envBody);
+    } catch (e) { /* ignore */ }
+  }
+  const composeArgs = envFilePath ? ['--env-file', envFilePath, '-f', COMPOSE_FILE, ...argsArr] : ['-f', COMPOSE_FILE, ...argsArr];
+  const r = spawnSync('docker', ['compose', ...composeArgs], { encoding: 'utf8' });
+  if (r.error) throw r.error;
+  if (envFilePath) {
+    try { fs.unlinkSync(envFilePath); } catch (e) { /* ignore */ }
+  }
+  return r;
 }
 
 function parseArgs() {
@@ -82,12 +145,15 @@ function parseArgs() {
 // Add parsing for a flag that causes docker compose to include additional services
 function parseArgsExtended() {
   const argv = process.argv.slice(2);
-  const parsed = { include: null, skipLocal: false, forceLocal: null, dockerInclude: null };
+  const parsed = { include: null, skipLocal: false, forceLocal: null, dockerInclude: null, composeFile: null, debug: false, requireOllama: false };
   for (const a of argv) {
     if (a.startsWith('--include=')) parsed.include = a.split('=')[1];
     if (a === '--skip-local') parsed.skipLocal = true;
     if (a.startsWith('--force-local=')) parsed.forceLocal = a.split('=')[1];
     if (a.startsWith('--docker-include=')) parsed.dockerInclude = a.split('=')[1];
+    if (a.startsWith('--compose-file=')) parsed.composeFile = a.split('=')[1];
+    if (a === '--debug') parsed.debug = true;
+    if (a === '--require-ollama') parsed.requireOllama = true;
   }
   return parsed;
 }
@@ -95,10 +161,34 @@ function parseArgsExtended() {
 async function main() {
   // Use extended args parser to support dockerInclude
   const args = parseArgsExtended();
-  console.log('start-all-docker args:', args);
+  logger.info('start-all-docker args:', args);
+  // If CLI provided a compose file, override env/default
+  if (args.composeFile && args.composeFile.trim()) {
+    COMPOSE_FILE = args.composeFile.trim();
+  }
+  // If debug CLI flag is set, enable API_DEBUG_COMMANDS env var locally and for docker
+  if (args.debug) {
+    logger.info('DEBUG MODE: API debug logging will be enabled (API_DEBUG_COMMANDS=1)');
+    process.env.API_DEBUG_COMMANDS = '1';
+  }
+  // Re-validate compose file existence after potential CLI override
+  if (COMPOSE_FILE && fs.existsSync(path.join(process.cwd(), COMPOSE_FILE))) {
+    COMPOSE_EXISTS = true;
+    COMPOSE_CMD = `docker compose -f ${COMPOSE_FILE}`;
+  } else {
+    COMPOSE_EXISTS = false;
+    COMPOSE_FILE = null;
+    logger.warn('No Docker compose file found. Docker compose commands will be skipped and local NX serves will be used instead.');
+    logger.warn('Tip: run with --compose-file docker-compose.dev.example.yml or copy that example to docker-compose.yml to enable docker infra.');
+  }
+    // If the caller wants to require Ollama for the API container and local serve
+    if (args.requireOllama) {
+      logger.info('Enabling REQUIRE_OLLAMA=1 for local env & docker-compose');
+      process.env.REQUIRE_OLLAMA = '1';
+    }
   try {
-    console.log('Bringing down docker compose stack (if running) to free ports...');
-    try { runSync('docker', ['compose', '-f', COMPOSE_FILE, 'down', '-v', '--remove-orphans']); } catch (e) { console.warn(e.message); }
+    logger.info('Bringing down docker compose stack (if running) to free ports...');
+    try { runDockerComposeSync(['down', '-v', '--remove-orphans']); } catch (e) { logger.warn(e.message); }
 
     // Before starting up, check if any ports expected by compose are already in use by other host processes
     async function isPortFree(port) {
@@ -131,29 +221,35 @@ async function main() {
       // eslint-disable-next-line no-await-in-loop
       const free = await isPortFree(p);
       if (!free) {
-        console.error(`
-Port ${p} appears to be in use on the host. This will cause docker compose to fail to bind the same port.\n`);
-        console.error('Please stop the process that is listening on this port, or change the port mapping in docker-compose.yml.');
-        console.error('\nCommon commands to find and stop the process:');
-        console.error('  Linux/WSL: sudo lsof -i :' + p + ' && sudo kill -9 <PID>');
-        console.error('  macOS: lsof -i :' + p + ' && kill -9 <PID>');
-        console.error('  Windows (Powershell): netstat -ano | findstr :' + p + ' && taskkill /F /PID <PID>');
+        logger.error(`\nPort ${p} appears to be in use on the host. This will cause docker compose to fail to bind the same port.\n`);
+        logger.error('Please stop the process that is listening on this port, or change the port mapping in docker-compose.yml.');
+        logger.error('\nCommon commands to find and stop the process:');
+        logger.error('  Linux/WSL: sudo lsof -i :' + p + ' && sudo kill -9 <PID>');
+        logger.error('  macOS: lsof -i :' + p + ' && kill -9 <PID>');
+        logger.error('  Windows (Powershell): netstat -ano | findstr :' + p + ' && taskkill /F /PID <PID>');
         process.exit(1);
       }
     }
 
-    console.log('Building docker images for infra services...');
+    logger.info(`Building docker images for infra services using compose file: ${COMPOSE_FILE} ...`);
     try {
-      runSync('docker', ['compose', '-f', COMPOSE_FILE, 'build', 'jen1', 'muscgen', 'redis', 'ollama', 'orchestrator']);
+      runDockerComposeSync(['build', 'jen1', 'muscgen', 'redis', 'ollama', 'orchestrator']);
     } catch (e) {
-      console.warn('docker compose build failed, continuing to up with existing images');
+      logger.warn('docker compose build failed, continuing to up with existing images');
     }
     // Determine which services should be started by docker compose.
     // By default start the infra services (jen1, muscgen, redis, ollama, orchestrator).
     // If --docker-include flag is provided, add services like 'api' and/or 'frontend'.
     const defaultServices = ['jen1', 'muscgen', 'redis', 'ollama', 'orchestrator'];
     const dockerIncludes = args.dockerInclude ? args.dockerInclude.split(',').map((s) => s.trim()) : [];
-    const composeServicesToStart = Array.from(new Set(defaultServices.concat(dockerIncludes.filter(Boolean))));
+    let composeServicesToStart = Array.from(new Set(defaultServices.concat(dockerIncludes.filter(Boolean))));
+    // If we have a compose file, only consider services actually defined in it
+    if (COMPOSE_EXISTS) {
+      const cfg = runDockerComposeCapture(['config', '--services']);
+      const composeDefinedServices = (cfg && cfg.stdout) ? (cfg.stdout || '').trim().split(/\s+/).filter(Boolean) : [];
+      // Only start services that compose actually defines and we want
+      composeServicesToStart = composeServicesToStart.filter((s) => composeDefinedServices.includes(s));
+    }
     // Filter composeServicesToStart to those that actually have a Dockerfile path if they are expected to be built.
     // For services without a Dockerfile, fall back to local serve (they're added to nxToServe later).
     const serviceDockerfileMap = {
@@ -176,23 +272,37 @@ Port ${p} appears to be in use on the host. This will cause docker compose to fa
       if (fs.existsSync(path.join(process.cwd(), dockerfile))) {
         validatedComposeServices.push(svc);
       } else {
-        console.warn(`Dockerfile for service '${svc}' not found at ${dockerfile}, will fall back to local serve`);
+        logger.warn(`Dockerfile for service '${svc}' not found at ${dockerfile}, will fall back to local serve`);
         fallbackToLocal.push(svc);
       }
     }
     // Any services that we planned to include in docker but do not have Dockerfiles should be removed from compose up.
-    const composeFinalServices = validatedComposeServices;
-    console.log('Starting docker compose stack for infra (including any docker-include values):', composeServicesToStart.join(', '));
+    // Explicitly exclude frontend and api from docker compose in order to prefer local NX serve for these
+    const removedServices = [];
+    const composeFinalServices = validatedComposeServices.filter((s) => {
+      if (s === 'frontend' || s === 'api') {
+        removedServices.push(s);
+        return false;
+      }
+      return true;
+    });
+    if (removedServices.length) {
+      logger.info(`Removing from docker compose (will be served locally instead): ${removedServices.join(', ')}`);
+    }
+    logger.info('Starting docker compose stack for infra (including any docker-include values): ' + composeFinalServices.join(', '));
     if (composeFinalServices.length > 0) {
-      runSync('docker', ['compose', '-f', COMPOSE_FILE, 'up', '-d', ...composeFinalServices]);
+      runDockerComposeSync(['up', '-d', ...composeFinalServices]);
     }
     // If any requested dockerIncludes didn't have Dockerfiles, we'll add them to local serve
     // list after we compute which services are provided by Docker.
 
     // Determine which services are in the compose file
-    const r = spawnSync('docker', ['compose', '-f', COMPOSE_FILE, 'config', '--services'], { encoding: 'utf8' });
-    const services = (r.stdout || '').trim().split(/\s+/).filter(Boolean);
-    console.log('Services in docker compose:', services.join(', '));
+    let services = [];
+    if (COMPOSE_EXISTS) {
+      const r = runDockerComposeCapture(['config', '--services']);
+      if (r && r.stdout) services = (r.stdout || '').trim().split(/\s+/).filter(Boolean);
+    }
+    logger.info('Services in docker compose: ' + services.join(', '));
 
     // Known mapping of service -> container port
     const serviceToPort = {
@@ -210,13 +320,13 @@ Port ${p} appears to be in use on the host. This will cause docker compose to fa
       if (services.includes(svc)) {
         const contPort = serviceToPort[svc];
         const hostPort = getHostPortForService(svc, contPort) || contPort;
-        console.log(`Waiting for ${svc} on port ${hostPort}...`);
+        logger.info(`Waiting for ${svc} on port ${hostPort}...`);
         try {
           // eslint-disable-next-line no-await-in-loop
           await waitForPort('127.0.0.1', hostPort, 45_000);
-          console.log(`${svc} is listening on ${hostPort}`);
+          logger.info(`${svc} is listening on ${hostPort}`);
         } catch (err) {
-          console.warn(`Timed out waiting for ${svc}:${hostPort} - continuing. ${err.message}`);
+          logger.warn(`Timed out waiting for ${svc}:${hostPort} - continuing. ${err.message}`);
         }
       }
     }
@@ -262,8 +372,8 @@ Port ${p} appears to be in use on the host. This will cause docker compose to fa
     }
 
     if (nxToServe.length === 0) {
-      console.log('All projects are provided by docker compose. Nothing to serve locally.');
-      console.log('You can view frontend at http://localhost:4200 and api at http://localhost:3000 (if present).');
+      logger.info('All projects are provided by docker compose. Nothing to serve locally.');
+      logger.info('You can view frontend at http://localhost:4200 and api at http://localhost:3000 (if present).');
       process.exit(0);
     }
 
@@ -287,7 +397,7 @@ Port ${p} appears to be in use on the host. This will cause docker compose to fa
 
     const serveProcs = [];
     function cleanupAndExit(code = 0) {
-      console.log('Stopping local serve processes...');
+      logger.info('Stopping local serve processes...');
       for (const p of serveProcs) {
         try {
           p.kill('SIGINT');
@@ -308,13 +418,13 @@ Port ${p} appears to be in use on the host. This will cause docker compose to fa
     // Use workspace-aware pnpm execution so `nx` resolves to the workspace root
     let pnpmExecArgsPrefix = ['-w', 'exec', '--'];
     if (!pnpmAvailable && npmAvailable) {
-      console.warn('pnpm not found, falling back to `npm exec -- pnpm`');
+      logger.warn('pnpm not found, falling back to `npm exec -- pnpm`');
       pnpmExecCmd = 'npm';
       // Fallback: use `npm exec -- nx` which should run a local nx if available.
       pnpmExecArgsPrefix = ['exec', '--'];
     }
     if (!pnpmAvailable) {
-      console.warn('pnpm not found in PATH for spawning local serves; local frontend/api will not be started.');
+      logger.warn('pnpm not found in PATH for spawning local serves; local frontend/api will not be started.');
     }
     for (const p of nxToServe) {
       if (p === 'frontend') {
@@ -323,7 +433,7 @@ Port ${p} appears to be in use on the host. This will cause docker compose to fa
         const orchPort = getHostPortForService('orchestrator', 4000) || getHostPortForService('api', 3000);
         const apiHost = orchPort ? `http://127.0.0.1:${orchPort}` : (getHostPortForService('api', 3000) ? `http://127.0.0.1:${getHostPortForService('api', 3000)}` : 'http://127.0.0.1:3000');
         const env = { ...process.env, API_URL: apiHost };
-        console.log(`Starting local frontend on port ${port} (if docker does not provide it) with API_URL=${apiHost}`);
+        logger.info(`Starting local frontend on port ${port} (if docker does not provide it) with API_URL=${apiHost}`);
         if (pnpmAvailable || npmAvailable) {
           const args = pnpmExecArgsPrefix.concat(['nx', 'serve', 'frontend', '--', `--port=${port}`]);
           serveProcs.push(spawn(pnpmExecCmd, args, { stdio: 'inherit', env, shell: true }));
@@ -331,7 +441,7 @@ Port ${p} appears to be in use on the host. This will cause docker compose to fa
       }
       if (p === 'api') {
         const port = apiPort || 3001;
-        console.log(`Starting local api on port ${port} (if docker does not provide it)`);
+        logger.info(`Starting local api on port ${port} (if docker does not provide it)`);
         // Build env pointing to host-mapped container ports for dependencies
         const redisPort = getHostPortForService('redis', 6379) || 6379;
         const j1Port = getHostPortForService('jen1', 4001) || 4001;
@@ -352,10 +462,10 @@ Port ${p} appears to be in use on the host. This will cause docker compose to fa
       }
     }
 
-    console.log('Started local NX serve for:', nxToServe.join(', '));
-    console.log('Press Ctrl+C to stop.');
+    logger.info('Started local NX serve for: ' + nxToServe.join(', '));
+    logger.info('Press Ctrl+C to stop.');
   } catch (err) {
-    console.error('Error in start-all-docker script:', err);
+    logger.error('Error in start-all-docker script', { error: err });
     process.exit(1);
   }
 }

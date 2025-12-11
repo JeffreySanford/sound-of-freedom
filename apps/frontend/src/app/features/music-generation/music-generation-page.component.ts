@@ -1,4 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { SongGenerationService } from '../../services/song-generation.service';
+import { WebSocketService } from '../../services/websocket.service';
+import { UserSettingsService } from '../../services/user-settings.service';
 import { Router } from '@angular/router';
 
 interface ImportedSong {
@@ -44,6 +47,9 @@ interface InstrumentOption {
 })
 export class MusicGenerationPageComponent implements OnInit {
   private readonly router = inject(Router);
+  private readonly songGenerationService = inject(SongGenerationService);
+  private readonly websocketService = inject(WebSocketService);
+  private readonly userSettings = inject(UserSettingsService);
 
   title = 'Music Generation';
 
@@ -66,6 +72,16 @@ export class MusicGenerationPageComponent implements OnInit {
   isGenerating = false;
   progress = 0;
   generatedAudioUrl: string | null = null;
+  currentJobId: string | null = null;
+  // Generator selection (ullama / jen1 / muscgen etc.)
+  generator: string = 'ollama';
+  // Async generation (job queue)
+  useAsync: boolean = false;
+  // generator specific options
+  jen1Options = {
+    lyricsFirst: true,
+    melodyOnly: false,
+  };
 
   // Genre options (12 standard genres with default BPM)
   readonly genres = [
@@ -127,6 +143,9 @@ export class MusicGenerationPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Load persisted generator selection
+    const stored = this.userSettings.getGenerator();
+    if (stored) this.generator = stored;
     // Pre-fill form if song was imported
     if (this.importedSong) {
       this.musicTitle = this.importedSong.title;
@@ -144,6 +163,13 @@ export class MusicGenerationPageComponent implements OnInit {
       // Set default instrumentation based on genre
       this.selectedInstruments = this.getDefaultInstruments(this.genre);
     }
+    // Save generator selection whenever it changes
+    // In absence of reactive form, use ngZone or watchers — use event binding in template via ngModelChange
+  }
+
+  setGenerator(value: string): void {
+    this.generator = value;
+    this.userSettings.setGenerator(value);
   }
 
   /**
@@ -244,17 +270,41 @@ export class MusicGenerationPageComponent implements OnInit {
     this.progress = 0;
     this.generatedAudioUrl = null;
 
-    // Simulate progress (in production, use WebSocket)
-    const interval = setInterval(() => {
-      this.progress += 5;
-      if (this.progress >= 100) {
-        clearInterval(interval);
-        this.isGenerating = false;
+    // Call backend via songGenerationService
+    // Build options depending on generator
+    const options = this.generator === 'jen1' ? this.jen1Options : undefined;
 
-        // Simulated audio URL (in production, from backend)
-        this.generatedAudioUrl = '/assets/sample-audio.mp3';
-      }
-    }, 500);
+    this.songGenerationService
+      .generateSong(this.lyrics || this.musicTitle, this.duration, this.generator, this.useAsync, options)
+      .subscribe(
+        (result: any) => {
+          // If job submitted and async, we expect { jobId } response
+          if (result?.jobId) {
+            this.isGenerating = false;
+            this.progress = 0;
+            this.currentJobId = result.jobId;
+            // Subscribe for updates
+            this.websocketService.subscribeToJob(result.jobId);
+            alert('Job submitted: ' + result.jobId);
+            return;
+          }
+
+          this.isGenerating = false;
+          this.progress = 100;
+          // For PoC we may receive a song structure - save first audio if present
+          if (result?.audioUrl) {
+            this.generatedAudioUrl = result.audioUrl;
+          } else {
+            // We can store a placeholder or improvise
+            this.generatedAudioUrl = '/assets/sample-audio.mp3';
+          }
+        },
+        (err: any) => {
+          this.isGenerating = false;
+          this.progress = 0;
+          alert('Generation failed: ' + (err?.message || err?.toString()));
+        }
+      );
 
     // In production:
     // const job = await this.musicService.generate({

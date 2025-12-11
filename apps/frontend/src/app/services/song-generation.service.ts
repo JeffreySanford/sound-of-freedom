@@ -26,13 +26,17 @@ export class SongGenerationService {
   generateMetadata(
     narrative: string,
     duration: number,
-    model: string
+    model: string,
+    async = false,
+    options?: Record<string, any>
   ): Observable<SongMetadata> {
     return this.http
       .post<SongMetadata>('/api/songs/generate-metadata', {
         narrative,
         duration,
         model,
+        async,
+        options,
       })
       .pipe(
         catchError((error) => {
@@ -49,13 +53,17 @@ export class SongGenerationService {
   generateSong(
     narrative: string,
     duration: number,
-    model: string
+    model: string,
+    async = false,
+    options?: Record<string, any>
   ): Observable<SongGenerationResult> {
     return this.http
       .post<SongGenerationResult>('/api/songs/generate-song', {
         narrative,
         duration,
         model,
+        async,
+        options,
       })
       .pipe(
         catchError((error) => {

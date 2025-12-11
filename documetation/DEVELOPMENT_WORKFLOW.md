@@ -668,6 +668,19 @@ describe('SongsService', () => {
 }
 ```
 
+#### API Debugging with start script
+
+The `start-all-docker.js` script now accepts a `--debug` flag which sets
+`API_DEBUG_COMMANDS=1` for local serves and for `docker compose` runs, enabling
+API request/response debug logs in development. Use `--compose-file` to override
+the compose file if needed.
+
+Example:
+
+```bash
+node tools/scripts/start-all-docker.js --include=frontend,api --debug
+```
+
 ## Common Issues
 
 ### Issue: Port Already in Use

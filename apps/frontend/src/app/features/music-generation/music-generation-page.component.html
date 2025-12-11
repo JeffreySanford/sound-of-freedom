@@ -178,6 +178,23 @@
 
         <!-- Vocals Style -->
         <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Generator</mat-label>
+          <mat-select [(ngModel)]="generator" (ngModelChange)="setGenerator($event)">
+            <mat-option value="ollama">Ollama (default)</mat-option>
+            <mat-option value="jen1">Jen1 (PoC)</mat-option>
+          </mat-select>
+          <mat-icon matPrefix>cloud_queue</mat-icon>
+          <mat-hint>Select the backend generator for this request</mat-hint>
+        </mat-form-field>
+
+        <div *ngIf="generator === 'jen1'" class="jen1-options">
+          <h4 class="subsection-title">Jen1 Options</h4>
+          <mat-checkbox [(ngModel)]="jen1Options.lyricsFirst">Lyrics-first</mat-checkbox>
+          <mat-checkbox [(ngModel)]="jen1Options.melodyOnly">Melody-only</mat-checkbox>
+        </div>
+
+        <mat-checkbox [(ngModel)]="useAsync">Submit as background job (async)</mat-checkbox>
+        <mat-form-field appearance="outline" class="full-width">
           <mat-label>Vocals Style</mat-label>
           <mat-select [(ngModel)]="vocalsStyle">
             <mat-option
@@ -223,6 +240,12 @@
           [value]="progress"
         ></mat-progress-bar>
         <p class="progress-text">{{ progress }}% complete</p>
+      </section>
+
+      <section class="job-section" *ngIf="currentJobId && !isGenerating">
+        <h4 class="subsection-title">Background Job</h4>
+        <p>Job ID: <code>{{ currentJobId }}</code></p>
+        <p>Open the Jobs view to monitor progress or wait for a notification.</p>
       </section>
 
       <!-- Completed Section -->

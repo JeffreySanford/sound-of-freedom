@@ -31,7 +31,8 @@ Datasets commonly used for training (public)
 
 Notes & operational considerations
 
-- GPU/accelerator access: For training/inference, use `nvidia/cuda` variants or `nvidia-container-toolkit` with Docker host installed. Prefer cloud GPUs for heavy inference.
+- GPU/accelerator access: For training/inference, use `nvidia/cuda` variants or `nvidia-container-toolkit` with Docker host installed. Prefer cloud GPUs for
+heavy inference.
 - Storage: Use shared blob storage for model weights and generated assets; avoid storing large files in container images.
 - Security: Use secrets for model access keys and limit model downloads to authorized accounts.
 
@@ -49,6 +50,20 @@ Dockerfile hints
 Using jen1 with the orchestration system
 
 - `jen1` exposes HTTP endpoints such as `/health` and a generation API `POST /generate` that the `orchestrator` service can call.
+  - PoC: `POST /generate` accepts JSON `{ narrative, duration }` and returns a `GeneratedSong` structure (title, lyrics, sections, instrumentation, etc.)
+
+Running with Python runtime
+
+- A FastAPI-based Python runtime exists as `apps/jen1/Dockerfile.python` and `apps/jen1/src/server.py` (FastAPI). To run the Python runtime in Docker Compose,
+use the `jen1-python` service in a compose file or point `JEN1_URL` in orchestrator to `http://jen1-python:4001`.
+- The Python runtime is preferred when running PyTorch/ONNX models and when GPU support is needed. Use NVIDIA CUDA base images and appropriate drivers for
+GPU-enabled images.
+  - For GPU workloads, a `Dockerfile.gpu` template is available. Use this as a starting point to build a `jen1` runtime that includes CUDA-capable PyTorch wheels
+  and host GPU drivers (e.g., `nvidia/cuda` base images and `nvidia-container-toolkit`).
+    - For GPU workloads, a `Dockerfile.gpu` template is available. Use this as a starting point to build a `jen1` runtime that includes CUDA-capable PyTorch
+    wheels and host GPU drivers (e.g., `nvidia/cuda` base images and `nvidia-container-toolkit`).
+    - To test that the GPU (torch) bindings are available, start the server with `USE_TORCH=1` and query `GET /debug/torch` on the service to confirm availability
+    and device type.
 - Use Redis as a job queue or state store for async processing (orchestrator + worker pattern).
 
 See also

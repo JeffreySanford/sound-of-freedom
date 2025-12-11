@@ -57,6 +57,8 @@ export interface SongGenerationState {
   // UI state
   loading: boolean;
   error: string | null;
+  // Last submitted job id (for async job submissions)
+  lastJobId?: string | null;
 
   // Form state
   formData: {
@@ -79,6 +81,7 @@ export const initialSongGenerationState: SongGenerationState = {
   history: [],
   loading: false,
   error: null,
+  lastJobId: null,
   formData: {
     narrative: '',
     duration: 30,

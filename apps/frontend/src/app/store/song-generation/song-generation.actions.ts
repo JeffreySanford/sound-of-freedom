@@ -29,7 +29,14 @@ export const resetForm = createAction('[Song Generation] Reset Form');
 // Metadata generation actions
 export const generateMetadata = createAction(
   '[Song Generation] Generate Metadata',
-  props<{ narrative: string; duration: number; model: string }>()
+  props<{
+    narrative: string;
+    duration: number;
+    model: string;
+    generator?: string;
+    async?: boolean;
+    options?: Record<string, any>;
+  }>()
 );
 
 export const generateMetadataSuccess = createAction(
@@ -39,6 +46,16 @@ export const generateMetadataSuccess = createAction(
 
 export const generateMetadataFailure = createAction(
   '[Song Generation] Generate Metadata Failure',
+  props<{ error: string }>()
+);
+
+export const enqueueJobSuccess = createAction(
+  '[Song Generation] Enqueue Job Success',
+  props<{ jobId: string }>()
+);
+
+export const enqueueJobFailure = createAction(
+  '[Song Generation] Enqueue Job Failure',
   props<{ error: string }>()
 );
 

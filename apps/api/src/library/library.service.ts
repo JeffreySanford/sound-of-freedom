@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -27,6 +28,7 @@ interface UploadedFile {
 
 @Injectable()
 export class LibraryService {
+  private readonly logger = new Logger(LibraryService.name);
   private readonly uploadDir = path.join(process.cwd(), 'uploads', 'library');
 
   constructor(
@@ -303,7 +305,7 @@ export class LibraryService {
       map(() => undefined),
       catchError((error) => {
         // Log error but don't throw - file might not exist or deletion might fail
-        console.error('Error deleting file:', fileUrl, error);
+        this.logger.error('Error deleting file:', fileUrl, error);
         return from(Promise.resolve(undefined)); // Still complete successfully
       })
     );

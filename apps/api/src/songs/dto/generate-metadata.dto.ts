@@ -21,4 +21,14 @@ export class GenerateMetadataDto {
   @IsString()
   @MaxLength(100)
   model?: string;
+
+  @IsOptional()
+  @IsString()
+  generator?: string;
+
+  @IsOptional()
+  async?: boolean;
+
+  @IsOptional()
+  options?: Record<string, any>;
 }
