@@ -63,3 +63,7 @@ coverage/
 /.history
 tmp/e2e/
 
+# Temporary logs produced during local runs and CI; do not commit
+tmp/logs/
+tmp/logs/**
+
