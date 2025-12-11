@@ -3,5 +3,5 @@ uvicorn[standard]==0.22.0
 pydantic==2.5.1
 # GPU model runtime
 torch==2.2.0
-transformers==4.40.0
+transformers==4.53.0
 boto3==1.26.0
